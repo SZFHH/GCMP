@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.haha.gcmp.repository.UserMapper">
+
+    <resultMap id="fullUser" type="com.haha.gcmp.model.entity.User">
+        <id property="id" column="id"/>
+        <result property="userName" column="user_name"/>
+        <result property="password" column="password"/>
+        <result property="dockerQuota" column="docker_quota"/>
+    </resultMap>
+
+    <select id="findById" resultMap="fullUser">
+        select id,user_name,password,docker_quota from users where id = #{id}
+    </select>
+
+    <select id="findByUserName" resultMap="fullUser">
+        select id,user_name,password,docker_quota from users where user_name = #{userName}
+    </select>
+
+    <insert id="insert">
+        insert into users (user_name, password, docker_quota)
+        values (#{userName}, #{password}, #{dockerQuota})
+    </insert>
+
+</mapper>
