@@ -13,7 +13,8 @@ public class SecurityContextImpl implements SecurityContext {
 
     private Authentication authentication;
 
-    public SecurityContextImpl(Object o) {
+    public SecurityContextImpl(Authentication authentication) {
+        this.authentication = authentication;
     }
 
     @Override

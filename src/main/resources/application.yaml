@@ -1,0 +1,32 @@
+server:
+  port: 8090
+spring:
+  devtools:
+    restart:
+      enabled: true  #设置开启热部署
+  #      additional-paths: src/main/java #重启目录
+  #数据库连接配置
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/gcmp?characterEncoding=utf-8&serverTimezone=UTC
+    username: root
+    password:
+
+#mybatis的相关配置
+mybatis:
+  #mapper配置文件
+  mapper-locations: classpath:mapper/*.xml
+#  #开启驼峰命名
+#  configuration:
+#    map-underscore-to-camel-case: true
+gcmp:
+  adminName: admin
+  hosts:
+    node1: 192.168.0.107
+  dockerClientPort: 2375
+  dockerFileRoot: ${user.home}/.gcmp/dockerfiles
+logging:
+  level:
+    com.haha.gcmp: INFO
+  file:
+    path: ${user.home}/.gcmp/logs

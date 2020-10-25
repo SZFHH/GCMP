@@ -1,6 +1,7 @@
 package com.haha.gcmp.security.util;
 
 import com.haha.gcmp.model.entity.User;
+import com.haha.gcmp.security.context.SecurityContextHolder;
 import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 
@@ -57,5 +58,9 @@ public class SecurityUtils {
 
         return TOKEN_REFRESH_CACHE_PREFIX + refreshToken;
     }
-    
+
+    public static User getCurrentUser() {
+        return SecurityContextHolder.getContext().getAuthentication().getDetail().getUser();
+    }
+
 }

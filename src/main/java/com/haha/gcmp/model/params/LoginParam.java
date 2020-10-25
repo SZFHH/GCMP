@@ -20,6 +20,12 @@ public class LoginParam implements BaseParam<User> {
     @Size(max = 100, message = "用户密码字符长度不能超过 {max}")
     private String password;
 
+    public boolean isRememberMe() {
+        return rememberMe;
+    }
+
+    private boolean rememberMe;
+
     public String getUserName() {
         return userName;
     }

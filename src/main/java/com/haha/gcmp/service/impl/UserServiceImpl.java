@@ -1,11 +1,15 @@
 package com.haha.gcmp.service.impl;
 
+import cn.hutool.crypto.digest.BCrypt;
 import com.haha.gcmp.exception.NotFoundException;
 import com.haha.gcmp.model.entity.User;
 import com.haha.gcmp.model.params.RegisterParam;
 import com.haha.gcmp.repository.UserMapper;
+import com.haha.gcmp.security.util.SecurityUtils;
 import com.haha.gcmp.service.UserService;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * @author SZFHH
@@ -52,6 +56,21 @@ public class UserServiceImpl implements UserService {
     @Override
     public int createUser(RegisterParam registerParam) {
         User user = registerParam.toEntity();
+        setPassword(user, registerParam.getPassword());
         return userMapper.insert(user);
+    }
+
+    @Override
+    public User getCurrentUser() {
+        return SecurityUtils.getCurrentUser();
+    }
+
+    @Override
+    public List<User> getAllUser() {
+        return userMapper.findAll();
+    }
+
+    private void setPassword(User user, String plainPassword) {
+        user.setPassword(BCrypt.hashpw(plainPassword, BCrypt.gensalt()));
     }
 }

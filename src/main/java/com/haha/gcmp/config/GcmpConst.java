@@ -18,6 +18,8 @@ public class GcmpConst {
     /**
      * User home directory.
      */
+    public final static String REMEMBER_ME_COOKIE_NAME = "GcmpRememberMe";
+    public final static int REMEMBER_ME_COOKIE_TIME = 10 * 365 * 24 * 60 * 60;
     public final static int DEFAULT_DOCKER_QUOTA = 2;
     public final static String USER_HOME = System.getProperties().getProperty("user.home");
 
@@ -29,7 +31,7 @@ public class GcmpConst {
     public final static String PROTOCOL_HTTPS = "https://";
 
     public final static String PROTOCOL_HTTP = "http://";
-
+    public final static String PROTOCOL_TCP = "tcp://";
     public final static String URL_SEPARATOR = "/";
 
     /**
@@ -122,11 +124,11 @@ public class GcmpConst {
     /**
      * Admin token header name.
      */
-    public final static String ADMIN_TOKEN_HEADER_NAME = "Gcmp-" + HttpHeaders.AUTHORIZATION;
+    public final static String TOKEN_HEADER_NAME = "Gcmp-" + HttpHeaders.AUTHORIZATION;
     /**
      * Admin token param name.
      */
-    public final static String ADMIN_TOKEN_QUERY_NAME = "gcmp_token";
+    public final static String TOKEN_QUERY_NAME = "gcmp_token";
     /**
      * Temporary token.
      */

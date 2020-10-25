@@ -1,0 +1,54 @@
+package com.haha.gcmp.service.base;
+
+import com.haha.gcmp.config.GcmpProperties;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+/**
+ * @author SZFHH
+ * @date 2020/10/24
+ */
+abstract public class AbstractServerService<T> implements ServerService<T> {
+    protected final GcmpProperties gcmpProperties;
+    protected volatile Map<String, T> clientContainer;
+
+    protected AbstractServerService(GcmpProperties gcmpProperties) {
+        this.gcmpProperties = gcmpProperties;
+    }
+
+    @Override
+    public String getHostIp(String hostName) {
+        return gcmpProperties.getHosts().get(hostName);
+    }
+
+    public Set<String> getAllHostName() {
+        return gcmpProperties.getHosts().keySet();
+    }
+
+    @Override
+    public T getClient(String hostName) {
+        if (clientContainer == null) {
+            synchronized (AbstractServerService.class) {
+                if (clientContainer == null) {
+                    initClientContainer();
+                }
+            }
+        }
+        return clientContainer.get(hostName);
+    }
+
+    protected void initClientContainer() {
+        Map<String, T> temp = new HashMap<>();
+        Set<String> hostNames = getAllHostName();
+        for (String hostName : hostNames) {
+            String hostIp = getHostIp(hostName);
+            temp.put(hostName, doInitClientContainer(hostName, hostIp));
+        }
+        clientContainer = temp;
+    }
+
+    abstract protected T doInitClientContainer(String hostName, String hostIp);
+
+}

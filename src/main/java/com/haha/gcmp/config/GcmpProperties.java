@@ -5,6 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Map;
 
 import static com.haha.gcmp.config.GcmpConst.*;
 import static com.haha.gcmp.utils.GcmpUtils.ensureSuffix;
@@ -20,11 +21,30 @@ import static com.haha.gcmp.utils.GcmpUtils.ensureSuffix;
 
 @ConfigurationProperties("gcmp")
 public class GcmpProperties {
-
+    private String dockerFileRoot;
     /**
      * Doc api disabled. (Default is true)
      */
+    private String dockerClientPort;
     private boolean docDisabled = true;
+
+    public String getDockerClientPort() {
+        return dockerClientPort;
+    }
+
+    public void setDockerClientPort(String dockerClientPort) {
+        this.dockerClientPort = dockerClientPort;
+    }
+
+    private Map<String, String> hosts;
+
+    public Map<String, String> getHosts() {
+        return hosts;
+    }
+
+    public void setHosts(Map<String, String> hosts) {
+        this.hosts = hosts;
+    }
 
     /**
      * Production env. (Default is true)
@@ -102,5 +122,13 @@ public class GcmpProperties {
 
     public String getCache() {
         return cache;
+    }
+
+    public String getDockerFileRoot() {
+        return dockerFileRoot;
+    }
+
+    public void setDockerFileRoot(String dockerFileRoot) {
+        this.dockerFileRoot = dockerFileRoot;
     }
 }

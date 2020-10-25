@@ -1,5 +1,6 @@
 package com.haha.gcmp.controller;
 
+import com.haha.gcmp.model.entity.User;
 import com.haha.gcmp.model.params.LoginParam;
 import com.haha.gcmp.model.params.RegisterParam;
 import com.haha.gcmp.model.support.BaseResponse;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 /**
@@ -29,13 +31,27 @@ public class UserController {
     }
 
     @PostMapping("login")
-    public AuthToken auth(@RequestBody @Valid LoginParam loginParam) {
-        return authService.authenticate(loginParam);
+    public AuthToken auth(@RequestBody @Valid LoginParam loginParam, HttpServletResponse response) {
+        AuthToken authToken = authService.authenticate(loginParam);
+        if (loginParam.isRememberMe()) {
+            authService.setRememberMe(response, loginParam);
+        }
+        return authToken;
     }
 
     @PostMapping("register")
     public BaseResponse<String> register(@RequestBody @Valid RegisterParam registerParam) {
         userService.createUser(registerParam);
         return BaseResponse.ok("注册成功！");
+    }
+
+    @PostMapping("cur_user")
+    public User currentUser() {
+        return userService.getCurrentUser();
+    }
+
+    @PostMapping("logout")
+    public void logout(HttpServletResponse response) {
+        authService.logout(response);
     }
 }

@@ -3,6 +3,8 @@ package com.haha.gcmp.repository;
 import com.haha.gcmp.model.entity.User;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+
 /**
  * @author SZFHH
  * @date 2020/10/23
@@ -14,4 +16,6 @@ public interface UserMapper {
     User findByUserName(String userName);
 
     int insert(User user);
+
+    List<User> findAll();
 }

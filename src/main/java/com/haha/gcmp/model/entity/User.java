@@ -1,5 +1,7 @@
 package com.haha.gcmp.model.entity;
 
+import java.util.Objects;
+
 import static com.haha.gcmp.config.GcmpConst.DEFAULT_DOCKER_QUOTA;
 
 /**
@@ -57,5 +59,26 @@ public class User {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof User)) {
+            return false;
+        }
+        User user = (User) o;
+        return getId() == user.getId();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId());
     }
 }

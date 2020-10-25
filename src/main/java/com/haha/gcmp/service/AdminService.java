@@ -11,4 +11,6 @@ public interface AdminService {
     boolean isInitialized();
 
     void initialize(RegisterParam registerParam);
+
+    int getAdminId();
 }

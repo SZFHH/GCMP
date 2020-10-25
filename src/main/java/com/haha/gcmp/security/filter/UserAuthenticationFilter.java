@@ -30,8 +30,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Optional;
 
-import static com.haha.gcmp.config.GcmpConst.ADMIN_TOKEN_HEADER_NAME;
-import static com.haha.gcmp.config.GcmpConst.ADMIN_TOKEN_QUERY_NAME;
+import static com.haha.gcmp.config.GcmpConst.*;
 
 /**
  * Admin authentication filter.
@@ -40,7 +39,7 @@ import static com.haha.gcmp.config.GcmpConst.ADMIN_TOKEN_QUERY_NAME;
  */
 @Component
 @Order(1)
-public class AuthenticationFilter extends AbstractAuthenticationFilter {
+public class UserAuthenticationFilter extends AbstractAuthenticationFilter {
 
     private final GcmpProperties gcmpProperties;
 
@@ -48,24 +47,26 @@ public class AuthenticationFilter extends AbstractAuthenticationFilter {
 
     private final AuthService authService;
 
-    public AuthenticationFilter(AbstractStringCacheStore cacheStore,
-                                UserService userService,
-                                GcmpProperties gcmpProperties,
-                                PropertyService propertyService,
-                                ObjectMapper objectMapper, AuthService authService) {
+    public UserAuthenticationFilter(AbstractStringCacheStore cacheStore,
+                                    UserService userService,
+                                    GcmpProperties gcmpProperties,
+                                    PropertyService propertyService,
+                                    ObjectMapper objectMapper, AuthService authService) {
         super(gcmpProperties, propertyService, cacheStore);
         this.userService = userService;
         this.gcmpProperties = gcmpProperties;
         this.authService = authService;
 
-        addUrlPatterns("/api/admin/**", "/api/content/comments");
+        addUrlPatterns(
+            "/api/user/**",
+            "/api/docker/list/user",
+            "/api/docker/add/user",
+            "/api/docker/quota",
+            "/api/docker/remove/user");
 
         addExcludeUrlPatterns(
-            "/api/admin/login",
-            "/api/user/login",
-            "/api/admin/is_initialized",
-            "/api/admin/init"
-
+            "/api/user/register",
+            "/api/user/login"
         );
 
         // set failure handler
@@ -92,7 +93,7 @@ public class AuthenticationFilter extends AbstractAuthenticationFilter {
         }
         if (user == null) {
             Cookie[] cookies = request.getCookies();
-            Cookie cookie = CookieUtil.findCookie(cookies, "remember_me");
+            Cookie cookie = CookieUtil.findCookie(cookies, REMEMBER_ME_COOKIE_NAME);
             if (cookie != null) {
                 String value = cookie.getValue();
                 AuthenticationToken authenticationToken = JsonUtils.jsonToObject(value, AuthenticationToken.class);
@@ -115,7 +116,7 @@ public class AuthenticationFilter extends AbstractAuthenticationFilter {
 
     @Override
     protected String getTokenFromRequest(@NonNull HttpServletRequest request) {
-        return getTokenFromRequest(request, ADMIN_TOKEN_QUERY_NAME, ADMIN_TOKEN_HEADER_NAME);
+        return getTokenFromRequest(request, TOKEN_QUERY_NAME, TOKEN_HEADER_NAME);
     }
 
 }

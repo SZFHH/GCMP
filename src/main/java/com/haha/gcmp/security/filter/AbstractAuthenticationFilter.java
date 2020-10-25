@@ -3,9 +3,6 @@ package com.haha.gcmp.security.filter;
 import com.haha.gcmp.cache.AbstractStringCacheStore;
 import com.haha.gcmp.config.GcmpProperties;
 import com.haha.gcmp.exception.AbstractGcmpException;
-import com.haha.gcmp.exception.NotInitializationException;
-import com.haha.gcmp.model.enums.Mode;
-import com.haha.gcmp.model.propertites.PrimaryProperties;
 import com.haha.gcmp.security.context.SecurityContextHolder;
 import com.haha.gcmp.security.handler.AuthenticationFailureHandler;
 import com.haha.gcmp.security.handler.DefaultAuthenticationFailureHandler;
@@ -164,13 +161,13 @@ public abstract class AbstractAuthenticationFilter extends OncePerRequestFilter 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         // Check whether the blog is installed or not
-        Boolean isInstalled = propertyService.getByPropertyOrDefault(PrimaryProperties.IS_INSTALLED, Boolean.class, false);
-
-        if (!isInstalled && !Mode.TEST.equals(gcmpProperties.getMode())) {
-            // If not installed
-            getFailureHandler().onFailure(request, response, new NotInitializationException("当前博客还没有初始化"));
-            return;
-        }
+//        Boolean isInstalled = propertyService.getByPropertyOrDefault(PrimaryProperties.IS_INSTALLED, Boolean.class, false);
+//
+//        if (!isInstalled && !Mode.TEST.equals(gcmpProperties.getMode())) {
+//            // If not installed
+//            getFailureHandler().onFailure(request, response, new NotInitializationException("当前博客还没有初始化"));
+//            return;
+//        }
 
         try {
             // Check the one-time-token
