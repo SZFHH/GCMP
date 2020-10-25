@@ -8,5 +8,9 @@ public interface ServerService<T> {
 
     String getHostIp(String hostName);
 
+    String getHostUser(String hostName);
+
+    String getHostPassword(String hostName);
+
     T getClient(String hostName);
 }

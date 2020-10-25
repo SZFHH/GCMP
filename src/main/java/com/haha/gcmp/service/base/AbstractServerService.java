@@ -20,11 +20,21 @@ abstract public class AbstractServerService<T> implements ServerService<T> {
 
     @Override
     public String getHostIp(String hostName) {
-        return gcmpProperties.getHosts().get(hostName);
+        return gcmpProperties.getHostIps().get(hostName);
+    }
+
+    @Override
+    public String getHostUser(String hostName) {
+        return gcmpProperties.getHostUsers().get(hostName);
+    }
+
+    @Override
+    public String getHostPassword(String hostName) {
+        return gcmpProperties.getHostPasswords().get(hostName);
     }
 
     public Set<String> getAllHostName() {
-        return gcmpProperties.getHosts().keySet();
+        return gcmpProperties.getHostIps().keySet();
     }
 
     @Override

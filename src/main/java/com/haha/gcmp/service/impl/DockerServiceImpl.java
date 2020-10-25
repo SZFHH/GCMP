@@ -161,7 +161,8 @@ public class DockerServiceImpl extends AbstractServerService<DockerClient> imple
         dockerMapper.insert(image);
     }
 
-    private Path getUserDockerFileDir() {
+    @Override
+    public Path getUserDockerFileDir() {
         User user = userService.getCurrentUser();
         return Paths.get(gcmpProperties.getDockerFileRoot(), user.getUserName());
     }

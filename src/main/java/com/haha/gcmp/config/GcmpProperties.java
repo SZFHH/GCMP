@@ -22,6 +22,16 @@ import static com.haha.gcmp.utils.GcmpUtils.ensureSuffix;
 @ConfigurationProperties("gcmp")
 public class GcmpProperties {
     private String dockerFileRoot;
+    private String dataRoot;
+
+    public String getDataRoot() {
+        return dataRoot;
+    }
+
+    public void setDataRoot(String dataRoot) {
+        this.dataRoot = dataRoot;
+    }
+
     /**
      * Doc api disabled. (Default is true)
      */
@@ -36,14 +46,33 @@ public class GcmpProperties {
         this.dockerClientPort = dockerClientPort;
     }
 
-    private Map<String, String> hosts;
+    private Map<String, String> hostIps;
+    private Map<String, String> hostUsers;
 
-    public Map<String, String> getHosts() {
-        return hosts;
+    public Map<String, String> getHostUsers() {
+        return hostUsers;
     }
 
-    public void setHosts(Map<String, String> hosts) {
-        this.hosts = hosts;
+    public void setHostUsers(Map<String, String> hostUsers) {
+        this.hostUsers = hostUsers;
+    }
+
+    public Map<String, String> getHostPasswords() {
+        return hostPasswords;
+    }
+
+    public void setHostPasswords(Map<String, String> hostPasswords) {
+        this.hostPasswords = hostPasswords;
+    }
+
+    private Map<String, String> hostPasswords;
+
+    public Map<String, String> getHostIps() {
+        return hostIps;
+    }
+
+    public void setHostIps(Map<String, String> hostIps) {
+        this.hostIps = hostIps;
     }
 
     /**

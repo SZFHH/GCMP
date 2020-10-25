@@ -4,6 +4,7 @@ import com.haha.gcmp.model.entity.Image;
 import com.haha.gcmp.model.params.ImageToAddParam;
 import com.haha.gcmp.model.params.ImageToRemoveParam;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
@@ -29,6 +30,8 @@ public interface DockerService {
     void removeUserImage(ImageToRemoveParam imageToRemoveParam);
 
     void addUserImage(ImageToAddParam imageToAddParam);
+
+    Path getUserDockerFileDir();
 
     boolean imageExists(String hostName, String tag);
 

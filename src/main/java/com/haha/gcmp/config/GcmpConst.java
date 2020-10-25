@@ -18,6 +18,7 @@ public class GcmpConst {
     /**
      * User home directory.
      */
+    public final static int SCPClientPort = 22;
     public final static String REMEMBER_ME_COOKIE_NAME = "GcmpRememberMe";
     public final static int REMEMBER_ME_COOKIE_TIME = 10 * 365 * 24 * 60 * 60;
     public final static int DEFAULT_DOCKER_QUOTA = 2;
