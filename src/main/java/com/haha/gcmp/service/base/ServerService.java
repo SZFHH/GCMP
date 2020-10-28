@@ -13,4 +13,5 @@ public interface ServerService<T> {
     String getHostPassword(String hostName);
 
     T getClient(String hostName);
+
 }

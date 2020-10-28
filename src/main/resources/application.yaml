@@ -28,8 +28,9 @@ gcmp:
   hostPasswords:
     node1: 123456
   dockerClientPort: 2375
-  dockerFileRoot: ${user.home}/.gcmp/dockerfiles
-  dataRoot: ${user.home}/home/dockerfiles
+  dockerFileRoot: /home/gcmp/dockerfiles
+  dataRoot: /home/gcmp/data
+  tempFileRoot: /home/gcmp/temp
 logging:
   level:
     com.haha.gcmp: INFO

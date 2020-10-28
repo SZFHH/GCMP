@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.haha.gcmp.repository.FileMapper">
+    <resultMap id="fullTempFileInfo" type="com.haha.gcmp.model.support.TempFileInfo">
+        <result property="md5" column="md5"/>
+        <result property="hostName" column="host_name"/>
+    </resultMap>
+
+    <select id="find" resultMap="fullTempFileInfo">
+        select md5, host_name from temp_file where md5 = #{md5} and host_name = #{hostName}
+    </select>
+
+
+    <insert id="insert">
+        insert into temp_file (md5, host_name, relative_path) values (#{md5}, #{hostName}, #{relativePath})
+    </insert>
+
+
+    <delete id="remove">
+        delete from temp_file where md5 = #{md5} and host_name = #{hostName}
+    </delete>
+
+</mapper>

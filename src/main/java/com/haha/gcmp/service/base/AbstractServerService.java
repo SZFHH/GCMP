@@ -60,5 +60,6 @@ abstract public class AbstractServerService<T> implements ServerService<T> {
     }
 
     abstract protected T doInitClientContainer(String hostName, String hostIp);
+    
 
 }

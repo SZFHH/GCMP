@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="content-type" content="text/html;utf-8" >
+		<title>登陆</title>
+		<style type="text/css">
+			body{
+				background-color:#0683b1;
+			}
+			#wrap {
+				background-color: white;
+				width:320px;
+				height: 220px;
+				margin: 0 auto;
+				margin-top: 100px;
+			}
+			#wrap p{
+				font-size:18px;
+				padding-top:20px ;
+				padding-left: 20px;
+				font-family: "黑体";
+				color: #0683b1;
+			}
+			.ent{
+				width: 85%;
+				margin: 20px auto;
+				
+			}
+			.ent input{
+				width:100%;
+				height: 28px;
+				text-indent: 1rem;
+				font-size: 10px;
+				background-color: #f7f7f7;
+				border-color: #f8f8f8;
+			}
+			#butt{
+				width: 85%;
+				margin: 20px auto ;
+			}
+			#butt button{
+				width: 100%;
+				height: 30px;
+				background-color:#0683b1;
+				border: none;
+				color:white ;
+			}
+		</style>
+		<script src="https://cdn.bootcss.com/jquery/3.3.0/jquery.min.js"></script>
+		<script>
+			
+			function fun() {
+			    var name = document.getElementById("name").value;
+                var pwd = $("#pwd").val();
+            $.ajax({
+                type: "get",
+                data: {name:name,pwd:pwd},
+				dataType: "json",
+                url: "/login",
+                success: function(res) {
+                	console.log(res);
+					alert("状态码："+res.status+" "+res.msg)
+                }
+            });
+        }
+			
+		</script>
+	</head>
+	<body>
+		<div id="wrap">
+			<p>用户登录</p>
+			<div class="ent">
+				<input type="text" id="name" placeholder="用户"/>
+		    </div>
+			<div class="ent">
+				<input type="password" id="pwd" placeholder="密码"/>
+			</div>
+			<div id="butt">
+				<button onclick="fun()">登录</button>
+			</div>
+		<div>
+	</body>
+</html>

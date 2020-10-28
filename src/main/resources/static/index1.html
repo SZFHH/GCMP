@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>分片上传</title>
+    <!--引入CSS-->
+    <link rel="stylesheet" type="text/css" href="webuploader-0.1.5/webuploader.css">
+    <link rel="stylesheet" type="text/css" href="public/bootstrap.min.css">
+    <!--引入JS-->
+    <script type="text/javascript" src="public/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="webuploader-0.1.5/webuploader.js"></script>
+    <script type="text/javascript" src="public/bootstrap.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-2">
+                <div class="panel panel-default">
+                  <div class="panel-heading">上传文件</div>
+                  <div class="panel-body">
+                        <div id="picker">选择文件</div>
+                  </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading">上传进度及日志</div>
+                    <div class="panel-body">
+                        <div>
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-warning progress-bar-striped" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 0%" id="percentage_a">
+                                    <span id="percentage">0%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="log" style="max-height: 600px;overflow: auto;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="panel panel-default">
+                    <div class="panel-heading">上传控制</div>
+                    <div class="panel-body">
+                        <div id="ctlBtn" class="btn-group">
+                            <input class="btn btn-primary" type="button" value="开始上传">
+                        </div>
+                        <div class="btn-group">
+                            <input class="btn btn-danger" type="button" value="暂停" id="stop">
+                        </div>
+                        <div class="btn-group">
+                            <input class="btn btn-success" type="button" value="继续" id="start">
+                        </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script type="text/javascript">
+    var file_md5   = '';   // 用于MD5校验文件
+    var block_info = [];   // 用于跳过已有上传分片
+
+    WebUploader.Uploader.register({
+        //文件发送之前执行
+        "before-send-file":"beforeSendFile",
+        //在文件分片（如果没有启用分片，整个文件被当成一个分片）后，上传之前执行
+        "before-send":"beforeSend",
+        //在文件所有分片都上传完后，且服务端没有错误返回后执行
+        "after-send-file":"afterSendFile"
+    },{
+        beforeSendFile:function(file){
+            var me = this,
+                owner = this.owner,
+                server = me.options.server,
+                deferred = WebUploader.Deferred();
+            log("正在计算MD5值...");
+            owner.md5File( file.source )
+
+            // 如果读取出错了，则通过reject告诉webuploader文件上传出错。
+                .fail(function() {
+                    deferred.reject();
+                })
+
+                // md5值计算完成
+                .then(function( md5 ) {
+                    log("MD5计算完成。");
+                    // 与服务安验证
+                    $.ajax("/check", {
+                        type:'POST',
+                        dataType: 'json',
+                        data: {
+                            md5: md5
+                        },
+                        success: function( response ) {
+
+                            // 如果验证已经上传过
+                            if ( response.exist ) {
+                                owner.skipFile( file );
+
+                                console.log('文件重复，已跳过');
+                                log("有断点...");
+                            }
+
+                            // 介绍此promise, webuploader接着往下走。
+                            deferred.resolve();
+                        }
+                    });
+                });
+
+            return deferred.promise();
+        },
+        beforeSend:function (block) {
+            console.log(block);
+            var me = this,
+                owner = this.owner,
+                blob = block.blob,
+                deferred = WebUploader.Deferred();
+            owner.md5File(blob)
+                .then(function (value) {
+                    console.log(block.chunk+":"+value);
+                    if(block.chunk == 2){
+                        log("已有分片.正在跳过分片"+block.chunk.toString());
+                        deferred.reject();
+                    }else {
+                        deferred.resolve();
+                    }
+                });
+            return deferred.promise();
+        },
+        afterSendFile:function (file) {
+            console.log('afterSendFile:'+file);
+        }
+    })
+    // 创建上传
+    var uploader = WebUploader.create({
+        swf: '/webuploader-0.1.5/Uploader.swf',
+        server: '/upload',          // 服务端地址
+        pick: '#picker',              // 指定选择文件的按钮容器
+        resize: false,
+        chunked: true,                //开启分片上传
+        chunkSize: 1024 * 1024 * 1,   //每一片的大小
+        chunkRetry: 10,              // 如果遇到网络错误,重新上传次数
+        threads: 3,                   // [默认值：3] 上传并发数。允许同时最大上传进程数。
+    });
+
+    // 上传提交
+    $("#ctlBtn").click(function () {
+        log('准备上传...');
+        uploader.upload();
+    });
+
+    // 当有文件被添加进队列的时候-md5序列化
+    uploader.on('fileQueued', function (file) {
+
+        $("#filelist").append( '<div id="' + file.id + '" class="item">' +
+            '<h4 class="info">' + file.name + '</h4>' +
+            '<p class="state">等待上传...</p>' +
+            '</div>' );
+        log("正在计算MD5值...");
+        log("<div id='md5"+file.id+"'></div>")
+        uploader.md5File(file)
+        //新版本jquery不会调用
+            .progress(function(percentage) {
+                $('#md5'+file.id).html((percentage*100).toFixed()+'%');
+            })
+            .then(function (fileMd5) {
+                file.wholeMd5 = fileMd5;
+                file_md5 = fileMd5;
+                log("MD5计算完成。");
+
+                // 检查是否有已经上传成功的分片文件
+                $.post('/check', {md5: file_md5}, function (response) {
+
+                    console.log(response);
+                    // data = JSON.parse(data);
+                    // 如果有对应的分片，推入数组
+                    if (response.data != null) {
+                        log(response.msg);
+                    }
+                })
+            });
+    });
+
+    // 发送前检查分块,并附加MD5数据
+    uploader.on('uploadBeforeSend', function( block, data, headers ) {
+        data.chunk = block.chunk;
+    });
+
+    // 上传完成后触发
+    uploader.on('uploadSuccess', function (file,response) {
+        log("上传分片完成。");
+        log("正在整理分片...");
+        // $.post('/merge', { md5: Mark.wholeMd5, fileName: Mark.name }, function (data) {
+        //     // var object = JSON.parse(data);
+        //     var object = data;
+        //     if (object.code) {
+        //         log("上传成功");
+        //     }
+        // });
+    });
+
+    // 文件上传过程中创建进度条实时显示。
+    uploader.on('uploadProgress', function (file, percentage) {
+        $("#percentage_a").css("width",parseInt(percentage * 100)+"%");
+        $("#percentage").html(parseInt(percentage * 100) +"%");
+    });
+
+    // 上传出错处理
+    uploader.on('uploadError', function (file) {
+        uploader.retry();
+    });
+
+    // 暂停处理
+    $("#stop").click(function(e){
+        log("暂停上传...");
+        uploader.stop(true);
+    })
+
+    // 从暂停文件继续
+    $("#start").click(function(e){
+        log("恢复上传...");
+        uploader.upload();
+    })
+
+    function log(html) {
+        $("#log").append("<div>"+html+"</div>");
+    }
+
+</script>
+</body>
+</html>

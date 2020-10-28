@@ -23,6 +23,15 @@ import static com.haha.gcmp.utils.GcmpUtils.ensureSuffix;
 public class GcmpProperties {
     private String dockerFileRoot;
     private String dataRoot;
+    private String tempFileRoot;
+
+    public String getTempFileRoot() {
+        return tempFileRoot;
+    }
+
+    public void setTempFileRoot(String tempFileRoot) {
+        this.tempFileRoot = tempFileRoot;
+    }
 
     public String getDataRoot() {
         return dataRoot;

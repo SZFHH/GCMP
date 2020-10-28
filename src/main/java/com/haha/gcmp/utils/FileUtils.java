@@ -1,5 +1,6 @@
 package com.haha.gcmp.utils;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
@@ -90,6 +91,23 @@ public class FileUtils {
                 dir.mkdirs();
             }
         }
+    }
+
+    public static String getFileName(String path) {
+        int index = path.lastIndexOf('/');
+        if (index == -1) {
+            return path;
+        }
+        return path.substring(index + 1);
+    }
+
+    public static String joinPaths(String... arr) {
+        return StringUtils.join(arr, '/');
+    }
+
+    public static String getDir(String path) {
+        int index = path.lastIndexOf('/');
+        return path.substring(0, index);
     }
 
 }

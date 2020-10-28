@@ -1,9 +1,11 @@
 package com.haha.gcmp.service;
 
+import com.haha.gcmp.model.dto.CheckChunkDTO;
 import com.haha.gcmp.model.entity.DataFile;
+import com.haha.gcmp.model.params.*;
+import com.haha.gcmp.model.support.TempFileInfo;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.nio.file.Path;
 import java.util.List;
 
 /**
@@ -12,13 +14,23 @@ import java.util.List;
  */
 public interface DataService {
 
-    List<DataFile> listDataDir(String hostName, String dirPath);
+    List<DataFile> listDataDir(DataParam dataParam);
 
-    void upload(String hostName, MultipartFile[] files);
+    void unzip(DataParam dataParam);
 
-    void unzip(String hostName, String filePath);
+    void remove(DataParam dataParam);
 
-    void remove(String hostName, String path);
-    
-    Path getUserDataDir();
+    String getUserDataPath(String relativePath);
+
+    String getUserTempPath(String identifier);
+
+    CheckChunkDTO checkChunk(CheckChunkParam checkChunkParam);
+
+    void uploadChunk(UploadChunkParam param, MultipartFile file);
+
+    void mergeChunk(MergeChunkParam mergeChunkParam);
+
+    void cancelUpload(TempFileInfo tempFileInfo);
+
+    void move(DataMoveParam dataMoveParam);
 }

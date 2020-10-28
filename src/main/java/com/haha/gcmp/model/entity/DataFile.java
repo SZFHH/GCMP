@@ -13,13 +13,24 @@ public class DataFile implements Comparator<DataFile> {
 
     private long size;
 
+    private String path;
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
     public DataFile() {
     }
 
-    public DataFile(boolean file, String name, long size) {
+    public DataFile(boolean file, String name, long size, String path) {
         this.file = file;
         this.name = name;
         this.size = size;
+        this.path = path;
     }
 
     public long getSize() {
