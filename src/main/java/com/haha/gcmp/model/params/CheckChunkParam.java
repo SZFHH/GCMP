@@ -5,19 +5,10 @@ package com.haha.gcmp.model.params;
  * @date 2020/10/28
  */
 public class CheckChunkParam extends BaseChunkParam {
-    private int totalChunks;
 
     private long chunkSize;
 
     private long totalSize;
-
-    public int getTotalChunks() {
-        return totalChunks;
-    }
-
-    public void setTotalChunks(int totalChunks) {
-        this.totalChunks = totalChunks;
-    }
 
     public long getChunkSize() {
         return chunkSize;

@@ -9,6 +9,9 @@ public class TempFileInfo {
     String hostName;
     String relativePath;
 
+    public TempFileInfo() {
+    }
+
     public String getRelativePath() {
         return relativePath;
     }

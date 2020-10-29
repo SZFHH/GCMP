@@ -1,5 +1,6 @@
 package com.haha.gcmp.service.support;
 
+import ch.ethz.ssh2.ChannelCondition;
 import ch.ethz.ssh2.Connection;
 import ch.ethz.ssh2.Session;
 import com.haha.gcmp.config.FTPClientConfigure;
@@ -57,18 +58,14 @@ public class FileClient {
         FTPClient ftpClient;
         try {
             ftpClient = ftpClientPool.borrowObject();
-        } catch (Exception e) {
+        } catch (IOException | ServiceException e) {
             throw new ServiceException("从连接池获取ftpClient异常。服务器：" + hostName, e);
         }
         return ftpClient;
     }
 
     private void returnFtpClient(FTPClient ftpClient) {
-        try {
-            ftpClientPool.returnObject(ftpClient);
-        } catch (Exception e) {
-            throw new ServiceException("归还ftpClient连接异常。服务器：" + hostName, e);
-        }
+        ftpClientPool.returnObject(ftpClient);
     }
 
     public FTPFile[] listDir(String dirPath) {
@@ -92,8 +89,9 @@ public class FileClient {
     }
 
     public void put(InputStream data, String remoteFilePath) {
-        FTPClient ftpClient = getFtpClient();
         createParentDirIfNecessary(remoteFilePath);
+        FTPClient ftpClient = getFtpClient();
+//        System.out.println("put  " + ftpClient);
         try {
             ftpClient.storeFile(remoteFilePath, data);
         } catch (IOException e) {
@@ -118,6 +116,7 @@ public class FileClient {
         try {
             session = connection.openSession();
             session.execCommand(cmd);
+            session.waitForCondition(ChannelCondition.EXIT_STATUS, Integer.MAX_VALUE);
         } catch (IOException e) {
             throw new ServiceException(String.format("合并文件异常。服务器:%s 文件: %s", hostName, targetFilePath), e);
         } finally {
@@ -204,11 +203,7 @@ public class FileClient {
 
     public void mkdirIfNotExist(String dirPath) {
         if (!checkDirectoryExists(dirPath)) {
-            synchronized (lock) {
-                if (!checkDirectoryExists(dirPath)) {
-                    mkdir(dirPath);
-                }
-            }
+            mkdir(dirPath);
         }
     }
 
@@ -216,18 +211,13 @@ public class FileClient {
         String[] pathElements = dirPath.split("/");
         pathElements[0] = "/";
         FTPClient ftpClient = getFtpClient();
+//        System.out.println("mkdir " + ftpClient);
         try {
             for (String singleDir : pathElements) {
                 boolean existed = ftpClient.changeWorkingDirectory(singleDir);
-                ftpClient.printWorkingDirectory();
-                if (existed) {
-                    System.out.println(ftpClient.printWorkingDirectory());
-                }
+
                 if (!existed) {
-                    boolean created = ftpClient.makeDirectory(singleDir);
-                    if (!created) {
-                        System.out.println(ftpClient.getReplyString());
-                    }
+                    boolean result = ftpClient.makeDirectory(singleDir);
                     ftpClient.changeWorkingDirectory(singleDir);
 
                 }
@@ -241,7 +231,7 @@ public class FileClient {
 
     public boolean checkDirectoryExists(String dirPath) {
         FTPClient ftpClient = getFtpClient();
-        boolean existed = false;
+        boolean existed;
         try {
             existed = ftpClient.changeWorkingDirectory(dirPath);
         } catch (IOException e) {

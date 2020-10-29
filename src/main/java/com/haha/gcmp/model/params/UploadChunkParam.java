@@ -8,23 +8,12 @@ public class UploadChunkParam extends BaseChunkParam {
 
     private int chunkNumber;
 
-    private int totalChunks;
-
-
     public int getChunkNumber() {
         return chunkNumber;
     }
 
     public void setChunkNumber(int chunkNumber) {
         this.chunkNumber = chunkNumber;
-    }
-
-    public int getTotalChunks() {
-        return totalChunks;
-    }
-
-    public void setTotalChunks(int totalChunks) {
-        this.totalChunks = totalChunks;
     }
 
 

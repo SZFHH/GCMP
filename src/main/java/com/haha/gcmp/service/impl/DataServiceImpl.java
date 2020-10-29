@@ -23,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -146,9 +147,15 @@ public class DataServiceImpl extends AbstractServerService<FileClient> implement
     }
 
     private List<String> listTempFilePaths(String hostName, String md5) {
+//        String tempDir = getUserTempPath(md5);
+//        List<String> rv = new ArrayList<>();
+//        for (int i = 1; i <= totalChunks; ++i) {
+//            rv.add(FileUtils.joinPaths(tempDir, String.valueOf(i)));
+//        }
         List<DataFile> dataFiles = listTempFiles(hostName, md5);
+        dataFiles.sort(Comparator.comparingInt(d -> Integer.parseInt(d.getName())));
         List<String> rv = new ArrayList<>();
-        dataFiles.forEach(dataFile -> rv.add(FileUtils.joinPaths(gcmpProperties.getTempFileRoot(), dataFile.getPath())));
+        dataFiles.forEach(dataFile -> rv.add(getUserTempPath(FileUtils.joinPaths(md5, dataFile.getName()))));
         return rv;
     }
 
@@ -177,12 +184,18 @@ public class DataServiceImpl extends AbstractServerService<FileClient> implement
         String hostName = mergeChunkParam.getHostName();
         String md5 = mergeChunkParam.getMd5();
         String relativePath = mergeChunkParam.getRelativePath();
+
         List<String> mergeFileList = listTempFilePaths(hostName, md5);
         FileClient fileClient = getClient(hostName);
-
+//        FTPFile[] ftpFiles = fileClient.listDir(getUserTempPath(mergeChunkParam.getMd5()));
+//        long ans = 0;
+//        for (FTPFile ftpFile : ftpFiles) {
+//            ans += ftpFile.getSize();
+//        }
+//        System.out.println("totalsize" + ans);
         String filePath = getUserDataPath(relativePath);
         fileClient.mergeFiles(mergeFileList, filePath);
-        TempFileInfo tempFileInfo = new TempFileInfo(hostName, md5, relativePath);
+        TempFileInfo tempFileInfo = new TempFileInfo(md5, hostName, relativePath);
         fileMapper.remove(tempFileInfo);
         fileClient.removeDir(getUserTempPath(md5));
     }
@@ -192,6 +205,7 @@ public class DataServiceImpl extends AbstractServerService<FileClient> implement
         fileMapper.remove(tempFileInfo);
         FileClient fileClient = getClient(tempFileInfo.getHostName());
         fileClient.removeDir(getUserTempPath(tempFileInfo.getMd5()));
+        fileClient.removeFile(getUserDataPath(tempFileInfo.getRelativePath()));
     }
 
     @Override

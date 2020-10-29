@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>分片上传</title>
+    <!--引入CSS-->
+    <link rel="stylesheet" type="text/css" href="webuploader-0.1.5/webuploader.css">
+    <link rel="stylesheet" type="text/css" href="public/bootstrap.min.css">
+    <!--引入JS-->
+    <!--<script type="text/javascript" src="public/jquery-3.3.1.min.js"></script>-->
+    <script type="text/javascript" src="public/jquery.min.js"></script>
+    <script type="text/javascript" src="webuploader-0.1.5/webuploader.js"></script>
+    <script type="text/javascript" src="public/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">上传文件</div>
+                <div class="panel-body">
+                    <div id="picker">选择文件</div>
+                    <div id="filelist"></div>
+                </div>
+
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">上传进度及日志</div>
+                <div class="panel-body">
+                    <div>
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-warning progress-bar-striped" role="progressbar"
+                                 aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 0%"
+                                 id="percentage_a">
+                                <span id="percentage">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="log" style="max-height: 600px;overflow: auto;">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="panel panel-default">
+                <div class="panel-heading">上传控制</div>
+                <div class="panel-body">
+                    <div id="ctlBtn" class="btn-group">
+                        <input class="btn btn-primary" type="button" value="开始上传">
+                    </div>
+                    <div class="btn-group">
+                        <input class="btn btn-danger" type="button" value="暂停" id="stop">
+                    </div>
+                    <div class="btn-group">
+                        <input class="btn btn-success" type="button" value="继续" id="start">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var uploader;
+    var chun_size = 1024 * 1024 * 1;
+    var md5_siz5 = 1024 * 1024 * 10;
+    WebUploader.Uploader.register({
+        //文件发送之前执行
+        "before-send-file": "beforeSendFile",
+        //在文件分片（如果没有启用分片，整个文件被当成一个分片）后，上传之前执行
+        "before-send": "beforeSend",
+        //在文件所有分片都上传完后，且服务端没有错误返回后执行
+        "after-send-file": "afterSendFile"
+    }, {
+        beforeSendFile: function (file) {
+            file.exised = false;
+            file.target_relative_path = "nop/" + file.name;
+            console.log("beforeSendFile");
+            // Deferred对象在钩子回掉函数中经常要用到，用来处理需要等待的异步操作。
+            var task = WebUploader.Deferred();
+            // 根据文件内容来查询MD5
+            uploader.md5File(file, 0, md5_siz5).progress(function (percentage) {   // 及时显示进度
+                console.log('计算md5进度:', percentage);
+                //getProgressBar(file, percentage, "MD5", "MD5");
+            }).then(function (val) { // 完成
+                console.log('md5 result:', val);
+                file.file_md5 = val;
+                // 进行md5判断
+                file.chunks = Math.ceil(file.size / chun_size);
+                console.log(file.size)
+                console.log(chun_size)
+                $.post("/api/data/check", {
+                        hostName: "node1",
+                        md5: file.file_md5,
+                        totalChunks: file.chunks,
+                        chunkSize: chun_size,
+                        totalSize: file.size,
+                        relativePath: file.target_relative_path
+                    },
+                    function (data) {
+                        task.resolve();
+                        status = data.status;
+                        console.log(data)
+                        if (status == 0) {
+                            uploader.skipFile(file);
+                            file.exised = true;
+                            console.log("文件已存在");
+                        } else {
+                            file.existsChunks = data.existedChunk;
+                        }
+
+                    });
+            });
+            return task.promise();
+        },
+        beforeSend: function (block) {
+            file_chunks = block.chunks
+            console.log("block")
+            var task = WebUploader.Deferred();
+            var file = block.file;
+            var existsChunks = file.existsChunks;
+            var blockChunk = block.chunk + 1;
+
+            var flag = false;
+            for (var i = 0; i < existsChunks.length; i++) {
+                if (blockChunk == existsChunks[i]) {
+                    flag = true;
+                    break;
+                }
+            }
+            if (flag) {
+                task.reject();
+            } else {
+                task.resolve();
+                console.log("当前分块：" + blockChunk);
+            }
+
+            return task.promise();
+        },
+        afterSendFile: function (file) {
+            var deferred = WebUploader.Deferred();
+            console.log(file.chunks > 1);
+            //判断是否要分片
+            if (file.chunks > 1 && file.exised == false) {
+                log('正在合并...');
+                $.post('/api/data/merge', {
+                    hostName: "node1",
+                    md5: file.file_md5,
+                    relativePath: file.target_relative_path,
+                    totalChunks: file.chunks
+                }, function (data) {
+
+                    deferred.resolve();
+                });
+            } else {
+                deferred.resolve();
+            }
+            return deferred.promise();
+        }
+    })
+    // 创建上传
+    uploader = WebUploader.create({
+        swf: '/webuploader-0.1.5/Uploader.swf',
+        server: '/api/data/upload',          // 服务端地址
+        pick: '#picker',              // 指定选择文件的按钮容器
+        resize: false,
+        chunked: true,                //开启分片上传
+        chunkSize: chun_size,   //每一片的大小
+        chunkRetry: 3,              // 如果遇到网络错误,重新上传次数
+        threads: 3,                   // [默认值：3] 上传并发数。允许同时最大上传进程数。
+        // fileNumLimit:1,
+        // fileSizeLimit:1024*1024*1024*1.5,
+    });
+
+    // 上传提交
+    $("#ctlBtn").click(function () {
+        log('正在上传...');
+        uploader.upload();
+    });
+
+    // 当有文件被添加进队列的时候-md5序列化
+    uploader.on('fileQueued', function (file) {
+
+        $("#filelist").append('<div id="' + file.id + '" class="item">' +
+            '<h4 class="info">' + file.name + '</h4>' +
+            '<p class="state">等待上传...</p>' +
+            '</div>');
+
+    });
+
+    // 发送前在body中添加一些信息，如分块数目chunks
+    uploader.on('uploadBeforeSend', function (block, data) {
+        //事件里不支持这种用法
+        // var deferred = WebUploader.Deferred();
+        data.relativePath = block.file.target_relative_path;
+        data.hostName = "node1";
+        data.totalChunks = block.chunks;
+        data.chunkNumber = block.chunk + 1;
+        data.md5 = block.file.file_md5;
+    });
+
+    // 上传完成后触发
+    uploader.on('uploadSuccess', function (file, response) {
+
+        $("#percentage_a").css("width", "100%");
+        $("#percentage").html("100%");
+
+        log("上传完成");
+    });
+
+    // 文件上传过程中创建进度条实时显示。
+    uploader.on('uploadProgress', function (file, percentage) {
+        $("#percentage_a").css("width", parseInt(percentage * 99) + "%");
+        $("#percentage").html(parseInt(percentage * 99) + "%");
+    });
+
+    // 上传出错处理
+    uploader.on('uploadError', function (file) {
+        uploader.retry();
+    });
+
+    // 暂停处理
+    $("#stop").click(function (e) {
+        log("暂停上传...");
+        uploader.stop(true);
+    })
+
+    // 从暂停文件继续
+    $("#start").click(function (e) {
+        log("恢复上传...");
+        uploader.upload();
+    })
+
+    function log(html) {
+        $("#log").append("<div>" + html + "</div>");
+    }
+
+</script>
+</body>
+</html>

@@ -11,6 +11,16 @@ public class BaseChunkParam {
 
     private String relativePath;
 
+    private int totalChunks;
+
+    public int getTotalChunks() {
+        return totalChunks;
+    }
+
+    public void setTotalChunks(int totalChunks) {
+        this.totalChunks = totalChunks;
+    }
+
     public String getRelativePath() {
         return relativePath;
     }
