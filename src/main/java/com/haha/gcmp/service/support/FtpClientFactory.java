@@ -35,31 +35,25 @@ public class FtpClientFactory implements PoolableObjectFactory<FTPClient> {
      * @see org.apache.commons.pool.PoolableObjectFactory#makeObject()
      */
     @Override
-    public FTPClient makeObject() throws Exception {
+    public FTPClient makeObject() throws IOException {
         FTPClient ftpClient = new FTPClient();
 //        ftpClient.setConnectTimeout(config.getClientTimeout());
-        try {
-            ftpClient.connect(config.getHost(), config.getPort());
-            int reply = ftpClient.getReplyCode();
-            if (!FTPReply.isPositiveCompletion(reply)) {
-                ftpClient.disconnect();
-                logger.warn("FTPServer refused connection");
-                return null;
-            }
-            boolean result = ftpClient.login(config.getUsername(), config.getPassword());
-            if (!result) {
-                throw new ServiceException("ftpClient登陆失败! userName:" + config.getUsername() + " ; password:" + config.getPassword());
-            }
-            ftpClient.setFileType(BINARY_FILE_TYPE);
-            ftpClient.setBufferSize(1024);
-//            ftpClient.setControlEncoding(config.getEncoding());
-            ftpClient.enterLocalPassiveMode();
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
+        ftpClient.connect(config.getHost(), config.getPort());
+        int reply = ftpClient.getReplyCode();
+        if (!FTPReply.isPositiveCompletion(reply)) {
+            ftpClient.disconnect();
+            throw new IOException("ftpClient连接失败:" + config.getUsername() + " ; password:" + config.getPassword());
         }
+        boolean result = ftpClient.login(config.getUsername(), config.getPassword());
+        if (!result) {
+            throw new ServiceException("ftpClient登陆失败! userName:" + config.getUsername() + " ; password:" + config.getPassword());
+        }
+        ftpClient.setFileType(BINARY_FILE_TYPE);
+        ftpClient.setBufferSize(1024);
+//            ftpClient.setControlEncoding(config.getEncoding());
+        ftpClient.enterLocalPassiveMode();
+
         return ftpClient;
     }
 
@@ -91,9 +85,12 @@ public class FtpClientFactory implements PoolableObjectFactory<FTPClient> {
     public boolean validateObject(FTPClient ftpClient) {
         boolean valid = false;
         try {
-            valid = ftpClient.sendNoOp();
+            if (ftpClient != null) {
+                valid = ftpClient.sendNoOp();
+            }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println(ftpClient + "失效");
+            System.out.println(e.getMessage());
         }
         return valid;
     }

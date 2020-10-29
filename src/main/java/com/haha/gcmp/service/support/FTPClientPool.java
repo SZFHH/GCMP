@@ -1,12 +1,12 @@
 package com.haha.gcmp.service.support;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.pool.ObjectPool;
 import org.apache.commons.pool.PoolableObjectFactory;
 
-import java.util.NoSuchElementException;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
+import java.io.IOException;
+import java.util.concurrent.*;
 
 /**
  * 实现了一个FTPClient连接池
@@ -14,11 +14,11 @@ import java.util.concurrent.BlockingQueue;
  * @author heaven
  */
 public class FTPClientPool implements ObjectPool<FTPClient> {
-    private static final int DEFAULT_POOL_SIZE = 2;
+    private static final int DEFAULT_POOL_SIZE = 5;
     private final BlockingQueue<FTPClient> pool;
     private final FtpClientFactory factory;
-    private static final ThreadLocal<FTPClient> existedFTPClient = new ThreadLocal<>();
-    private static final ThreadLocal<Integer> reentrantTime = ThreadLocal.withInitial(() -> 0);
+    private final ScheduledExecutorService executor;
+    private final static long PERIOD = 30;
 
     /**
      * 初始化连接池，需要注入一个工厂来提供FTPClient实例
@@ -34,6 +34,9 @@ public class FTPClientPool implements ObjectPool<FTPClient> {
         this.factory = factory;
         pool = new ArrayBlockingQueue<FTPClient>(poolSize * 2);
         initPool(poolSize);
+        ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("FTPClientPool-pool-%d").build();
+        executor = new ScheduledThreadPoolExecutor(1, namedThreadFactory);
+        executor.scheduleAtFixedRate(new FTPClientPool.Activator(), 0, PERIOD, TimeUnit.SECONDS);
     }
 
     /**
@@ -54,24 +57,23 @@ public class FTPClientPool implements ObjectPool<FTPClient> {
      * @see org.apache.commons.pool.ObjectPool#borrowObject()
      */
     @Override
-    public FTPClient borrowObject() throws Exception, NoSuchElementException, IllegalStateException {
-        FTPClient client;
-        client = existedFTPClient.get();
-        if (client != null) {
-            reentrantTime.set(reentrantTime.get() + 1);
-            return client;
+    public FTPClient borrowObject() throws IOException {
+        FTPClient client = null;
+        try {
+            client = pool.take();
+        } catch (InterruptedException e) {
+            System.out.println("获取FTPClient阻塞被打断");
         }
-
-        client = pool.take();
         if (!factory.validateObject(client)) {
             //使对象在池中失效
-            invalidateObject(client);
+            if (client != null) {
+                invalidateObject(client);
+            }
             //制造并添加新对象到池中
+//            System.out.println("useless" + client);
             client = factory.makeObject();
-            addObject();
+//            System.out.println("newone" + client);
         }
-        existedFTPClient.set(client);
-        reentrantTime.set(1);
         return client;
 
     }
@@ -80,20 +82,23 @@ public class FTPClientPool implements ObjectPool<FTPClient> {
      * @see org.apache.commons.pool.ObjectPool#returnObject(java.lang.Object)
      */
     @Override
-    public void returnObject(FTPClient client) throws Exception {
-        reentrantTime.set(reentrantTime.get() - 1);
-        if (reentrantTime.get() == 0) {
+    public void returnObject(FTPClient client) {
+        try {
             pool.put(client);
-            existedFTPClient.set(null);
+        } catch (InterruptedException e) {
+            System.out.println("归还FTPClient阻塞被打断");
         }
-
-
     }
 
     @Override
-    public void invalidateObject(FTPClient client) throws Exception {
+    public void invalidateObject(FTPClient client) {
         //移除无效的客户端
-        pool.remove(client);
+        try {
+            client.disconnect();
+        } catch (IOException e) {
+            System.out.println("invalidDataObject异常" + client);
+            System.out.println(e.getMessage());
+        }
     }
 
     /* (non-Javadoc)
@@ -115,7 +120,8 @@ public class FTPClientPool implements ObjectPool<FTPClient> {
         return 0;
     }
 
-    public void clear() throws Exception, UnsupportedOperationException {
+    @Override
+    public void clear() {
 
     }
 
@@ -133,6 +139,14 @@ public class FTPClientPool implements ObjectPool<FTPClient> {
     @Override
     public void setFactory(PoolableObjectFactory<FTPClient> poolableObjectFactory) throws IllegalStateException, UnsupportedOperationException {
 
+    }
+
+    private class Activator implements Runnable {
+
+        @Override
+        public void run() {
+            System.out.println(pool.size());
+        }
     }
 
 }
