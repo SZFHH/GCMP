@@ -18,6 +18,8 @@ public class GcmpConst {
     /**
      * User home directory.
      */
+    public final static String FTP_TYPE_FTP = "ftp";
+    public final static String FTP_TYPE_SFTP = "sftp";
     public final static int FTPClientPort = 21;
     public final static int SSHPort = 22;
     public final static String REMEMBER_ME_COOKIE_NAME = "GcmpRememberMe";

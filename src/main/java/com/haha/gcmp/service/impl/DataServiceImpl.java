@@ -1,30 +1,35 @@
 package com.haha.gcmp.service.impl;
 
-import com.haha.gcmp.config.FTPClientConfigure;
-import com.haha.gcmp.config.GcmpProperties;
+import com.haha.gcmp.config.propertites.FtpPoolConfig;
+import com.haha.gcmp.config.propertites.GcmpProperties;
+import com.haha.gcmp.config.propertites.SftpPoolConfig;
+import com.haha.gcmp.config.propertites.SshPoolConfig;
 import com.haha.gcmp.exception.ServiceException;
 import com.haha.gcmp.model.dto.CheckChunkDTO;
 import com.haha.gcmp.model.entity.DataFile;
 import com.haha.gcmp.model.entity.User;
 import com.haha.gcmp.model.params.*;
+import com.haha.gcmp.model.support.ServerProperty;
 import com.haha.gcmp.model.support.TempFileInfo;
 import com.haha.gcmp.repository.FileMapper;
 import com.haha.gcmp.service.DataService;
 import com.haha.gcmp.service.UserService;
 import com.haha.gcmp.service.base.AbstractServerService;
-import com.haha.gcmp.service.support.FileClient;
+import com.haha.gcmp.service.support.client.FileClient;
+import com.haha.gcmp.service.support.client.FtpFileClientImpl;
+import com.haha.gcmp.service.support.client.SftpFileClientImpl;
 import com.haha.gcmp.utils.FileUtils;
-import org.apache.commons.net.ftp.FTPFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+
+import static com.haha.gcmp.config.GcmpConst.FTP_TYPE_SFTP;
 
 /**
  * @author SZFHH
@@ -34,19 +39,28 @@ import java.util.List;
 public class DataServiceImpl extends AbstractServerService<FileClient> implements DataService {
     private final UserService userService;
     private final FileMapper fileMapper;
-    private final FTPClientConfigure ftpClientConfigure;
+    private final SftpPoolConfig sftpPoolConfig;
+    private final SshPoolConfig sshPoolConfig;
+    private final FtpPoolConfig ftpPoolConfig;
     private static final Logger log = LoggerFactory.getLogger(DataServiceImpl.class);
 
-    protected DataServiceImpl(GcmpProperties gcmpProperties, UserService userService, FileMapper fileMapper, FTPClientConfigure ftpClientConfigure) {
+    protected DataServiceImpl(GcmpProperties gcmpProperties, UserService userService, FileMapper fileMapper, SftpPoolConfig sftpPoolConfig, SshPoolConfig sshPoolConfig, FtpPoolConfig ftpPoolConfig) {
         super(gcmpProperties);
         this.userService = userService;
         this.fileMapper = fileMapper;
-        this.ftpClientConfigure = ftpClientConfigure;
+        this.sftpPoolConfig = sftpPoolConfig;
+        this.sshPoolConfig = sshPoolConfig;
+        this.ftpPoolConfig = ftpPoolConfig;
     }
 
     @Override
-    protected FileClient doInitClientContainer(String hostName, String hostIp) {
-        return new FileClient(hostName, hostIp, getHostUser(hostName), getHostPassword(hostName), ftpClientConfigure);
+    protected FileClient doInitClientContainer(String hostName, String hostIp, String username, String password) {
+        ServerProperty serverProperty = new ServerProperty(hostName, hostIp, username, password);
+        String ftpType = gcmpProperties.getFtpType();
+        if (FTP_TYPE_SFTP.equals(ftpType)) {
+            return new SftpFileClientImpl(sftpPoolConfig, sshPoolConfig, serverProperty);
+        }
+        return new FtpFileClientImpl(ftpPoolConfig, sshPoolConfig, serverProperty);
     }
 
     @Override
@@ -57,12 +71,9 @@ public class DataServiceImpl extends AbstractServerService<FileClient> implement
     private List<DataFile> doListDataDir(String hostName, String rootPath, String relativePath) {
         String absolutePath = FileUtils.joinPaths(rootPath, relativePath);
         FileClient fileClient = getClient(hostName);
-        FTPFile[] ftpFiles = fileClient.listDir(absolutePath);
-        List<DataFile> dataFiles = new ArrayList<>();
-        for (FTPFile ftpFile : ftpFiles) {
-            dataFiles.add(new DataFile(ftpFile.isFile(), ftpFile.getName(), ftpFile.getSize(),
-                FileUtils.joinPaths(relativePath, ftpFile.getName())));
-        }
+        List<DataFile> dataFiles = fileClient.listDir(absolutePath);
+        dataFiles.forEach(dataFile -> dataFile.setPath(FileUtils.joinPaths(relativePath, dataFile.getName())));
+
         return dataFiles;
     }
 
@@ -101,7 +112,7 @@ public class DataServiceImpl extends AbstractServerService<FileClient> implement
         FileClient client = getClient(param.getHostName());
         boolean existed = client.checkFileExists(absolutePath);
         if (existed) {
-            FTPFile fileInfo = client.getFileInfo(absolutePath);
+            DataFile fileInfo = client.getFileInfo(absolutePath);
             if (fileInfo.getSize() == param.getTotalSize()) {
                 fileMapper.remove(new TempFileInfo(param.getMd5(), param.getHostName(), param.getRelativePath()));
                 client.removeDirIfExists(getUserTempPath(param.getMd5()));
@@ -162,20 +173,21 @@ public class DataServiceImpl extends AbstractServerService<FileClient> implement
     @Override
     public void uploadChunk(UploadChunkParam param, MultipartFile file) {
         FileClient fileClient = getClient(param.getHostName());
-        InputStream inputStream;
+
+        byte[] data;
         try {
-            inputStream = file.getInputStream();
+            data = file.getBytes();
         } catch (IOException e) {
             throw new ServiceException("获取multipartFile输入流异常:文件" + param.getRelativePath(), e);
         }
         if (param.getTotalChunks() <= 1) {
             String filePath = getUserDataPath(param.getRelativePath());
-            fileClient.put(inputStream, filePath);
+            fileClient.put(data, filePath);
         } else {
             int chunkNumber = param.getChunkNumber();
             String userTempDir = getUserTempPath(param.getMd5());
             String chunkName = String.valueOf(chunkNumber);
-            fileClient.put(inputStream, FileUtils.joinPaths(userTempDir, chunkName));
+            fileClient.put(data, FileUtils.joinPaths(userTempDir, chunkName));
         }
     }
 
@@ -187,12 +199,6 @@ public class DataServiceImpl extends AbstractServerService<FileClient> implement
 
         List<String> mergeFileList = listTempFilePaths(hostName, md5);
         FileClient fileClient = getClient(hostName);
-//        FTPFile[] ftpFiles = fileClient.listDir(getUserTempPath(mergeChunkParam.getMd5()));
-//        long ans = 0;
-//        for (FTPFile ftpFile : ftpFiles) {
-//            ans += ftpFile.getSize();
-//        }
-//        System.out.println("totalsize" + ans);
         String filePath = getUserDataPath(relativePath);
         fileClient.mergeFiles(mergeFileList, filePath);
         TempFileInfo tempFileInfo = new TempFileInfo(md5, hostName, relativePath);

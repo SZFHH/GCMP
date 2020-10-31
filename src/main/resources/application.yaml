@@ -20,6 +20,7 @@ mybatis:
 #  configuration:
 #    map-underscore-to-camel-case: true
 gcmp:
+  ftpType: ftp
   adminName: admin
   hostIps:
     node1: 192.168.0.107
@@ -31,6 +32,67 @@ gcmp:
   dockerFileRoot: /home/gcmp/dockerfiles
   dataRoot: /home/gcmp/data
   tempFileRoot: /home/gcmp/temp
+
+ftp-pool:
+  #连接耗尽时是否阻塞, false报异常,ture阻塞直到超时, 默认true
+  blockWhenExhausted: true
+  #最大空闲等待时间(毫秒)，建议设置稍微长点，如90分钟
+  maxWaitMillis: 5400000
+  #最大连接数
+  maxTotal: 5
+  #最大空闲连接数
+  maxIdle: 5
+  #最小空闲连接数
+  minIdle: 5
+  #申请连接时 检测是否有效
+  testOnBorrow: true
+  #返回连接时 检测是否有效
+  testOnReturn: false
+  #创建连接时 检测是否有效
+  testOnCreate: false
+  #空闲时检测连接是否有效
+  testWhileIdle: false
+
+ssh-pool:
+  #连接耗尽时是否阻塞, false报异常,ture阻塞直到超时, 默认true
+  blockWhenExhausted: true
+  #最大空闲等待时间(毫秒)，建议设置稍微长点，如90分钟
+  maxWaitMillis: 5400000
+  #最大连接数
+  maxTotal: 3
+  #最大空闲连接数
+  maxIdle: 3
+  #最小空闲连接数
+  minIdle: 1
+  #申请连接时 检测是否有效
+  testOnBorrow: true
+  #返回连接时 检测是否有效
+  testOnReturn: false
+  #创建连接时 检测是否有效
+  testOnCreate: false
+  #空闲时检测连接是否有效
+  testWhileIdle: false
+
+sftp-pool:
+  #连接耗尽时是否阻塞, false报异常,ture阻塞直到超时, 默认true
+  blockWhenExhausted: true
+  #最大空闲等待时间(毫秒)，建议设置稍微长点，如90分钟
+  maxWaitMillis: 5400000
+  #最大连接数
+  maxTotal: 10
+  #最大空闲连接数
+  maxIdle: 10
+  #最小空闲连接数
+  minIdle: 5
+  #申请连接时 检测是否有效
+  testOnBorrow: true
+  #返回连接时 检测是否有效
+  testOnReturn: false
+  #创建连接时 检测是否有效
+  testOnCreate: false
+  #空闲时检测连接是否有效
+  testWhileIdle: false
+
 logging:
   level:
     com.haha.gcmp: INFO

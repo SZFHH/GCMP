@@ -1,6 +1,6 @@
 package com.haha.gcmp.service.base;
 
-import com.haha.gcmp.config.GcmpProperties;
+import com.haha.gcmp.config.propertites.GcmpProperties;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -54,12 +54,14 @@ abstract public class AbstractServerService<T> implements ServerService<T> {
         Set<String> hostNames = getAllHostName();
         for (String hostName : hostNames) {
             String hostIp = getHostIp(hostName);
-            temp.put(hostName, doInitClientContainer(hostName, hostIp));
+            String userName = getHostUser(hostName);
+            String password = getHostPassword(hostName);
+            temp.put(hostName, doInitClientContainer(hostName, hostIp, userName, password));
         }
         clientContainer = temp;
     }
 
-    abstract protected T doInitClientContainer(String hostName, String hostIp);
-    
+    abstract protected T doInitClientContainer(String hostName, String hostIp, String username, String password);
+
 
 }

@@ -66,14 +66,15 @@
         beforeSendFile: function (file) {
             file.exised = false;
             file.target_relative_path = "nop/" + file.name;
-            console.log("beforeSendFile");
+            // console.log("beforeSendFile");
             // Deferred对象在钩子回掉函数中经常要用到，用来处理需要等待的异步操作。
             var task = WebUploader.Deferred();
             // 根据文件内容来查询MD5
             uploader.md5File(file, 0, md5_siz5).progress(function (percentage) {   // 及时显示进度
-                console.log('计算md5进度:', percentage);
+                // console.log('计算md5进度:', percentage);
                 //getProgressBar(file, percentage, "MD5", "MD5");
             }).then(function (val) { // 完成
+                $('#' + file.id).find('td.state').text('正在上传');
                 console.log('md5 result:', val);
                 file.file_md5 = val;
                 // 进行md5判断
@@ -91,13 +92,14 @@
                     function (data) {
                         task.resolve();
                         status = data.status;
-                        console.log(data)
+
                         if (status == 0) {
                             uploader.skipFile(file);
                             file.exised = true;
                             console.log("文件已存在");
                         } else {
                             file.existsChunks = data.existedChunk;
+                            console.log(data.existedChunk)
                         }
 
                     });
@@ -106,7 +108,7 @@
         },
         beforeSend: function (block) {
             file_chunks = block.chunks
-            console.log("block")
+            // console.log("block")
             var task = WebUploader.Deferred();
             var file = block.file;
             var existsChunks = file.existsChunks;
@@ -123,18 +125,20 @@
                 task.reject();
             } else {
                 task.resolve();
-                console.log("当前分块：" + blockChunk);
+                // console.log("当前分块：" + blockChunk);
             }
 
             return task.promise();
         },
         afterSendFile: function (file) {
             var deferred = WebUploader.Deferred();
-            console.log(file.chunks > 1);
+            // console.log(file.chunks > 1);
             //判断是否要分片
+            $('#' + file.id).find('button.btn-error')[0].style.display = 'none';
             if (file.chunks > 1 && file.exised == false) {
                 $('#' + file.id).find('td.state').text('正在合并');
-                log('正在合并...');
+
+                // log('正在合并...');
                 $.post('/api/data/merge', {
                     hostName: "node1",
                     md5: file.file_md5,
@@ -214,7 +218,7 @@
     uploader.on('uploadSuccess', function (file) {
         $('#' + file.id).find('td.percentage').text(Math.round(100) + '%');
         $('#' + file.id).find('td.state').text('已上传');
-        $('#' + file.id).find('button.btn-error')[0].style.display = 'none';
+
     });
 
     uploader.on('uploadError', function (file) {

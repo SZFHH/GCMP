@@ -1,6 +1,6 @@
 package com.haha.gcmp.controller;
 
-import com.haha.gcmp.config.GcmpProperties;
+import com.haha.gcmp.config.propertites.GcmpProperties;
 import com.haha.gcmp.exception.BadRequestException;
 import com.haha.gcmp.model.entity.User;
 import com.haha.gcmp.model.params.LoginParam;

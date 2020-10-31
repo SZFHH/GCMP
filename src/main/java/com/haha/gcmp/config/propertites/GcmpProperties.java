@@ -1,4 +1,4 @@
-package com.haha.gcmp.config;
+package com.haha.gcmp.config.propertites;
 
 import com.haha.gcmp.model.enums.Mode;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -10,20 +10,21 @@ import java.util.Map;
 import static com.haha.gcmp.config.GcmpConst.*;
 import static com.haha.gcmp.utils.GcmpUtils.ensureSuffix;
 
-
-/**
- * Halo configuration properties.
- *
- * @author johnniang
- * @author ryanwang
- * @date 2019-03-15
- */
-
 @ConfigurationProperties("gcmp")
 public class GcmpProperties {
+
+    private String ftpType = "sftp";
     private String dockerFileRoot;
     private String dataRoot;
     private String tempFileRoot;
+
+    public String getFtpType() {
+        return ftpType;
+    }
+
+    public void setFtpType(String ftpType) {
+        this.ftpType = ftpType;
+    }
 
     public String getTempFileRoot() {
         return tempFileRoot;

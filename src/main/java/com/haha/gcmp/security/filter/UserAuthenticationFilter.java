@@ -2,7 +2,7 @@ package com.haha.gcmp.security.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.haha.gcmp.cache.AbstractStringCacheStore;
-import com.haha.gcmp.config.GcmpProperties;
+import com.haha.gcmp.config.propertites.GcmpProperties;
 import com.haha.gcmp.exception.AuthenticationException;
 import com.haha.gcmp.model.entity.User;
 import com.haha.gcmp.security.authentication.AuthenticationImpl;

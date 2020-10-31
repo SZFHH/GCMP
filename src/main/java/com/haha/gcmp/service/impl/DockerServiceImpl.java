@@ -2,7 +2,7 @@ package com.haha.gcmp.service.impl;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.core.DockerClientBuilder;
-import com.haha.gcmp.config.GcmpProperties;
+import com.haha.gcmp.config.propertites.GcmpProperties;
 import com.haha.gcmp.exception.BadRequestException;
 import com.haha.gcmp.exception.ServiceException;
 import com.haha.gcmp.model.entity.Image;
@@ -211,7 +211,7 @@ public class DockerServiceImpl extends AbstractServerService<DockerClient> imple
 
 
     @Override
-    protected DockerClient doInitClientContainer(String hostName, String hostIp) {
+    protected DockerClient doInitClientContainer(String hostName, String hostIp, String username, String password) {
         String uri = PROTOCOL_TCP + hostIp + ":" + gcmpProperties.getDockerClientPort();
         return DockerClientBuilder.getInstance(uri).build();
     }

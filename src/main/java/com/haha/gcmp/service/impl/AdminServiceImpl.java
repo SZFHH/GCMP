@@ -1,6 +1,6 @@
 package com.haha.gcmp.service.impl;
 
-import com.haha.gcmp.config.GcmpProperties;
+import com.haha.gcmp.config.propertites.GcmpProperties;
 import com.haha.gcmp.model.entity.User;
 import com.haha.gcmp.model.params.RegisterParam;
 import com.haha.gcmp.service.AdminService;

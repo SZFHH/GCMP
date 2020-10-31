@@ -1,7 +1,7 @@
 package com.haha.gcmp.security.filter;
 
 import com.haha.gcmp.cache.AbstractStringCacheStore;
-import com.haha.gcmp.config.GcmpProperties;
+import com.haha.gcmp.config.propertites.GcmpProperties;
 import com.haha.gcmp.exception.AbstractGcmpException;
 import com.haha.gcmp.security.context.SecurityContextHolder;
 import com.haha.gcmp.security.handler.AuthenticationFailureHandler;
