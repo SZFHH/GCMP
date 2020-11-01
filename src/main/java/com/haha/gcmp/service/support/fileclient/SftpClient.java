@@ -1,4 +1,4 @@
-package com.haha.gcmp.service.support.client;
+package com.haha.gcmp.service.support.fileclient;
 
 import ch.ethz.ssh2.Connection;
 import ch.ethz.ssh2.SCPClient;

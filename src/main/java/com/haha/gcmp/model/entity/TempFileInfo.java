@@ -1,4 +1,4 @@
-package com.haha.gcmp.model.support;
+package com.haha.gcmp.model.entity;
 
 /**
  * @author SZFHH
@@ -6,7 +6,7 @@ package com.haha.gcmp.model.support;
  */
 public class TempFileInfo {
     String md5;
-    String hostName;
+    int serverId;
     String relativePath;
 
     public TempFileInfo() {
@@ -20,9 +20,17 @@ public class TempFileInfo {
         this.relativePath = relativePath;
     }
 
-    public TempFileInfo(String md5, String hostName, String relativePath) {
+    public int getServerId() {
+        return serverId;
+    }
+
+    public void setServerId(int serverId) {
+        this.serverId = serverId;
+    }
+
+    public TempFileInfo(String md5, int serverId, String relativePath) {
         this.md5 = md5;
-        this.hostName = hostName;
+        this.serverId = serverId;
         this.relativePath = relativePath;
     }
 
@@ -34,11 +42,5 @@ public class TempFileInfo {
         this.md5 = md5;
     }
 
-    public String getHostName() {
-        return hostName;
-    }
 
-    public void setHostName(String hostName) {
-        this.hostName = hostName;
-    }
 }

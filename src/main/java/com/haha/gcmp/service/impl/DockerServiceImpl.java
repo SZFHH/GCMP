@@ -6,6 +6,7 @@ import com.haha.gcmp.config.propertites.GcmpProperties;
 import com.haha.gcmp.exception.BadRequestException;
 import com.haha.gcmp.exception.ServiceException;
 import com.haha.gcmp.model.entity.Image;
+import com.haha.gcmp.model.entity.ServerProperty;
 import com.haha.gcmp.model.entity.User;
 import com.haha.gcmp.model.params.ImageToAddParam;
 import com.haha.gcmp.model.params.ImageToRemoveParam;
@@ -25,7 +26,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static com.haha.gcmp.config.GcmpConst.PROTOCOL_TCP;
 
@@ -48,22 +48,27 @@ public class DockerServiceImpl extends AbstractServerService<DockerClient> imple
 
     @Override
     public List<Image> listCommonImage() {
-        return dockerMapper.findByOwner(adminService.getAdminId());
+        return dockerMapper.listByOwner(adminService.getAdminId());
     }
 
     @Override
     public List<Image> listUserImage() {
         User user = userService.getCurrentUser();
-        return dockerMapper.findByOwner(user.getId());
+        return dockerMapper.listByOwner(user.getId());
     }
 
     @Override
     public Map<String, List<Image>> listAllImage() {
         List<User> allUser = userService.getAllUser();
         Map<Integer, String> userMap = CollectionUtils.convertToMap(allUser, User::getId, User::getUserName);
-        List<Image> allImages = dockerMapper.findAll();
+        List<Image> allImages = dockerMapper.listAll();
 
         return CollectionUtils.convertToListMap(allImages, image -> userMap.get(image.getOwner()));
+    }
+
+    @Override
+    public Image getImage(int imageId) {
+        return dockerMapper.getById(imageId);
     }
 
     @Override
@@ -85,21 +90,22 @@ public class DockerServiceImpl extends AbstractServerService<DockerClient> imple
     }
 
     public void removeAllPulledOrCreatedImages(String tag) {
-        Set<String> allHostName = getAllHostName();
-        for (String hostName : allHostName) {
-            removeImage(hostName, tag);
+        int serverCount = getServerCount();
+        for (int i = 0; i < serverCount; i++) {
+            removeImage(i, tag);
         }
+
     }
 
     @Override
     public void removeCommonImage(ImageToRemoveParam imageParam) {
         removeAllPulledOrCreatedImages(imageParam.getTag());
-        dockerMapper.deleteById(imageParam.getId());
+        dockerMapper.removeById(imageParam.getId());
     }
 
     @Override
     public void removeUserImage(ImageToRemoveParam imageParam) {
-        Image image = dockerMapper.findById(imageParam.getId());
+        Image image = dockerMapper.getById(imageParam.getId());
         if (image == null) {
             return;
         }
@@ -115,7 +121,7 @@ public class DockerServiceImpl extends AbstractServerService<DockerClient> imple
             throw new ServiceException("删除文件" + filePath.toString() + "异常", e);
         }
         removeAllPulledOrCreatedImages(imageParam.getTag());
-        dockerMapper.deleteById(imageParam.getId());
+        dockerMapper.removeById(imageParam.getId());
     }
 
     @Override
@@ -178,8 +184,8 @@ public class DockerServiceImpl extends AbstractServerService<DockerClient> imple
     }
 
     @Override
-    public boolean imageExists(String hostName, String tag) {
-        DockerClient dockerClient = getClient(hostName);
+    public boolean imageExists(int serverId, String tag) {
+        DockerClient dockerClient = getClient(serverId);
         List<com.github.dockerjava.api.model.Image> images = DockerUtils.listImages(dockerClient);
         for (com.github.dockerjava.api.model.Image image : images) {
             if (tag.equals(image.getRepoTags()[0])) {
@@ -190,29 +196,29 @@ public class DockerServiceImpl extends AbstractServerService<DockerClient> imple
     }
 
     @Override
-    public void pullImage(String hostName, String tag) {
-        DockerClient dockerClient = getClient(hostName);
+    public void pullImage(int serverId, String tag) {
+        DockerClient dockerClient = getClient(serverId);
         DockerUtils.pullImage(dockerClient, tag);
     }
 
     @Override
-    public void createImage(String hostName, String tag) {
-        DockerClient dockerClient = getClient(hostName);
+    public void createImage(int serverId, String tag) {
+        DockerClient dockerClient = getClient(serverId);
         Path dirPath = getUserDockerFileDir();
         Path filePath = dirPath.resolve(tag);
         DockerUtils.createImage(dockerClient, filePath.toFile());
     }
 
     @Override
-    public void removeImage(String hostName, String tag) {
-        DockerClient dockerClient = getClient(hostName);
+    public void removeImage(int serverId, String tag) {
+        DockerClient dockerClient = getClient(serverId);
         DockerUtils.removeImage(dockerClient, tag);
     }
 
 
     @Override
-    protected DockerClient doInitClientContainer(String hostName, String hostIp, String username, String password) {
-        String uri = PROTOCOL_TCP + hostIp + ":" + gcmpProperties.getDockerClientPort();
+    protected DockerClient doInitClientContainer(ServerProperty serverProperty) {
+        String uri = PROTOCOL_TCP + serverProperty.getHostIp() + ":" + gcmpProperties.getDockerClientPort();
         return DockerClientBuilder.getInstance(uri).build();
     }
 }

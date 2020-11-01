@@ -8,7 +8,9 @@ public class Image {
     int id;
     String tag;
     String desc;
-
+    int owner;
+    String alias;
+    
     public int getId() {
         return id;
     }
@@ -49,8 +51,6 @@ public class Image {
         this.alias = alias;
     }
 
-    int owner;
-    String alias;
 
     public Image(String tag, String desc, int owner, String alias) {
         this.tag = tag;

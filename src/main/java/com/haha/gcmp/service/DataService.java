@@ -1,9 +1,9 @@
 package com.haha.gcmp.service;
 
-import com.haha.gcmp.model.dto.CheckChunkDTO;
 import com.haha.gcmp.model.entity.DataFile;
+import com.haha.gcmp.model.entity.TempFileInfo;
 import com.haha.gcmp.model.params.*;
-import com.haha.gcmp.model.support.TempFileInfo;
+import com.haha.gcmp.model.support.CheckFileResult;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -24,7 +24,7 @@ public interface DataService {
 
     String getUserTempPath(String identifier);
 
-    CheckChunkDTO checkChunk(CheckChunkParam checkChunkParam);
+    CheckFileResult checkChunk(CheckFileQuery checkFileQuery);
 
     void uploadChunk(UploadChunkParam param, MultipartFile file);
 

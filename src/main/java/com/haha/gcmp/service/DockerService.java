@@ -19,6 +19,8 @@ public interface DockerService {
 
     Map<String, List<Image>> listAllImage();
 
+    Image getImage(int imageId);
+
     void addImage(ImageToAddParam imageToAddParam);
 
     void addCommonImage(ImageToAddParam imageToAddParam);
@@ -33,13 +35,13 @@ public interface DockerService {
 
     Path getUserDockerFileDir();
 
-    boolean imageExists(String hostName, String tag);
+    boolean imageExists(int serverId, String tag);
 
-    void pullImage(String hostName, String tag);
+    void pullImage(int serverId, String tag);
 
-    void createImage(String hostName, String tag);
+    void createImage(int serverId, String tag);
 
-    void removeImage(String hostName, String tag);
+    void removeImage(int serverId, String tag);
 
     int getDockerFileCount();
 

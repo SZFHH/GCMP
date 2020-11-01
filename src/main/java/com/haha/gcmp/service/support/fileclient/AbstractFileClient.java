@@ -1,22 +1,19 @@
-package com.haha.gcmp.service.support.client;
+package com.haha.gcmp.service.support.fileclient;
 
-import ch.ethz.ssh2.ChannelCondition;
 import ch.ethz.ssh2.Connection;
-import ch.ethz.ssh2.Session;
 import com.haha.gcmp.config.propertites.SshPoolConfig;
 import com.haha.gcmp.exception.BadRequestException;
 import com.haha.gcmp.exception.ServiceException;
 import com.haha.gcmp.model.entity.DataFile;
-import com.haha.gcmp.model.support.ServerProperty;
-import com.haha.gcmp.service.support.client.pool.SshClientFactory;
-import com.haha.gcmp.service.support.client.pool.SshClientPool;
+import com.haha.gcmp.model.entity.ServerProperty;
+import com.haha.gcmp.service.support.fileclient.pool.SshClientFactory;
+import com.haha.gcmp.service.support.fileclient.pool.SshClientPool;
 import com.haha.gcmp.utils.FileUtils;
-import org.apache.commons.io.IOUtils;
+import com.haha.gcmp.utils.SshUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.List;
 
 /**
@@ -47,22 +44,13 @@ public abstract class AbstractFileClient<T> implements FileClient {
         } catch (Exception e) {
             throw new ServiceException("从ssh连接池获取连接异常", e);
         }
-        Session session = null;
-        String rv;
         try {
-            session = connection.openSession();
-            session.execCommand(cmd);
-            session.waitForCondition(ChannelCondition.EXIT_STATUS, Integer.MAX_VALUE);
-            rv = IOUtils.toString(session.getStdout(), Charset.defaultCharset());
+            return SshUtils.execCmd(connection, cmd);
         } catch (IOException e) {
             throw new ServiceException(exceptionMsg, e);
         } finally {
-            if (session != null) {
-                session.close();
-            }
             sshClientPool.returnObject(connection);
         }
-        return rv;
     }
 
     @Override

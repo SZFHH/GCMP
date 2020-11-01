@@ -1,6 +1,6 @@
-package com.haha.gcmp.service.support.client.pool;
+package com.haha.gcmp.service.support.fileclient.pool;
 
-import com.haha.gcmp.service.support.client.SftpClient;
+import com.haha.gcmp.service.support.fileclient.SftpClient;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 
 /**

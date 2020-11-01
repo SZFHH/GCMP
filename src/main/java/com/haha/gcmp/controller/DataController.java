@@ -1,9 +1,9 @@
 package com.haha.gcmp.controller;
 
-import com.haha.gcmp.model.dto.CheckChunkDTO;
 import com.haha.gcmp.model.entity.DataFile;
+import com.haha.gcmp.model.entity.TempFileInfo;
 import com.haha.gcmp.model.params.*;
-import com.haha.gcmp.model.support.TempFileInfo;
+import com.haha.gcmp.model.support.CheckFileResult;
 import com.haha.gcmp.service.DataService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,8 +39,8 @@ public class DataController {
     }
 
     @PostMapping("/check")
-    public CheckChunkDTO checkChunk(CheckChunkParam checkChunkParam) {
-        return dataService.checkChunk(checkChunkParam);
+    public CheckFileResult checkChunk(CheckFileQuery checkFileQuery) {
+        return dataService.checkChunk(checkFileQuery);
     }
 
     @PostMapping("/cancel")

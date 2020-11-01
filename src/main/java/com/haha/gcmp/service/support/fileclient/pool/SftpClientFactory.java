@@ -1,13 +1,15 @@
-package com.haha.gcmp.service.support.client.pool;
+package com.haha.gcmp.service.support.fileclient.pool;
 
 import ch.ethz.ssh2.Connection;
-import com.haha.gcmp.config.propertites.SshPoolConfig;
+import com.haha.gcmp.config.propertites.SftpPoolConfig;
 import com.haha.gcmp.exception.ServiceException;
-import com.haha.gcmp.model.support.ServerProperty;
-import com.haha.gcmp.utils.SshUtils;
+import com.haha.gcmp.model.entity.ServerProperty;
+import com.haha.gcmp.service.support.fileclient.SftpClient;
 import org.apache.commons.pool2.BasePooledObjectFactory;
 import org.apache.commons.pool2.PooledObject;
 import org.apache.commons.pool2.impl.DefaultPooledObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -15,13 +17,15 @@ import java.io.IOException;
  * @author SZFHH
  * @date 2020/10/31
  */
-public class SshClientFactory extends BasePooledObjectFactory<Connection> {
-    private final SshPoolConfig sshPoolConfig;
+public class SftpClientFactory extends BasePooledObjectFactory<SftpClient> {
+    private static final Logger logger = LoggerFactory.getLogger(FtpClientFactory.class);
+
+    private final SftpPoolConfig sftpPoolConfig;
 
     private final ServerProperty serverProperty;
 
-    public SshClientFactory(SshPoolConfig sshPoolConfig, ServerProperty serverProperty) {
-        this.sshPoolConfig = sshPoolConfig;
+    public SftpClientFactory(SftpPoolConfig sftpPoolConfig, ServerProperty serverProperty) {
+        this.sftpPoolConfig = sftpPoolConfig;
         this.serverProperty = serverProperty;
     }
 
@@ -29,13 +33,13 @@ public class SshClientFactory extends BasePooledObjectFactory<Connection> {
      * 新建对象
      */
     @Override
-    public Connection create() throws Exception {
+    public SftpClient create() throws Exception {
         boolean authenticated;
         String hostIp = serverProperty.getHostIp();
         String username = serverProperty.getUsername();
         String password = serverProperty.getPassword();
         String hostName = serverProperty.getHostName();
-
+        System.out.println("创建一个ssh");
         Connection connection = new Connection(hostIp, 22);
         try {
             connection.connect();
@@ -46,21 +50,21 @@ public class SshClientFactory extends BasePooledObjectFactory<Connection> {
         if (!authenticated) {
             throw new ServiceException("SSH连接验证异常。服务器：" + hostName);
         }
-        return connection;
+        return new SftpClient(connection);
     }
 
     @Override
-    public PooledObject<Connection> wrap(Connection connection) {
-        return new DefaultPooledObject<>(connection);
+    public PooledObject<SftpClient> wrap(SftpClient sftpClient) {
+        return new DefaultPooledObject<>(sftpClient);
     }
 
     /**
      * 销毁对象
      */
     @Override
-    public void destroyObject(PooledObject<Connection> p) throws Exception {
-        Connection connection = p.getObject();
-        connection.close();
+    public void destroyObject(PooledObject<SftpClient> p) throws Exception {
+        SftpClient sftpClient = p.getObject();
+        sftpClient.destroy();
         super.destroyObject(p);
     }
 
@@ -68,12 +72,12 @@ public class SshClientFactory extends BasePooledObjectFactory<Connection> {
      * 验证对象
      */
     @Override
-    public boolean validateObject(PooledObject<Connection> p) {
-        Connection connection = p.getObject();
-        return SshUtils.validate(connection);
+    public boolean validateObject(PooledObject<SftpClient> p) {
+        SftpClient sftpClient = p.getObject();
+        return sftpClient.validate();
     }
 
-    public SshPoolConfig getSshPoolConfig() {
-        return sshPoolConfig;
+    public SftpPoolConfig getSftpPoolConfig() {
+        return sftpPoolConfig;
     }
 }

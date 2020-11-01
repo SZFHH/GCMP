@@ -1,10 +1,12 @@
 package com.haha.gcmp.config.propertites;
 
+import com.haha.gcmp.model.entity.ServerProperty;
 import com.haha.gcmp.model.enums.Mode;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import static com.haha.gcmp.config.GcmpConst.*;
@@ -12,11 +14,49 @@ import static com.haha.gcmp.utils.GcmpUtils.ensureSuffix;
 
 @ConfigurationProperties("gcmp")
 public class GcmpProperties {
+    private String k8sConfigFilePath;
+    private String pypiSource;
+    private int taskLogLines;
 
+    public String getPypiSource() {
+        return pypiSource;
+    }
+
+    public int getTaskLogLines() {
+        return taskLogLines;
+    }
+
+    public void setTaskLogLines(int taskLogLines) {
+        this.taskLogLines = taskLogLines;
+    }
+
+    public void setPypiSource(String pypiSource) {
+        this.pypiSource = pypiSource;
+    }
+
+    public String getK8sConfigFilePath() {
+        return k8sConfigFilePath;
+    }
+
+    public void setK8sConfigFilePath(String k8sConfigFilePath) {
+        this.k8sConfigFilePath = k8sConfigFilePath;
+    }
+
+    private List<ServerProperty> serverProperties;
     private String ftpType = "sftp";
     private String dockerFileRoot;
     private String dataRoot;
+
+    public List<ServerProperty> getServerProperties() {
+        return serverProperties;
+    }
+
+    public void setServerProperties(List<ServerProperty> serverProperties) {
+        this.serverProperties = serverProperties;
+    }
+
     private String tempFileRoot;
+
 
     public String getFtpType() {
         return ftpType;

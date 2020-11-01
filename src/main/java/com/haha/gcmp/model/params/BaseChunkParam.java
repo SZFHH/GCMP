@@ -4,8 +4,8 @@ package com.haha.gcmp.model.params;
  * @author SZFHH
  * @date 2020/10/28
  */
-public class BaseChunkParam {
-    private String hostName;
+public abstract class BaseChunkParam {
+    private int serverId;
 
     private String md5;
 
@@ -29,12 +29,12 @@ public class BaseChunkParam {
         this.relativePath = relativePath;
     }
 
-    public String getHostName() {
-        return hostName;
+    public int getServerId() {
+        return serverId;
     }
 
-    public void setHostName(String hostName) {
-        this.hostName = hostName;
+    public void setServerId(int serverId) {
+        this.serverId = serverId;
     }
 
     public String getMd5() {

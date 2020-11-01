@@ -1,4 +1,4 @@
-package com.haha.gcmp.service.support.client;
+package com.haha.gcmp.service.support.fileclient;
 
 import com.haha.gcmp.model.entity.DataFile;
 

@@ -26,7 +26,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getByIdOfNonNull(int id) {
-        User user = userMapper.findById(id);
+        User user = userMapper.getById(id);
         if (user == null) {
             throw new NotFoundException("The id does not exist").setErrorData(id);
         }
@@ -35,12 +35,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getByIdOfNullable(int id) {
-        return userMapper.findById(id);
+        return userMapper.getById(id);
     }
 
     @Override
     public User getByNameOfNonNull(String userName) {
-        User user = userMapper.findByUserName(userName);
+        User user = userMapper.getByUserName(userName);
         if (user == null) {
             throw new NotFoundException("The user name does not exist").setErrorData(userName);
         }
@@ -49,7 +49,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getByNameOfNullable(String userName) {
-        return userMapper.findByUserName(userName);
+        return userMapper.getByUserName(userName);
     }
 
     @Override
@@ -61,13 +61,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getCurrentUser() {
-        return userMapper.findByUserName("szf");
+        return userMapper.getByUserName("szf");
 //        return SecurityUtils.getCurrentUser();
     }
 
     @Override
     public List<User> getAllUser() {
-        return userMapper.findAll();
+        return userMapper.listAll();
     }
 
     private void setPassword(User user, String plainPassword) {

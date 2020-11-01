@@ -7,7 +7,15 @@ package com.haha.gcmp.model.params;
 public class DataParam {
     private String relativePath;
     private boolean file;
-    private String hostName;
+    private int serverId;
+
+    public int getServerId() {
+        return serverId;
+    }
+
+    public void setServerId(int serverId) {
+        this.serverId = serverId;
+    }
 
     public String getRelativePath() {
         return relativePath;
@@ -26,11 +34,4 @@ public class DataParam {
     }
 
 
-    public String getHostName() {
-        return hostName;
-    }
-
-    public void setHostName(String hostName) {
-        this.hostName = hostName;
-    }
 }

@@ -1,10 +1,10 @@
 package com.haha.gcmp.service.base;
 
 import com.haha.gcmp.config.propertites.GcmpProperties;
+import com.haha.gcmp.model.entity.ServerProperty;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author SZFHH
@@ -12,7 +12,7 @@ import java.util.Set;
  */
 abstract public class AbstractServerService<T> implements ServerService<T> {
     protected final GcmpProperties gcmpProperties;
-    protected volatile Map<String, T> clientContainer;
+    protected volatile List<T> clientContainer;
 
     protected AbstractServerService(GcmpProperties gcmpProperties) {
         this.gcmpProperties = gcmpProperties;
@@ -33,12 +33,12 @@ abstract public class AbstractServerService<T> implements ServerService<T> {
         return gcmpProperties.getHostPasswords().get(hostName);
     }
 
-    public Set<String> getAllHostName() {
-        return gcmpProperties.getHostIps().keySet();
+    public int getServerCount() {
+        return gcmpProperties.getServerProperties().size();
     }
 
     @Override
-    public T getClient(String hostName) {
+    public T getClient(int serverId) {
         if (clientContainer == null) {
             synchronized (AbstractServerService.class) {
                 if (clientContainer == null) {
@@ -46,22 +46,20 @@ abstract public class AbstractServerService<T> implements ServerService<T> {
                 }
             }
         }
-        return clientContainer.get(hostName);
+        return clientContainer.get(serverId);
     }
 
     protected void initClientContainer() {
-        Map<String, T> temp = new HashMap<>();
-        Set<String> hostNames = getAllHostName();
-        for (String hostName : hostNames) {
-            String hostIp = getHostIp(hostName);
-            String userName = getHostUser(hostName);
-            String password = getHostPassword(hostName);
-            temp.put(hostName, doInitClientContainer(hostName, hostIp, userName, password));
+        List<ServerProperty> serverProperties = gcmpProperties.getServerProperties();
+        List<T> temp = new ArrayList<>();
+        for (ServerProperty serverProperty : serverProperties) {
+            temp.add(doInitClientContainer(serverProperty));
         }
+
         clientContainer = temp;
     }
 
-    abstract protected T doInitClientContainer(String hostName, String hostIp, String username, String password);
+    abstract protected T doInitClientContainer(ServerProperty serverProperty);
 
 
 }

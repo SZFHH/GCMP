@@ -15,13 +15,13 @@
 
     </resultMap>
 
-    <select id="findByOwner" resultMap="fullImage">
+    <select id="listByOwner" resultMap="fullImage">
         select id,owner,tag,description,alias from image where owner = #{ownerId}
     </select>
-    <select id="findById" resultMap="fullImage">
+    <select id="getById" resultMap="fullImage">
         select id,owner,tag,description,alias from image where id = #{id}
     </select>
-    <select id="findAll" resultMap="fullImage">
+    <select id="listAll" resultMap="fullImage">
         select id,owner,tag,description,alias from image
     </select>
 
@@ -34,15 +34,15 @@
         update image set tag = #{tag}, description = #{desc}, alias = #{alias}
         where id = #{id}
     </update>
-    <delete id="delete">
+    <delete id="remove">
         delete from image where id = #{id}
     </delete>
 
-    <delete id="deleteByTag">
+    <delete id="removeByTag">
         delete from image where tag = #{tag}
     </delete>
 
-    <delete id="deleteById">
+    <delete id="removeById">
         delete from image where id = #{id}
     </delete>
 </mapper>

@@ -1,4 +1,4 @@
-package com.haha.gcmp.service.support.client.pool;
+package com.haha.gcmp.service.support.fileclient.pool;
 
 
 import org.apache.commons.net.ftp.FTPClient;

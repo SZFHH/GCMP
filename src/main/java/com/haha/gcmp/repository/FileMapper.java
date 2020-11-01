@@ -1,6 +1,6 @@
 package com.haha.gcmp.repository;
 
-import com.haha.gcmp.model.support.TempFileInfo;
+import com.haha.gcmp.model.entity.TempFileInfo;
 
 /**
  * @author SZFHH
@@ -8,7 +8,7 @@ import com.haha.gcmp.model.support.TempFileInfo;
  */
 public interface FileMapper {
 
-    TempFileInfo find(TempFileInfo tempFileInfo);
+    TempFileInfo get(TempFileInfo tempFileInfo);
 
     int remove(TempFileInfo tempFileInfo);
 

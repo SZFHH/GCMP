@@ -1,22 +1,25 @@
-package com.haha.gcmp.model.support;
+package com.haha.gcmp.model.entity;
 
 /**
  * @author SZFHH
  * @date 2020/10/31
  */
 public class ServerProperty {
-    private String username;
-    private String hostIp;
-    private String password;
-
-    public ServerProperty(String hostName, String hostIp, String username, String password) {
-        this.username = username;
-        this.hostIp = hostIp;
-        this.password = password;
-        this.hostName = hostName;
-    }
-
     private String hostName;
+    private String hostIp;
+    private String username;
+    private String password;
+    private int gpus;
+    private String gpuSeries;
+
+    public ServerProperty(String hostName, String hostIp, String username, String password, int gpus, String gpuSeries) {
+        this.hostName = hostName;
+        this.hostIp = hostIp;
+        this.username = username;
+        this.password = password;
+        this.gpus = gpus;
+        this.gpuSeries = gpuSeries;
+    }
 
     public String getHostIp() {
         return hostIp;
@@ -32,6 +35,25 @@ public class ServerProperty {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public ServerProperty() {
+    }
+
+    public int getGpus() {
+        return gpus;
+    }
+
+    public void setGpus(int gpus) {
+        this.gpus = gpus;
+    }
+
+    public String getGpuSeries() {
+        return gpuSeries;
+    }
+
+    public void setGpuSeries(String gpuSeries) {
+        this.gpuSeries = gpuSeries;
     }
 
     public String getPassword() {

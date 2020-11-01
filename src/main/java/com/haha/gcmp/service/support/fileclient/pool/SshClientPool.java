@@ -1,4 +1,4 @@
-package com.haha.gcmp.service.support.client.pool;
+package com.haha.gcmp.service.support.fileclient.pool;
 
 import ch.ethz.ssh2.Connection;
 import org.apache.commons.pool2.impl.GenericObjectPool;

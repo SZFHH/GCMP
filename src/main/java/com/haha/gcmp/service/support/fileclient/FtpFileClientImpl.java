@@ -1,12 +1,12 @@
-package com.haha.gcmp.service.support.client;
+package com.haha.gcmp.service.support.fileclient;
 
 import com.haha.gcmp.config.propertites.FtpPoolConfig;
 import com.haha.gcmp.config.propertites.SshPoolConfig;
 import com.haha.gcmp.exception.ServiceException;
 import com.haha.gcmp.model.entity.DataFile;
-import com.haha.gcmp.model.support.ServerProperty;
-import com.haha.gcmp.service.support.client.pool.FtpClientFactory;
-import com.haha.gcmp.service.support.client.pool.FtpClientPool;
+import com.haha.gcmp.model.entity.ServerProperty;
+import com.haha.gcmp.service.support.fileclient.pool.FtpClientFactory;
+import com.haha.gcmp.service.support.fileclient.pool.FtpClientPool;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 

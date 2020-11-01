@@ -1,4 +1,4 @@
-package com.haha.gcmp.model.dto;
+package com.haha.gcmp.model.support;
 
 import java.util.List;
 
@@ -6,16 +6,16 @@ import java.util.List;
  * @author SZFHH
  * @date 2020/10/28
  */
-public class CheckChunkDTO {
+public class CheckFileResult {
     public static int EXISTED = 0;
     public static int NON_EXISTED = 1;
     private List<String> existedChunk;
     private int status;
 
-    public CheckChunkDTO() {
+    public CheckFileResult() {
     }
 
-    public CheckChunkDTO(List<String> existedChunk, int status) {
+    public CheckFileResult(List<String> existedChunk, int status) {
         this.existedChunk = existedChunk;
         this.status = status;
     }

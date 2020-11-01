@@ -1,8 +1,8 @@
-package com.haha.gcmp.service.support.client.pool;
+package com.haha.gcmp.service.support.fileclient.pool;
 
 import com.haha.gcmp.config.propertites.FtpPoolConfig;
 import com.haha.gcmp.exception.ServiceException;
-import com.haha.gcmp.model.support.ServerProperty;
+import com.haha.gcmp.model.entity.ServerProperty;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
 import org.apache.commons.pool2.BasePooledObjectFactory;

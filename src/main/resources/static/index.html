@@ -82,7 +82,7 @@
                 console.log(file.size)
                 console.log(chun_size)
                 $.post("/api/data/check", {
-                        hostName: "node1",
+                        serverId: 0,
                         md5: file.file_md5,
                         totalChunks: file.chunks,
                         chunkSize: chun_size,
@@ -140,7 +140,7 @@
 
                 // log('正在合并...');
                 $.post('/api/data/merge', {
-                    hostName: "node1",
+                    serverId: 0,
                     md5: file.file_md5,
                     relativePath: file.target_relative_path,
                     totalChunks: file.chunks
@@ -175,7 +175,7 @@
             chunkSize: chun_size,   //每一片的大小
             chunkRetry: 3,              // 如果遇到网络错误,重新上传次数
             threads: 3,                   // [默认值：3] 上传并发数。允许同时最大上传进程数。
-
+            prepareNextFile: true,
             accept: {
                 extensions: "txt,jpg,jpeg,bmp,png,zip,rar,war,pdf,cebx,doc,docx,ppt,pptx,xls,xlsx,iso",
                 mimeTypes: '.txt,.jpg,.jpeg,.bmp,.png,.zip,.rar,.war,.pdf,.cebx,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.iso'
@@ -185,7 +185,7 @@
         //事件里不支持这种用法
         // var deferred = WebUploader.Deferred();
         data.relativePath = block.file.target_relative_path;
-        data.hostName = "node1";
+        data.serverId = 0;
         data.totalChunks = block.chunks;
         data.chunkNumber = block.chunk + 1;
         data.md5 = block.file.file_md5;
@@ -282,7 +282,7 @@
         uploader.stop(uploader.getFile(id), true);
 
         $.post('/api/data/cancel', {
-            hostName: "node1",
+            serverId: 0,
             md5: md5,
             relativePath: relativePath,
         }, function (data) {

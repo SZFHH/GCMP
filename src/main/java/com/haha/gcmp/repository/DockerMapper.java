@@ -11,19 +11,19 @@ import java.util.List;
  */
 @Mapper
 public interface DockerMapper {
-    List<Image> findByOwner(int ownerId);
+    List<Image> listByOwner(int ownerId);
 
-    List<Image> findAll();
+    List<Image> listAll();
 
     int insert(Image image);
 
-    int delete(Image image);
+    int remove(Image image);
 
     int update(Image image);
 
-    int deleteByTag(String tag);
+    int removeByTag(String tag);
 
-    int deleteById(int id);
+    int removeById(int id);
 
-    Image findById(int id);
+    Image getById(int id);
 }

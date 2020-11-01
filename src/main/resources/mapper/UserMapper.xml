@@ -13,15 +13,15 @@
         <result property="dockerQuota" column="docker_quota"/>
     </resultMap>
 
-    <select id="findById" resultMap="fullUser">
+    <select id="getById" resultMap="fullUser">
         select id,user_name,password,docker_quota from user where id = #{id}
     </select>
 
-    <select id="findByUserName" resultMap="fullUser">
+    <select id="getByUserName" resultMap="fullUser">
         select id,user_name,password,docker_quota from user where user_name = #{userName}
     </select>
 
-    <select id="findAll" resultMap="fullUser">
+    <select id="listAll" resultMap="fullUser">
         select id,user_name,password,docker_quota from user
     </select>
 

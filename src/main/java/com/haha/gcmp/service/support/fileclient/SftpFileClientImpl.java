@@ -1,13 +1,13 @@
-package com.haha.gcmp.service.support.client;
+package com.haha.gcmp.service.support.fileclient;
 
 import ch.ethz.ssh2.SFTPv3DirectoryEntry;
 import com.haha.gcmp.config.propertites.SftpPoolConfig;
 import com.haha.gcmp.config.propertites.SshPoolConfig;
 import com.haha.gcmp.exception.ServiceException;
 import com.haha.gcmp.model.entity.DataFile;
-import com.haha.gcmp.model.support.ServerProperty;
-import com.haha.gcmp.service.support.client.pool.SftpClientFactory;
-import com.haha.gcmp.service.support.client.pool.SftpClientPool;
+import com.haha.gcmp.model.entity.ServerProperty;
+import com.haha.gcmp.service.support.fileclient.pool.SftpClientFactory;
+import com.haha.gcmp.service.support.fileclient.pool.SftpClientPool;
 
 import java.io.IOException;
 import java.util.ArrayList;

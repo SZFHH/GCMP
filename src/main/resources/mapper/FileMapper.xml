@@ -5,23 +5,23 @@
 
 
 <mapper namespace="com.haha.gcmp.repository.FileMapper">
-    <resultMap id="fullTempFileInfo" type="com.haha.gcmp.model.support.TempFileInfo">
+    <resultMap id="fullTempFileInfo" type="com.haha.gcmp.model.entity.TempFileInfo">
         <result property="md5" column="md5"/>
-        <result property="hostName" column="host_name"/>
+        <result property="serverId" column="server_id"/>
     </resultMap>
 
-    <select id="find" resultMap="fullTempFileInfo">
-        select md5, host_name from temp_file where md5 = #{md5} and host_name = #{hostName}
+    <select id="get" resultMap="fullTempFileInfo">
+        select md5, server_id from temp_file where md5 = #{md5} and server_id = #{serverId}
     </select>
 
 
     <insert id="insert">
-        insert into temp_file (md5, host_name, relative_path) values (#{md5}, #{hostName}, #{relativePath})
+        insert into temp_file (md5, server_id, relative_path) values (#{md5}, #{serverId}, #{relativePath})
     </insert>
 
 
     <delete id="remove">
-        delete from temp_file where md5 = #{md5} and host_name = #{hostName}
+        delete from temp_file where md5 = #{md5} and server_id = #{serverId}
     </delete>
 
 </mapper>

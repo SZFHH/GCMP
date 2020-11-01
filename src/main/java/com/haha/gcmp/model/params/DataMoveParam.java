@@ -7,15 +7,7 @@ package com.haha.gcmp.model.params;
 public class DataMoveParam {
     String srcRelativePath;
     String targetRelativePath;
-    String hostName;
-
-    public String getHostName() {
-        return hostName;
-    }
-
-    public void setHostName(String hostName) {
-        this.hostName = hostName;
-    }
+    int serverId;
 
     public String getTargetRelativePath() {
         return targetRelativePath;
@@ -31,5 +23,13 @@ public class DataMoveParam {
 
     public void setSrcRelativePath(String srcRelativePath) {
         this.srcRelativePath = srcRelativePath;
+    }
+
+    public int getServerId() {
+        return serverId;
+    }
+
+    public void setServerId(int serverId) {
+        this.serverId = serverId;
     }
 }

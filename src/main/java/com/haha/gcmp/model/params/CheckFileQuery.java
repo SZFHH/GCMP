@@ -4,7 +4,7 @@ package com.haha.gcmp.model.params;
  * @author SZFHH
  * @date 2020/10/28
  */
-public class CheckChunkParam extends BaseChunkParam {
+public class CheckFileQuery extends BaseChunkParam {
 
     private long chunkSize;
 

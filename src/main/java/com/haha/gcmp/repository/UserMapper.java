@@ -11,11 +11,11 @@ import java.util.List;
  */
 @Mapper
 public interface UserMapper {
-    User findById(int id);
+    User getById(int id);
 
-    User findByUserName(String userName);
+    User getByUserName(String userName);
 
     int insert(User user);
 
-    List<User> findAll();
+    List<User> listAll();
 }
