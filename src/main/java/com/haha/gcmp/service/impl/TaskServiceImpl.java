@@ -254,11 +254,12 @@ public class TaskServiceImpl implements TaskService {
                 "metadata:\n" +
                 "  name: %s\n" +
                 "spec:\n" +
-                "  restartPolicy: OnFailure\n" +
+                "  restartPolicy: Never\n" +
                 "  containers:\n" +
                 "    - name: gcmp-container\n" +
                 "      image: %s\n" +
-                "      command: [ \"%s\" ]\n" +
+                "      workingDir: %s\n" +
+                "      command: [ \"/bin/bash\", \"-c\", \"%s\" ]\n" +
                 "      volumeMounts:\n" +
                 "      - mountPath: %s\n" +
                 "        name: gcmp-volume\n" +
@@ -272,8 +273,8 @@ public class TaskServiceImpl implements TaskService {
                 "      path: %s\n" +
                 "      # this field is optional\n" +
                 "      type: DirectoryOrCreate\n" +
-                "  nodeSelector: %s",
-            podName, image.getTag(), withPyPkgCmd, mountPath, gpus, mountPath, nodeName);
+                "  nodeName: %s",
+            podName, image.getTag(), mountPath, withPyPkgCmd, mountPath, gpus, mountPath, nodeName);
         return podFile;
     }
 
