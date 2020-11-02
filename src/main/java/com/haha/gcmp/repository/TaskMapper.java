@@ -21,4 +21,8 @@ public interface TaskMapper {
     void updateStatus(Task task);
 
     Task getById(int id);
+
+    int casUpdateRemoved(int id);
+
+    int casUpdateStatus(Task task);
 }

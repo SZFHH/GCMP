@@ -42,4 +42,12 @@
         update task set status = #{status} where id = #{id}
     </update>
 
+    <update id="casUpdateRemoved">
+        update task set removed = 1 where id = #{id} and removed=0
+    </update>
+
+    <update id="casUpdateStatus">
+        update task set status = #{status} where id = #{id} and status="running"
+    </update>
+
 </mapper>

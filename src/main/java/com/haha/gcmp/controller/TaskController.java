@@ -36,7 +36,7 @@ public class TaskController {
         return taskService.listAllTasks();
     }
 
-    @DeleteMapping("/cancel/{id:\\d+}")
+    @DeleteMapping("/{id:\\d+}")
     void cancelTask(@PathVariable("id") int id) {
         taskService.cancelTask(id);
     }

@@ -13,6 +13,15 @@ public class Task {
     private int imageId;
     private String podName;
     private int userId;
+    private int removed;
+
+    public int getRemoved() {
+        return removed;
+    }
+
+    public void setRemoved(int removed) {
+        this.removed = removed;
+    }
 
     public int getUserId() {
         return userId;

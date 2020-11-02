@@ -32,6 +32,9 @@ gcmp:
   docker-file-root: /home/gcmp/dockerfiles
   data-root: /home/gcmp/data
   temp-file-root: /home/gcmp/temp
+  task-log-root: /home/gcmp/tasklogs
+  task-log-limit-bytes: 1024
+  task-clear-period: 30
 
 ftp-pool:
   #连接耗尽时是否阻塞, false报异常,ture阻塞直到超时, 默认true

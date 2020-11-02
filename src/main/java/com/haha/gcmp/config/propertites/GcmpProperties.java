@@ -17,6 +17,33 @@ public class GcmpProperties {
     private String k8sConfigFilePath;
     private String pypiSource;
     private int taskLogLines;
+    private String taskLogRoot;
+    private int taskLogLimitBytes;
+    private int taskClearPeriod;
+
+    public int getTaskClearPeriod() {
+        return taskClearPeriod;
+    }
+
+    public void setTaskClearPeriod(int taskClearPeriod) {
+        this.taskClearPeriod = taskClearPeriod;
+    }
+
+    public String getTaskLogRoot() {
+        return taskLogRoot;
+    }
+
+    public int getTaskLogLimitBytes() {
+        return taskLogLimitBytes;
+    }
+
+    public void setTaskLogLimitBytes(int taskLogLimitBytes) {
+        this.taskLogLimitBytes = taskLogLimitBytes;
+    }
+
+    public void setTaskLogRoot(String taskLogRoot) {
+        this.taskLogRoot = taskLogRoot;
+    }
 
     public String getPypiSource() {
         return pypiSource;

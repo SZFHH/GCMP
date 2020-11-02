@@ -22,5 +22,7 @@ public interface TaskService {
 
     String getLog(int id);
 
+    String getTaskLogPath(int taskId);
+
 
 }
