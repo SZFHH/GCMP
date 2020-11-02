@@ -7,6 +7,7 @@ import com.haha.gcmp.model.entity.ServerStatus;
 import com.haha.gcmp.utils.SshUtils;
 
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -17,7 +18,7 @@ public class StatusClient {
     private final String hostName;
     private final String gpuSeries;
     private final int gpuTotal;
-    private int gpuAvailable;
+    private AtomicInteger gpuAvailable;
     private final long diskTotal;
     private final long memoryTotal;
     private final ReentrantLock lock;
@@ -37,7 +38,7 @@ public class StatusClient {
             throw new ServiceException("SSH连接验证异常。服务器：" + hostName);
         }
         this.gpuTotal = serverProperty.getGpus();
-        this.gpuAvailable = gpuTotal;
+        this.gpuAvailable = new AtomicInteger(gpuTotal);
         this.gpuSeries = serverProperty.getGpuSeries();
         this.connection = connection;
         this.lock = new ReentrantLock();
@@ -69,7 +70,7 @@ public class StatusClient {
         } catch (IOException e) {
             throw new ServiceException("获取内存信息异常：" + hostName, e);
         }
-        rv.setGpuAvailable(gpuAvailable);
+        rv.setGpuAvailable(gpuAvailable.get());
         rv.setGpuTotal(gpuTotal);
         rv.setHostName(hostName);
         return rv;
@@ -84,7 +85,7 @@ public class StatusClient {
     }
 
     public int getGpuAvailable() {
-        return gpuAvailable;
+        return gpuAvailable.get();
     }
 
     public ReentrantLock getLock() {
@@ -115,33 +116,17 @@ public class StatusClient {
         }
     }
 
-    public void setGpuAvailable(int gpuAvailable) {
-        this.gpuAvailable = gpuAvailable;
-    }
-
     public int requestForGpus(int num) {
-        if (gpuAvailable < num) {
-            return gpuAvailable;
-        }
-        lock.lock();
-        try {
-            if (gpuAvailable >= num) {
-                gpuAvailable -= num;
+        int n;
+        while ((n = gpuAvailable.get()) > num) {
+            if (gpuAvailable.compareAndSet(n, n - num)) {
                 return -1;
-            } else {
-                return gpuAvailable;
             }
-        } finally {
-            lock.unlock();
         }
+        return gpuAvailable.get();
     }
 
     public void returnGpus(int num) {
-        lock.lock();
-        try {
-            gpuAvailable += num;
-        } finally {
-            lock.unlock();
-        }
+        gpuAvailable.addAndGet(num);
     }
 }
