@@ -181,21 +181,12 @@ public class TaskServiceImpl implements TaskService {
         if ("delete".equals(status)) {
             throw new BadRequestException("不能获取删除了的训练任务的日志");
         } else if ("succeeded".equals(status) || "failed".equals(status)) {
-            try {
-                return FileUtils.readFile(Paths.get(getTaskLogPath(id)));
-            } catch (IOException e) {
-                throw new ServiceException("读取训练任务日志文件异常，任务id" + id, e);
-            }
+            return getLogFromFile(task.getId());
         } else {
             try {
                 return getLogFromPod(task.getPodName());
             } catch (ServiceException e) {
                 if (e.getCause().getMessage().endsWith("不存在")) {
-                    task = taskMapper.getById(id);
-                    while ("running".equals(task.getStatus())) {
-                        Thread.yield();
-                        task = taskMapper.getById(id);
-                    }
                     return getLogFromFile(task.getId());
                 } else {
                     throw e;
