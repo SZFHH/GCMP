@@ -7,15 +7,14 @@ import com.haha.gcmp.model.support.BaseResponse;
 import com.haha.gcmp.security.token.AuthToken;
 import com.haha.gcmp.service.AuthService;
 import com.haha.gcmp.service.UserService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 /**
+ * User controller
+ *
  * @author SZFHH
  * @date 2020/10/22
  */
@@ -45,7 +44,7 @@ public class UserController {
         return BaseResponse.ok("注册成功！");
     }
 
-    @PostMapping("cur_user")
+    @GetMapping("cur_user")
     public User currentUser() {
         return userService.getCurrentUser();
     }

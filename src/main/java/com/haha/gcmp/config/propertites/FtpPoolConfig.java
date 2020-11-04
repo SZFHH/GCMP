@@ -5,21 +5,20 @@ import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * ftp配置参数对象   继承自GenericObjectPoolConfig
+ * FTP pool config
  *
- * @author jelly
+ * @author SZFHH
+ * @date 2020/10/31
  */
 @ConfigurationProperties("ftp-pool")
 public class FtpPoolConfig extends GenericObjectPoolConfig<FTPClient> {
 
-    //ftp 连接超时时间 毫秒
     private int connectTimeOut = 5000;
 
     private String controlEncoding = "utf-8";
 
     private int bufferSize = 4096;
 
-    //  传输数据格式   2表binary二进制数据
     private int fileType = 2;
 
     private int dataTimeout = 120000;

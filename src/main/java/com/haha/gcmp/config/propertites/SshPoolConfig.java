@@ -5,6 +5,8 @@ import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
+ * SSH pool config
+ *
  * @author SZFHH
  * @date 2020/10/31
  */

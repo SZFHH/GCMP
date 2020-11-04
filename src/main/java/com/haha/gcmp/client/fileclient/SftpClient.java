@@ -1,4 +1,4 @@
-package com.haha.gcmp.service.support.fileclient;
+package com.haha.gcmp.client.fileclient;
 
 import ch.ethz.ssh2.Connection;
 import ch.ethz.ssh2.SCPClient;
@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Vector;
 
 /**
+ * 包装SFTP协议用到的几个类
+ *
  * @author SZFHH
  * @date 2020/10/31
  */

@@ -1,4 +1,4 @@
-package com.haha.gcmp.service.support.fileclient.pool;
+package com.haha.gcmp.client.fileclient.pool;
 
 import ch.ethz.ssh2.Connection;
 import com.haha.gcmp.config.propertites.SshPoolConfig;
@@ -8,14 +8,20 @@ import com.haha.gcmp.utils.SshUtils;
 import org.apache.commons.pool2.BasePooledObjectFactory;
 import org.apache.commons.pool2.PooledObject;
 import org.apache.commons.pool2.impl.DefaultPooledObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
 /**
+ * SshClientFactory
+ *
  * @author SZFHH
  * @date 2020/10/31
  */
 public class SshClientFactory extends BasePooledObjectFactory<Connection> {
+    private static final Logger logger = LoggerFactory.getLogger(SshClientFactory.class);
+
     private final SshPoolConfig sshPoolConfig;
 
     private final ServerProperty serverProperty;
@@ -25,25 +31,23 @@ public class SshClientFactory extends BasePooledObjectFactory<Connection> {
         this.serverProperty = serverProperty;
     }
 
-    /**
-     * 新建对象
-     */
     @Override
-    public Connection create() throws Exception {
+    public Connection create() {
         boolean authenticated;
         String hostIp = serverProperty.getHostIp();
         String username = serverProperty.getUsername();
         String password = serverProperty.getPassword();
         String hostName = serverProperty.getHostName();
-
         Connection connection = new Connection(hostIp, 22);
         try {
             connection.connect();
             authenticated = connection.authenticateWithPassword(username, password);
         } catch (IOException e) {
-            throw new ServiceException("SSH连接异常。服务器：" + hostName, e);
+            logger.error("SSH连接异常。服务器：" + hostName, e);
+            throw new ServiceException("SSH连接IO异常。服务器：" + hostName, e);
         }
         if (!authenticated) {
+            logger.error("SSH连接验证异常。服务器：" + hostName);
             throw new ServiceException("SSH连接验证异常。服务器：" + hostName);
         }
         return connection;
@@ -54,9 +58,7 @@ public class SshClientFactory extends BasePooledObjectFactory<Connection> {
         return new DefaultPooledObject<>(connection);
     }
 
-    /**
-     * 销毁对象
-     */
+
     @Override
     public void destroyObject(PooledObject<Connection> p) throws Exception {
         Connection connection = p.getObject();
@@ -64,9 +66,6 @@ public class SshClientFactory extends BasePooledObjectFactory<Connection> {
         super.destroyObject(p);
     }
 
-    /**
-     * 验证对象
-     */
     @Override
     public boolean validateObject(PooledObject<Connection> p) {
         Connection connection = p.getObject();

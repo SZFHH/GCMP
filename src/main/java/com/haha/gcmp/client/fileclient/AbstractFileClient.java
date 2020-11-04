@@ -1,26 +1,32 @@
-package com.haha.gcmp.service.support.fileclient;
+package com.haha.gcmp.client.fileclient;
 
 import ch.ethz.ssh2.Connection;
+import com.haha.gcmp.client.fileclient.pool.SshClientFactory;
+import com.haha.gcmp.client.fileclient.pool.SshClientPool;
 import com.haha.gcmp.config.propertites.SshPoolConfig;
 import com.haha.gcmp.exception.BadRequestException;
+import com.haha.gcmp.exception.NotFoundException;
 import com.haha.gcmp.exception.ServiceException;
-import com.haha.gcmp.model.entity.DataFile;
+import com.haha.gcmp.model.entity.Data;
 import com.haha.gcmp.model.entity.ServerProperty;
-import com.haha.gcmp.service.support.fileclient.pool.SshClientFactory;
-import com.haha.gcmp.service.support.fileclient.pool.SshClientPool;
 import com.haha.gcmp.utils.FileUtils;
 import com.haha.gcmp.utils.SshUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.pool2.impl.GenericObjectPool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
 
 /**
+ * Base File Client Implementation
+ *
  * @author SZFHH
  * @date 2020/10/31
  */
 public abstract class AbstractFileClient<T> implements FileClient {
+    private static final Logger logger = LoggerFactory.getLogger(AbstractFileClient.class);
     private final SshClientPool sshClientPool;
     protected String hostName;
     private GenericObjectPool<T> ftpClientPool;
@@ -42,11 +48,13 @@ public abstract class AbstractFileClient<T> implements FileClient {
         try {
             connection = sshClientPool.borrowObject();
         } catch (Exception e) {
+            logger.error("从ssh连接池获取连接异常", e);
             throw new ServiceException("从ssh连接池获取连接异常", e);
         }
         try {
             return SshUtils.execCmd(connection, cmd);
         } catch (IOException e) {
+            logger.error("执行shell命令异常，命令：" + cmd, e);
             throw new ServiceException(exceptionMsg, e);
         } finally {
             sshClientPool.returnObject(connection);
@@ -176,15 +184,14 @@ public abstract class AbstractFileClient<T> implements FileClient {
     }
 
     @Override
-    public DataFile getFileInfo(String filePath) {
-        List<DataFile> dataFiles = listDir(FileUtils.getDir(filePath));
-        for (DataFile dataFile : dataFiles) {
-            if (dataFile.getName().equals(FileUtils.getFileName(filePath))) {
-                return dataFile;
+    public Data getFileInfo(String filePath) {
+        List<Data> datas = listDir(FileUtils.getDir(filePath));
+        for (Data data : datas) {
+            if (data.getName().equals(FileUtils.getFileName(filePath))) {
+                return data;
             }
         }
-
-        throw new ServiceException("没找到对应的文件：" + filePath);
+        throw new NotFoundException("没找到对应的文件：" + filePath);
     }
 
     private T getFtpClient() {
@@ -192,6 +199,7 @@ public abstract class AbstractFileClient<T> implements FileClient {
         try {
             sftpClient = ftpClientPool.borrowObject();
         } catch (Exception e) {
+            logger.error("从连接池获取sftpClient异常。服务器：" + hostName, e);
             throw new ServiceException("从连接池获取sftpClient异常。服务器：" + hostName, e);
         }
         return sftpClient;
@@ -201,10 +209,10 @@ public abstract class AbstractFileClient<T> implements FileClient {
         ftpClientPool.returnObject(ftpClient);
     }
 
-    protected abstract List<DataFile> doListDir(String dirPath, T ftpClient);
+    protected abstract List<Data> doListDir(String dirPath, T ftpClient);
 
     @Override
-    public List<DataFile> listDir(String dirPath) {
+    public List<Data> listDir(String dirPath) {
         mkdirIfNotExist(dirPath, "777");
         T ftpClient = getFtpClient();
         try {

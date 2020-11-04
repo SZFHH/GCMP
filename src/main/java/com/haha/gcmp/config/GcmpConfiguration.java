@@ -17,6 +17,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
 /**
+ * Gcmp configuration.
+ *
  * @author SZFHH
  * @date 2020/10/23
  */

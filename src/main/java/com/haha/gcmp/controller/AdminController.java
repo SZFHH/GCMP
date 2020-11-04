@@ -2,14 +2,12 @@ package com.haha.gcmp.controller;
 
 import com.haha.gcmp.config.propertites.GcmpProperties;
 import com.haha.gcmp.exception.BadRequestException;
-import com.haha.gcmp.model.entity.User;
 import com.haha.gcmp.model.params.LoginParam;
 import com.haha.gcmp.model.params.RegisterParam;
 import com.haha.gcmp.model.support.BaseResponse;
 import com.haha.gcmp.security.token.AuthToken;
 import com.haha.gcmp.service.AdminService;
 import com.haha.gcmp.service.AuthService;
-import com.haha.gcmp.service.UserService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,6 +17,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 /**
+ * Admin controller
+ *
  * @author SZFHH
  * @date 2020/10/22
  */
@@ -26,13 +26,11 @@ import javax.validation.Valid;
 @RequestMapping("/api/admin")
 public class AdminController {
     private final AuthService authService;
-    private final UserService userService;
     private final AdminService adminService;
     private final GcmpProperties gcmpProperties;
 
-    public AdminController(AuthService authService, UserService userService, AdminService adminService, GcmpProperties gcmpProperties) {
+    public AdminController(AuthService authService, AdminService adminService, GcmpProperties gcmpProperties) {
         this.authService = authService;
-        this.userService = userService;
         this.adminService = adminService;
         this.gcmpProperties = gcmpProperties;
     }
@@ -61,11 +59,6 @@ public class AdminController {
     @PostMapping("is_initialized")
     public boolean isInitialized() {
         return adminService.isInitialized();
-    }
-
-    @PostMapping("cur_user")
-    public User currentUser() {
-        return new User("admin", "Asd");
     }
 
     @PostMapping("logout")

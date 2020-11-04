@@ -1,13 +1,14 @@
-package com.haha.gcmp.service.support.fileclient.pool;
+package com.haha.gcmp.client.fileclient.pool;
 
 
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 
 /**
- * FTP 客户端连接池
+ * FtpClient连接池
  *
- * @author jelly
+ * @author SZFHH
+ * @date 2020/10/31
  */
 public class FtpClientPool extends GenericObjectPool<FTPClient> {
 

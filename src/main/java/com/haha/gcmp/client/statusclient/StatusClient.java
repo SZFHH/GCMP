@@ -1,20 +1,27 @@
-package com.haha.gcmp.service.support.statusclient;
+package com.haha.gcmp.client.statusclient;
 
 import ch.ethz.ssh2.Connection;
 import com.haha.gcmp.exception.ServiceException;
 import com.haha.gcmp.model.entity.ServerProperty;
 import com.haha.gcmp.model.entity.ServerStatus;
 import com.haha.gcmp.utils.SshUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
+ * 服务器空闲资源 Client
+ *
  * @author SZFHH
  * @date 2020/11/1
  */
 public class StatusClient {
+
+    private static final Logger logger = LoggerFactory.getLogger(StatusClient.class);
+
     private final String hostName;
     private final String gpuSeries;
     private final int gpuTotal;
@@ -32,9 +39,11 @@ public class StatusClient {
             connection.connect();
             authenticated = connection.authenticateWithPassword(serverProperty.getPassword(), serverProperty.getPassword());
         } catch (IOException e) {
-            throw new ServiceException("SSH连接异常。服务器：" + hostName, e);
+            logger.error("SSH连接IO异常。服务器：" + hostName, e);
+            throw new ServiceException("SSH连接IO异常。服务器：" + hostName, e);
         }
         if (!authenticated) {
+            logger.error("SSH连接验证异常。服务器：" + hostName);
             throw new ServiceException("SSH连接验证异常。服务器：" + hostName);
         }
         this.gpuTotal = serverProperty.getGpus();
@@ -45,11 +54,13 @@ public class StatusClient {
         try {
             this.memoryTotal = SshUtils.getMemoryInfo(this.connection)[0];
         } catch (IOException e) {
+            logger.error("获取内存信息异常：" + hostName, e);
             throw new ServiceException("获取内存信息异常：" + hostName, e);
         }
         try {
             this.diskTotal = SshUtils.getDiskInfo(this.connection)[0];
         } catch (IOException e) {
+            logger.error("获取硬盘信息异常：" + hostName, e);
             throw new ServiceException("获取硬盘信息异常：" + hostName, e);
         }
     }
@@ -61,6 +72,7 @@ public class StatusClient {
             rv.setDiskTotal(diskInfo[0]);
             rv.setDiskAvailable(diskInfo[1]);
         } catch (IOException e) {
+            logger.error("获取硬盘信息异常：" + hostName, e);
             throw new ServiceException("获取硬盘信息异常：" + hostName, e);
         }
         try {
@@ -68,6 +80,7 @@ public class StatusClient {
             rv.setMemoryTotal(memoryInfo[0]);
             rv.setMemoryAvailable(memoryInfo[1]);
         } catch (IOException e) {
+            logger.error("获取内存信息异常：" + hostName, e);
             throw new ServiceException("获取内存信息异常：" + hostName, e);
         }
         rv.setGpuAvailable(gpuAvailable.get());
@@ -104,6 +117,7 @@ public class StatusClient {
         try {
             return SshUtils.getDiskInfo(this.connection)[1];
         } catch (IOException e) {
+            logger.error("获取硬盘信息异常：" + hostName, e);
             throw new ServiceException("获取硬盘信息异常：" + hostName, e);
         }
     }
@@ -112,6 +126,7 @@ public class StatusClient {
         try {
             return SshUtils.getMemoryInfo(this.connection)[1];
         } catch (IOException e) {
+            logger.error("获取内存信息异常：" + hostName, e);
             throw new ServiceException("获取内存信息异常：" + hostName, e);
         }
     }

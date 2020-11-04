@@ -1,18 +1,16 @@
 package com.haha.gcmp.controller;
 
 import com.haha.gcmp.model.entity.Image;
-import com.haha.gcmp.model.params.ImageToAddParam;
-import com.haha.gcmp.model.params.ImageToRemoveParam;
+import com.haha.gcmp.model.params.ImageParam;
 import com.haha.gcmp.service.DockerService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
 
 /**
+ * Docker controller
+ *
  * @author SZFHH
  * @date 2020/10/22
  */
@@ -25,44 +23,44 @@ public class DockerController {
         this.dockerService = dockerService;
     }
 
-    @PostMapping("/list/common")
+    @GetMapping("common")
     public List<Image> listAllCommonImage() {
         return dockerService.listCommonImage();
     }
 
-    @PostMapping("/list/all")
+    @GetMapping("all")
     public Map<String, List<Image>> listAllImage() {
         return dockerService.listAllImage();
     }
 
-    @PostMapping("/list/user")
+    @GetMapping("user")
     public List<Image> listUserImage() {
         return dockerService.listUserImage();
     }
 
-    @PostMapping("add/common")
-    public void addCommonImage(@RequestBody ImageToAddParam imageToAddParam) {
-        dockerService.addCommonImage(imageToAddParam);
+    @PostMapping("common")
+    public void addCommonImage(@RequestBody ImageParam imageParam) {
+        dockerService.addCommonImage(imageParam);
     }
 
-    @PostMapping("add/user")
-    public void addUserImage(@RequestBody ImageToAddParam imageToAddParam) {
-        dockerService.addUserImage(imageToAddParam);
+    @PostMapping("user")
+    public void addUserImage(@RequestBody ImageParam imageParam) {
+        dockerService.addUserImage(imageParam);
     }
 
-    @PostMapping("quota")
+    @GetMapping("quota")
     public int userDockerFileQuota() {
         return dockerService.getUserDockerFileQuota();
     }
 
-    @PostMapping("/remove/user")
-    public void removeUserImage(@RequestBody ImageToRemoveParam imageParam) {
-        dockerService.removeUserImage(imageParam);
+    @DeleteMapping("user/{imageId:\\d+}")
+    public void removeUserImage(@PathVariable("imageId") int imageId) {
+        dockerService.removeUserImage(imageId);
     }
 
-    @PostMapping("/remove/common")
-    public void removeCommonImage(@RequestBody ImageToRemoveParam imageParam) {
-        dockerService.removeCommonImage(imageParam);
+    @DeleteMapping("common/{imageId:\\d+}")
+    public void removeCommonImage(@PathVariable("imageId") int imageId) {
+        dockerService.removeCommonImage(imageId);
     }
 
 }

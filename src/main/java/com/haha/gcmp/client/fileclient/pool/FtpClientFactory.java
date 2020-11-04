@@ -1,4 +1,4 @@
-package com.haha.gcmp.service.support.fileclient.pool;
+package com.haha.gcmp.client.fileclient.pool;
 
 import com.haha.gcmp.config.propertites.FtpPoolConfig;
 import com.haha.gcmp.exception.ServiceException;
@@ -14,9 +14,10 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 /**
- * ftpclient 工厂
+ * FtpClientFactory
  *
- * @author jelly
+ * @author SZFHH
+ * @date 2020/10/31
  */
 public class FtpClientFactory extends BasePooledObjectFactory<FTPClient> {
 
@@ -31,9 +32,6 @@ public class FtpClientFactory extends BasePooledObjectFactory<FTPClient> {
         this.serverProperty = serverProperty;
     }
 
-    /**
-     * 新建对象
-     */
     @Override
     public FTPClient create() throws Exception {
         String hostIp = serverProperty.getHostIp();
@@ -44,17 +42,18 @@ public class FtpClientFactory extends BasePooledObjectFactory<FTPClient> {
         ftpClient.setConnectTimeout(ftpPoolConfig.getConnectTimeOut());
         try {
 
-            logger.info("连接ftp服务器:" + hostIp + ":" + 21);
+            logger.debug("连接ftp服务器: [{}]", hostIp);
             ftpClient.connect(serverProperty.getHostIp(), 21);
 
             int reply = ftpClient.getReplyCode();
             if (!FTPReply.isPositiveCompletion(reply)) {
                 ftpClient.disconnect();
-                throw new ServiceException("ftpClient服务器拒绝连接，服务器" + hostName);
+                logger.error("ftpClient服务器拒绝连接，服务器: [{}]", hostName);
+                throw new ServiceException("ftpClient服务器拒绝连接，服务器:" + hostName);
             }
             boolean result = ftpClient.login(username, password);
             if (!result) {
-                logger.error("ftpClient登录失败!");
+                logger.error("ftpClient登录失败! userName:" + username + ", password:" + password);
                 throw new ServiceException("ftpClient登录失败! userName:" + username + ", password:"
                     + password);
             }
@@ -65,11 +64,11 @@ public class FtpClientFactory extends BasePooledObjectFactory<FTPClient> {
             ftpClient.setDataTimeout(ftpPoolConfig.getDataTimeout());
             ftpClient.setUseEPSVwithIPv4(ftpPoolConfig.isUseEpsvWithIpv4());
             if (ftpPoolConfig.isPassiveMode()) {
-                logger.info("进入ftp被动模式");
+                logger.debug("进入ftp被动模式");
                 ftpClient.enterLocalPassiveMode();//进入被动模式
             }
         } catch (IOException e) {
-            logger.error("FTP连接失败：", e);
+            logger.error("ftpClient服务器连接失败，服务器: [{}]", hostName, e);
             throw e;
         }
         return ftpClient;
@@ -80,9 +79,6 @@ public class FtpClientFactory extends BasePooledObjectFactory<FTPClient> {
         return new DefaultPooledObject<>(ftpClient);
     }
 
-    /**
-     * 销毁对象
-     */
     @Override
     public void destroyObject(PooledObject<FTPClient> p) throws Exception {
         FTPClient ftpClient = p.getObject();
@@ -91,9 +87,6 @@ public class FtpClientFactory extends BasePooledObjectFactory<FTPClient> {
         super.destroyObject(p);
     }
 
-    /**
-     * 验证对象
-     */
     @Override
     public boolean validateObject(PooledObject<FTPClient> p) {
         FTPClient ftpClient = p.getObject();
@@ -101,7 +94,7 @@ public class FtpClientFactory extends BasePooledObjectFactory<FTPClient> {
         try {
             connect = ftpClient.sendNoOp();
         } catch (IOException e) {
-            logger.error("验证ftp连接对象,返回false");
+            logger.warn("验证ftp连接对象,返回false");
         }
         return connect;
     }

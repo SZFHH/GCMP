@@ -2,13 +2,14 @@ package com.haha.gcmp.controller;
 
 import com.haha.gcmp.model.dto.TaskDTO;
 import com.haha.gcmp.model.params.TaskParam;
-import com.haha.gcmp.model.support.TaskSubmitResult;
 import com.haha.gcmp.service.TaskService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 /**
+ * Task controller
+ *
  * @author SZFHH
  * @date 2020/10/22
  */
@@ -21,29 +22,29 @@ public class TaskController {
         this.taskService = taskService;
     }
 
-    @RequestMapping("/submit")
-    public TaskSubmitResult submitTask(TaskParam taskParam) {
+    @PostMapping("submit")
+    public int submitTask(TaskParam taskParam) {
         return taskService.submitTask(taskParam);
     }
 
-    @RequestMapping("/list/user")
+    @GetMapping("user")
     List<TaskDTO> listTasksPerUser() {
         return taskService.listTasksPerUser();
     }
 
-    @RequestMapping("/list/admin")
+    @GetMapping("admin")
     List<TaskDTO> listAllTasks() {
         return taskService.listAllTasks();
     }
 
-    @DeleteMapping("/{id:\\d+}")
-    void cancelTask(@PathVariable("id") int id) {
-        taskService.cancelTask(id);
+    @DeleteMapping("/{taskId:\\d+}")
+    void cancelTask(@PathVariable("taskId") int taskId) {
+        taskService.cancelTask(taskId);
     }
 
-    @GetMapping("/log/{id:\\d+}")
-    String getLog(@PathVariable("id") int id) {
-        return taskService.getLog(id);
+    @GetMapping("/log/{taskId:\\d+}")
+    String getLog(@PathVariable("taskId") int taskId) {
+        return taskService.getLog(taskId);
     }
 
 }
