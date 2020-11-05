@@ -48,12 +48,10 @@ public class FtpClientFactory extends BasePooledObjectFactory<FTPClient> {
             int reply = ftpClient.getReplyCode();
             if (!FTPReply.isPositiveCompletion(reply)) {
                 ftpClient.disconnect();
-                logger.error("ftpClient服务器拒绝连接，服务器: [{}]", hostName);
                 throw new ServiceException("ftpClient服务器拒绝连接，服务器:" + hostName);
             }
             boolean result = ftpClient.login(username, password);
             if (!result) {
-                logger.error("ftpClient登录失败! userName:" + username + ", password:" + password);
                 throw new ServiceException("ftpClient登录失败! userName:" + username + ", password:"
                     + password);
             }
@@ -68,7 +66,6 @@ public class FtpClientFactory extends BasePooledObjectFactory<FTPClient> {
                 ftpClient.enterLocalPassiveMode();//进入被动模式
             }
         } catch (IOException e) {
-            logger.error("ftpClient服务器连接失败，服务器: [{}]", hostName, e);
             throw e;
         }
         return ftpClient;

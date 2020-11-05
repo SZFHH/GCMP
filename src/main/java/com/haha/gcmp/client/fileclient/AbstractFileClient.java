@@ -13,8 +13,6 @@ import com.haha.gcmp.utils.FileUtils;
 import com.haha.gcmp.utils.SshUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.pool2.impl.GenericObjectPool;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
@@ -26,7 +24,6 @@ import java.util.List;
  * @date 2020/10/31
  */
 public abstract class AbstractFileClient<T> implements FileClient {
-    private static final Logger logger = LoggerFactory.getLogger(AbstractFileClient.class);
     private final SshClientPool sshClientPool;
     protected String hostName;
     private GenericObjectPool<T> ftpClientPool;
@@ -48,13 +45,11 @@ public abstract class AbstractFileClient<T> implements FileClient {
         try {
             connection = sshClientPool.borrowObject();
         } catch (Exception e) {
-            logger.error("从ssh连接池获取连接异常", e);
             throw new ServiceException("从ssh连接池获取连接异常", e);
         }
         try {
             return SshUtils.execCmd(connection, cmd);
         } catch (IOException e) {
-            logger.error("执行shell命令异常，命令：" + cmd, e);
             throw new ServiceException(exceptionMsg, e);
         } finally {
             sshClientPool.returnObject(connection);
@@ -199,7 +194,6 @@ public abstract class AbstractFileClient<T> implements FileClient {
         try {
             sftpClient = ftpClientPool.borrowObject();
         } catch (Exception e) {
-            logger.error("从连接池获取sftpClient异常。服务器：" + hostName, e);
             throw new ServiceException("从连接池获取sftpClient异常。服务器：" + hostName, e);
         }
         return sftpClient;

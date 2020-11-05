@@ -3,9 +3,10 @@ package com.haha.gcmp.exception;
 import org.springframework.http.HttpStatus;
 
 /**
- * Exception caused by service.
+ * service exception
  *
- * @author johnniang
+ * @author SZFHH
+ * @date 2020/10/23
  */
 public class ServiceException extends AbstractGcmpException {
 

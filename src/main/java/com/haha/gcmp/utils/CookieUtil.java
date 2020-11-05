@@ -8,8 +8,8 @@ import com.haha.gcmp.security.support.AuthenticationToken;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
-import static com.haha.gcmp.config.GcmpConst.REMEMBER_ME_COOKIE_NAME;
-import static com.haha.gcmp.config.GcmpConst.REMEMBER_ME_COOKIE_TIME;
+import static com.haha.gcmp.model.support.GcmpConst.REMEMBER_ME_COOKIE_NAME;
+import static com.haha.gcmp.model.support.GcmpConst.REMEMBER_ME_COOKIE_TIME;
 
 /**
  * @author SZFHH

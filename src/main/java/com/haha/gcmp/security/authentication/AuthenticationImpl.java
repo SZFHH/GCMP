@@ -3,9 +3,8 @@ package com.haha.gcmp.security.authentication;
 import com.haha.gcmp.security.support.UserDetail;
 
 /**
- * Authentication implementation.
- *
- * @author johnniang
+ * @author SZFHH
+ * @date 2020/10/18
  */
 public class AuthenticationImpl implements Authentication {
 

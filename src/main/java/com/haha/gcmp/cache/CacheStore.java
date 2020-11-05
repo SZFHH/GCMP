@@ -6,17 +6,15 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Cache store interface.
+ * Cache store interface
  *
- * @param <K> cache key type
- * @param <V> cache value type
- * @author johnniang
- * *
+ * @author SZFHH
+ * @date 2020/10/18
  */
 public interface CacheStore<K, V> {
 
     /**
-     * Gets by cache key.
+     * 获取
      *
      * @param key must not be null
      * @return cache value
@@ -25,7 +23,7 @@ public interface CacheStore<K, V> {
     Optional<V> get(@NonNull K key);
 
     /**
-     * Puts a cache which will be expired.
+     * 添加，会过期
      *
      * @param key      cache key must not be null
      * @param value    cache value must not be null
@@ -35,7 +33,7 @@ public interface CacheStore<K, V> {
     void put(@NonNull K key, @NonNull V value, long timeout, @NonNull TimeUnit timeUnit);
 
     /**
-     * Puts a cache which will be expired if the key is absent.
+     * 如果不存在，添加
      *
      * @param key      cache key must not be null
      * @param value    cache value must not be null
@@ -46,7 +44,7 @@ public interface CacheStore<K, V> {
     Boolean putIfAbsent(@NonNull K key, @NonNull V value, long timeout, @NonNull TimeUnit timeUnit);
 
     /**
-     * Puts a non-expired cache.
+     * 添加，不会过期
      *
      * @param key   cache key must not be null
      * @param value cache value must not be null
@@ -54,7 +52,7 @@ public interface CacheStore<K, V> {
     void put(@NonNull K key, @NonNull V value);
 
     /**
-     * Delete a key.
+     * 删除
      *
      * @param key cache key must not be null
      */

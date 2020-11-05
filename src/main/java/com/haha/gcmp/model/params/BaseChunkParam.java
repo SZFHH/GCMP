@@ -1,16 +1,28 @@
 package com.haha.gcmp.model.params;
 
 /**
+ * Base chunk param
+ *
  * @author SZFHH
  * @date 2020/10/28
  */
 public abstract class BaseChunkParam {
+
     private int serverId;
 
+    /**
+     * 文件md5
+     */
     private String md5;
 
+    /**
+     * 待上传文件目标位置的相对路径（相对用户所属的根目录）
+     */
     private String relativePath;
 
+    /**
+     * 文件总分片数
+     */
     private int totalChunks;
 
     public int getTotalChunks() {

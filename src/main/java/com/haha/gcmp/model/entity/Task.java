@@ -1,5 +1,7 @@
 package com.haha.gcmp.model.entity;
 
+import com.haha.gcmp.model.enums.TaskStatusType;
+
 /**
  * @author SZFHH
  * @date 2020/11/1
@@ -7,7 +9,7 @@ package com.haha.gcmp.model.entity;
 public class Task {
     private int id;
     private String cmd;
-    private String status;
+    private TaskStatusType status;
     private int serverId;
     private int gpus;
     private int imageId;
@@ -63,11 +65,11 @@ public class Task {
         this.cmd = cmd;
     }
 
-    public String getStatus() {
+    public TaskStatusType getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(TaskStatusType status) {
         this.status = status;
     }
 

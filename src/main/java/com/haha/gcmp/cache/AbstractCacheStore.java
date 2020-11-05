@@ -12,17 +12,15 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Abstract cache store.
- *
- * @author johnniang
- * @date 3/28/19
+ * @author SZFHH
+ * @date 2020/10/18
  */
 
 public abstract class AbstractCacheStore<K, V> implements CacheStore<K, V> {
     private static final Logger log = LoggerFactory.getLogger(AbstractCacheStore.class);
 
     /**
-     * Get cache wrapper by key.
+     * 获取cache wrapper
      *
      * @param key key must not be null
      * @return an optional cache wrapper
@@ -31,7 +29,7 @@ public abstract class AbstractCacheStore<K, V> implements CacheStore<K, V> {
     abstract Optional<CacheWrapper<V>> getInternal(@NonNull K key);
 
     /**
-     * Puts the cache wrapper.
+     * 添加cache wrapper
      *
      * @param key          key must not be null
      * @param cacheWrapper cache wrapper must not be null
@@ -39,7 +37,7 @@ public abstract class AbstractCacheStore<K, V> implements CacheStore<K, V> {
     abstract void putInternal(@NonNull K key, @NonNull CacheWrapper<V> cacheWrapper);
 
     /**
-     * Puts the cache wrapper if the key is absent.
+     * 如果不存在，添加cache wrapper
      *
      * @param key          key must not be null
      * @param cacheWrapper cache wrapper must not be null
@@ -50,17 +48,11 @@ public abstract class AbstractCacheStore<K, V> implements CacheStore<K, V> {
     @Override
     public Optional<V> get(K key) {
         Assert.notNull(key, "Cache key must not be blank");
-
         return getInternal(key).map(cacheWrapper -> {
-            // Check expiration
             if (cacheWrapper.getExpireAt() != null && cacheWrapper.getExpireAt().before(DateUtils.now())) {
                 // Expired then delete it
-                log.warn("Cache key: [{}] has been expired", key);
-
-                // Delete the key
+                log.debug("Cache key: [{}] has been expired", key);
                 delete(key);
-
-                // Return null
                 return null;
             }
 
@@ -83,14 +75,7 @@ public abstract class AbstractCacheStore<K, V> implements CacheStore<K, V> {
         putInternal(key, buildCacheWrapper(value, 0, null));
     }
 
-    /**
-     * Builds cache wrapper.
-     *
-     * @param value    cache value must not be null
-     * @param timeout  the key expiry time, if the expiry time is less than 1, the cache won't be expired
-     * @param timeUnit timeout unit must
-     * @return cache wrapper
-     */
+
     @NonNull
     private CacheWrapper<V> buildCacheWrapper(@NonNull V value, long timeout, @Nullable TimeUnit timeUnit) {
         Assert.notNull(value, "Cache value must not be null");

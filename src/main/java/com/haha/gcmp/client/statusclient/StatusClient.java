@@ -39,11 +39,9 @@ public class StatusClient {
             connection.connect();
             authenticated = connection.authenticateWithPassword(serverProperty.getPassword(), serverProperty.getPassword());
         } catch (IOException e) {
-            logger.error("SSH连接IO异常。服务器：" + hostName, e);
             throw new ServiceException("SSH连接IO异常。服务器：" + hostName, e);
         }
         if (!authenticated) {
-            logger.error("SSH连接验证异常。服务器：" + hostName);
             throw new ServiceException("SSH连接验证异常。服务器：" + hostName);
         }
         this.gpuTotal = serverProperty.getGpus();
@@ -54,13 +52,11 @@ public class StatusClient {
         try {
             this.memoryTotal = SshUtils.getMemoryInfo(this.connection)[0];
         } catch (IOException e) {
-            logger.error("获取内存信息异常：" + hostName, e);
             throw new ServiceException("获取内存信息异常：" + hostName, e);
         }
         try {
             this.diskTotal = SshUtils.getDiskInfo(this.connection)[0];
         } catch (IOException e) {
-            logger.error("获取硬盘信息异常：" + hostName, e);
             throw new ServiceException("获取硬盘信息异常：" + hostName, e);
         }
     }
@@ -72,7 +68,6 @@ public class StatusClient {
             rv.setDiskTotal(diskInfo[0]);
             rv.setDiskAvailable(diskInfo[1]);
         } catch (IOException e) {
-            logger.error("获取硬盘信息异常：" + hostName, e);
             throw new ServiceException("获取硬盘信息异常：" + hostName, e);
         }
         try {
@@ -80,7 +75,6 @@ public class StatusClient {
             rv.setMemoryTotal(memoryInfo[0]);
             rv.setMemoryAvailable(memoryInfo[1]);
         } catch (IOException e) {
-            logger.error("获取内存信息异常：" + hostName, e);
             throw new ServiceException("获取内存信息异常：" + hostName, e);
         }
         rv.setGpuAvailable(gpuAvailable.get());
@@ -117,7 +111,6 @@ public class StatusClient {
         try {
             return SshUtils.getDiskInfo(this.connection)[1];
         } catch (IOException e) {
-            logger.error("获取硬盘信息异常：" + hostName, e);
             throw new ServiceException("获取硬盘信息异常：" + hostName, e);
         }
     }
@@ -126,7 +119,6 @@ public class StatusClient {
         try {
             return SshUtils.getMemoryInfo(this.connection)[1];
         } catch (IOException e) {
-            logger.error("获取内存信息异常：" + hostName, e);
             throw new ServiceException("获取内存信息异常：" + hostName, e);
         }
     }

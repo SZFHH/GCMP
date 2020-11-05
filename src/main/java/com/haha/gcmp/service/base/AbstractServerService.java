@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Base server service implementation.
+ *
  * @author SZFHH
  * @date 2020/10/24
  */
@@ -18,20 +20,6 @@ abstract public class AbstractServerService<T> implements ServerService<T> {
         this.gcmpProperties = gcmpProperties;
     }
 
-    @Override
-    public String getHostIp(String hostName) {
-        return gcmpProperties.getHostIps().get(hostName);
-    }
-
-    @Override
-    public String getHostUser(String hostName) {
-        return gcmpProperties.getHostUsers().get(hostName);
-    }
-
-    @Override
-    public String getHostPassword(String hostName) {
-        return gcmpProperties.getHostPasswords().get(hostName);
-    }
 
     public int getServerCount() {
         return gcmpProperties.getServerProperties().size();

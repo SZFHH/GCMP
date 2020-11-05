@@ -8,8 +8,8 @@ import com.haha.gcmp.model.dto.TaskDTO;
 import com.haha.gcmp.model.entity.Image;
 import com.haha.gcmp.model.entity.Task;
 import com.haha.gcmp.model.entity.User;
+import com.haha.gcmp.model.enums.TaskStatusType;
 import com.haha.gcmp.model.params.TaskParam;
-import com.haha.gcmp.model.support.TaskSubmitResult;
 import com.haha.gcmp.repository.TaskMapper;
 import com.haha.gcmp.service.*;
 import com.haha.gcmp.utils.FileUtils;
@@ -33,7 +33,12 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
+import static com.haha.gcmp.model.enums.TaskStatusType.*;
+import static com.haha.gcmp.model.support.GcmpConst.*;
+
 /**
+ * Task service implementation.
+ *
  * @author SZFHH
  * @date 2020/11/1
  */
@@ -70,13 +75,13 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public TaskSubmitResult submitTask(TaskParam taskParam) {
+    public int submitTask(TaskParam taskParam) {
         int gpus = taskParam.getGpus();
         int availableGpus = serverStatusService.requestForGpus(taskParam.getServerId(), gpus);
         if (availableGpus == -1) {
             String cmd = taskParam.getCmd();
             String[] extraPyPkg = taskParam.getExtraPythonPackage().split(" ");
-            int environmentId = taskParam.getEnvironmentId();
+            int environmentId = taskParam.getImageId();
             Image image = dockerService.getImage(environmentId);
             String podName = "gcmp-" + userService.getCurrentUser().getId() + System.currentTimeMillis();
             String podFile = generatePodFile(image, gpus, cmd, extraPyPkg, podName, taskParam.getPyVersion(), taskParam.getServerId());
@@ -92,11 +97,11 @@ public class TaskServiceImpl implements TaskService {
                 throw new ServiceException("创建pod异常", e);
             }
             Task task = convertFrom(taskParam, podName);
-            task.setStatus("pending");
+            task.setStatus(PENDING);
             taskMapper.insert(task);
-            return new TaskSubmitResult(-1);
+            return -1;
         }
-        return new TaskSubmitResult(availableGpus);
+        return availableGpus;
     }
 
     @Override
@@ -105,7 +110,6 @@ public class TaskServiceImpl implements TaskService {
         List<Task> tasks = taskMapper.listByUserId(cur.getId());
         List<TaskDTO> taskDTOs = new ArrayList<>();
         for (Task task : tasks) {
-
             taskDTOs.add(convertFrom(task));
         }
         return taskDTOs;
@@ -135,14 +139,14 @@ public class TaskServiceImpl implements TaskService {
         return taskDTO;
     }
 
-    private String getPodStatus(String podName) {
+    private TaskStatusType getPodStatus(String podName) {
         V1Pod v1Pod;
         try {
             v1Pod = k8sApi.readNamespacedPodStatus(podName, "default", "true");
         } catch (ApiException e) {
-            throw new ServiceException("无法获取pod信息", e);
+            throw new ServiceException("无法获取pod信息，pod名：" + podName, e);
         }
-        return v1Pod.getStatus().getPhase();
+        return TaskStatusType.valueFrom(v1Pod.getStatus().getPhase());
     }
 
 
@@ -157,17 +161,17 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public void cancelTask(int id) {
-        Task task = taskMapper.getById(id);
-        task.setStatus("delete");
+    public void cancelTask(int taskId) {
+        Task task = taskMapper.getById(taskId);
+        task.setStatus(DELETED);
         taskMapper.updateStatus(task);
-        if (taskMapper.casUpdateRemoved(id) != 0) {
+        if (taskMapper.casUpdateRemoved(taskId) != 0) {
             String podName = task.getPodName();
             try {
                 k8sApi.deleteNamespacedPod(podName, "default", "true", null, null,
                     null, null, null);
             } catch (ApiException e) {
-                throw new ServiceException("k8s删除pod异常", e);
+                throw new ServiceException("k8s删除pod异常, pod名：" + podName, e);
             }
             serverStatusService.returnGpus(task.getServerId(), task.getGpus());
         }
@@ -175,12 +179,13 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public String getLog(int id) {
-        Task task = taskMapper.getById(id);
-        String status = task.getStatus();
-        if ("delete".equals(status)) {
+    public String getLog(int taskId) {
+        Task task = taskMapper.getById(taskId);
+        TaskStatusType status = task.getStatus();
+        String desc = status.getDesc();
+        if (POD_STATUS_DELETED.equals(desc)) {
             throw new BadRequestException("不能获取删除了的训练任务的日志");
-        } else if ("succeeded".equals(status) || "failed".equals(status)) {
+        } else if (POD_STATUS_SUCCEED.equals(desc) || POD_STATUS_FAILED.equals(desc)) {
             return getLogFromFile(task.getId());
         } else {
             try {
@@ -215,7 +220,7 @@ public class TaskServiceImpl implements TaskService {
         try {
             return k8sApi.readNamespacedPodLog(podName, "default", null, false, gcmpProperties.getTaskLogLimitBytes(), "true", false, null, null, false);
         } catch (ApiException e) {
-            throw new ServiceException("从pod获取日志异常，podName" + podName, e);
+            throw new ServiceException("从pod获取日志异常，podName：" + podName, e);
         }
     }
 
@@ -275,10 +280,10 @@ public class TaskServiceImpl implements TaskService {
         public void run() {
             List<Task> tasks = taskMapper.listAll();
             for (Task task : tasks) {
-                String status = task.getStatus();
+                TaskStatusType status = task.getStatus();
                 int taskId = task.getId();
 
-                if ("delete".equals(status)) {
+                if (status == DELETED) {
                     if (task.getRemoved() == 1) {
                         taskMapper.removeById(taskId);
                     }
@@ -287,10 +292,9 @@ public class TaskServiceImpl implements TaskService {
                     } catch (IOException e) {
                         throw new ServiceException("删除训练任务日志异常，任务id" + taskId, e);
                     }
-                } else if ("running".equals(status)) {
-                    String latestStatus = getPodStatus(task.getPodName());
-                    latestStatus = latestStatus.toLowerCase();
-                    if ("succeeded".equals(latestStatus) || "failed".equals(latestStatus)) {
+                } else if (status == RUNNING) {
+                    TaskStatusType latestStatus = getPodStatus(task.getPodName());
+                    if (latestStatus == SUCCEED || latestStatus == FAILED) {
                         if (taskMapper.casUpdateRemoved(taskId) != 0) {
                             serverStatusService.returnGpus(task.getServerId(), task.getGpus());
                             String podName = task.getPodName();
@@ -305,7 +309,7 @@ public class TaskServiceImpl implements TaskService {
                                 k8sApi.deleteNamespacedPod(podName, "default", "true", null, null,
                                     null, null, null);
                             } catch (ApiException e) {
-                                throw new ServiceException("k8s删除pod异常", e);
+                                throw new ServiceException("k8s删除pod异常，pod名：" + podName, e);
                             }
                         }
                     }

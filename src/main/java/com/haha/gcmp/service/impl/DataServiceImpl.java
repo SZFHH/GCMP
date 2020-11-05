@@ -1,26 +1,24 @@
 package com.haha.gcmp.service.impl;
 
+import com.haha.gcmp.client.fileclient.FileClient;
+import com.haha.gcmp.client.fileclient.FtpFileClientImpl;
+import com.haha.gcmp.client.fileclient.SftpFileClientImpl;
 import com.haha.gcmp.config.propertites.FtpPoolConfig;
 import com.haha.gcmp.config.propertites.GcmpProperties;
 import com.haha.gcmp.config.propertites.SftpPoolConfig;
 import com.haha.gcmp.config.propertites.SshPoolConfig;
 import com.haha.gcmp.exception.ServiceException;
-import com.haha.gcmp.model.entity.DataFile;
+import com.haha.gcmp.model.entity.Data;
 import com.haha.gcmp.model.entity.ServerProperty;
-import com.haha.gcmp.model.entity.TempFileInfo;
+import com.haha.gcmp.model.entity.TempFile;
 import com.haha.gcmp.model.entity.User;
 import com.haha.gcmp.model.params.*;
 import com.haha.gcmp.model.support.CheckFileResult;
-import com.haha.gcmp.repository.FileMapper;
+import com.haha.gcmp.repository.TempFileMapper;
 import com.haha.gcmp.service.DataService;
 import com.haha.gcmp.service.UserService;
 import com.haha.gcmp.service.base.AbstractServerService;
-import com.haha.gcmp.service.support.fileclient.FileClient;
-import com.haha.gcmp.service.support.fileclient.FtpFileClientImpl;
-import com.haha.gcmp.service.support.fileclient.SftpFileClientImpl;
 import com.haha.gcmp.utils.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,25 +27,26 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import static com.haha.gcmp.config.GcmpConst.FTP_TYPE_SFTP;
+import static com.haha.gcmp.model.support.GcmpConst.FTP_TYPE_SFTP;
 
 /**
+ * Data service service implementation.
+ *
  * @author SZFHH
  * @date 2020/10/25
  */
 @Service
 public class DataServiceImpl extends AbstractServerService<FileClient> implements DataService {
     private final UserService userService;
-    private final FileMapper fileMapper;
+    private final TempFileMapper tempfileMapper;
     private final SftpPoolConfig sftpPoolConfig;
     private final SshPoolConfig sshPoolConfig;
     private final FtpPoolConfig ftpPoolConfig;
-    private static final Logger log = LoggerFactory.getLogger(DataServiceImpl.class);
 
-    protected DataServiceImpl(GcmpProperties gcmpProperties, UserService userService, FileMapper fileMapper, SftpPoolConfig sftpPoolConfig, SshPoolConfig sshPoolConfig, FtpPoolConfig ftpPoolConfig) {
+    protected DataServiceImpl(GcmpProperties gcmpProperties, UserService userService, TempFileMapper tempfileMapper, SftpPoolConfig sftpPoolConfig, SshPoolConfig sshPoolConfig, FtpPoolConfig ftpPoolConfig) {
         super(gcmpProperties);
         this.userService = userService;
-        this.fileMapper = fileMapper;
+        this.tempfileMapper = tempfileMapper;
         this.sftpPoolConfig = sftpPoolConfig;
         this.sshPoolConfig = sshPoolConfig;
         this.ftpPoolConfig = ftpPoolConfig;
@@ -63,17 +62,17 @@ public class DataServiceImpl extends AbstractServerService<FileClient> implement
     }
 
     @Override
-    public List<DataFile> listDataDir(DataParam dataParam) {
+    public List<Data> listDataDir(DataParam dataParam) {
         return doListDataDir(dataParam.getServerId(), gcmpProperties.getDataRoot(), dataParam.getRelativePath());
     }
 
-    private List<DataFile> doListDataDir(int serverId, String rootPath, String relativePath) {
+    private List<Data> doListDataDir(int serverId, String rootPath, String relativePath) {
         String absolutePath = FileUtils.joinPaths(rootPath, relativePath);
         FileClient fileClient = getClient(serverId);
-        List<DataFile> dataFiles = fileClient.listDir(absolutePath);
-        dataFiles.forEach(dataFile -> dataFile.setPath(FileUtils.joinPaths(relativePath, dataFile.getName())));
+        List<Data> data = fileClient.listDir(absolutePath);
+        data.forEach(dataFile -> dataFile.setPath(FileUtils.joinPaths(relativePath, dataFile.getName())));
 
-        return dataFiles;
+        return data;
     }
 
     @Override
@@ -111,38 +110,38 @@ public class DataServiceImpl extends AbstractServerService<FileClient> implement
         FileClient client = getClient(param.getServerId());
         boolean existed = client.checkFileExists(absolutePath);
         if (existed) {
-            DataFile fileInfo = client.getFileInfo(absolutePath);
+            Data fileInfo = client.getFileInfo(absolutePath);
             if (fileInfo.getSize() == param.getTotalSize()) {
-                fileMapper.remove(new TempFileInfo(param.getMd5(), param.getServerId(), param.getRelativePath()));
+                tempfileMapper.remove(new TempFile(param.getMd5(), param.getServerId(), param.getRelativePath()));
                 client.removeDirIfExists(getUserTempPath(param.getMd5()));
                 return new CheckFileResult(null, CheckFileResult.EXISTED);
             }
         }
-        TempFileInfo tempFileInfo = new TempFileInfo(param.getMd5(), param.getServerId(), param.getRelativePath());
-        if (fileMapper.get(tempFileInfo) == null) {
-            fileMapper.insert(tempFileInfo);
+        TempFile tempFile = new TempFile(param.getMd5(), param.getServerId(), param.getRelativePath());
+        if (!tempfileMapper.exists(tempFile)) {
+            tempfileMapper.insert(tempFile);
         }
-        List<DataFile> tempFiles = listTempFiles(param.getServerId(), param.getMd5());
+        List<Data> tempFiles = listTempFiles(param.getServerId(), param.getMd5());
         List<String> existedChunk = validateTempFile(param.getServerId(), tempFiles, param.getTotalChunks(), param.getChunkSize(), param.getTotalSize());
         return new CheckFileResult(existedChunk, CheckFileResult.NON_EXISTED);
 
     }
 
-    private List<String> validateTempFile(int serverId, List<DataFile> tempFiles, int totalChunks, long chunkSize, long totalSize) {
+    private List<String> validateTempFile(int serverId, List<Data> tempFiles, int totalChunks, long chunkSize, long totalSize) {
         List<String> rv = new ArrayList<>();
         long lastSize = totalSize - (long) (totalChunks - 1) * chunkSize;
-        for (DataFile dataFile : tempFiles) {
-            String absolutePath = FileUtils.joinPaths(gcmpProperties.getTempFileRoot(), dataFile.getPath());
-            int fileName = Integer.parseInt(dataFile.getName());
+        for (Data data : tempFiles) {
+            String absolutePath = FileUtils.joinPaths(gcmpProperties.getTempFileRoot(), data.getPath());
+            int fileName = Integer.parseInt(data.getName());
             if (fileName < totalChunks) {
-                if (dataFile.getSize() == chunkSize) {
-                    rv.add(dataFile.getName());
+                if (data.getSize() == chunkSize) {
+                    rv.add(data.getName());
                 } else {
                     getClient(serverId).removeFile(absolutePath);
                 }
             } else {
-                if (dataFile.getSize() == lastSize) {
-                    rv.add(dataFile.getName());
+                if (data.getSize() == lastSize) {
+                    rv.add(data.getName());
                 } else {
                     getClient(serverId).removeFile(absolutePath);
                 }
@@ -151,21 +150,16 @@ public class DataServiceImpl extends AbstractServerService<FileClient> implement
         return rv;
     }
 
-    private List<DataFile> listTempFiles(int serverId, String md5) {
+    private List<Data> listTempFiles(int serverId, String md5) {
         String tempDir = FileUtils.joinPaths(userService.getCurrentUser().getUserName(), md5);
         return doListDataDir(serverId, gcmpProperties.getTempFileRoot(), tempDir);
     }
 
     private List<String> listTempFilePaths(int serverId, String md5) {
-//        String tempDir = getUserTempPath(md5);
-//        List<String> rv = new ArrayList<>();
-//        for (int i = 1; i <= totalChunks; ++i) {
-//            rv.add(FileUtils.joinPaths(tempDir, String.valueOf(i)));
-//        }
-        List<DataFile> dataFiles = listTempFiles(serverId, md5);
-        dataFiles.sort(Comparator.comparingInt(d -> Integer.parseInt(d.getName())));
+        List<Data> data = listTempFiles(serverId, md5);
+        data.sort(Comparator.comparingInt(d -> Integer.parseInt(d.getName())));
         List<String> rv = new ArrayList<>();
-        dataFiles.forEach(dataFile -> rv.add(getUserTempPath(FileUtils.joinPaths(md5, dataFile.getName()))));
+        data.forEach(dataFile -> rv.add(getUserTempPath(FileUtils.joinPaths(md5, dataFile.getName()))));
         return rv;
     }
 
@@ -200,17 +194,17 @@ public class DataServiceImpl extends AbstractServerService<FileClient> implement
         FileClient fileClient = getClient(serverId);
         String filePath = getUserDataPath(relativePath);
         fileClient.mergeFiles(mergeFileList, filePath);
-        TempFileInfo tempFileInfo = new TempFileInfo(md5, serverId, relativePath);
-        fileMapper.remove(tempFileInfo);
+        TempFile tempFile = new TempFile(md5, serverId, relativePath);
+        tempfileMapper.remove(tempFile);
         fileClient.removeDir(getUserTempPath(md5));
     }
 
     @Override
-    public void cancelUpload(TempFileInfo tempFileInfo) {
-        fileMapper.remove(tempFileInfo);
-        FileClient fileClient = getClient(tempFileInfo.getServerId());
-        fileClient.removeDir(getUserTempPath(tempFileInfo.getMd5()));
-        fileClient.removeFile(getUserDataPath(tempFileInfo.getRelativePath()));
+    public void cancelUpload(TempFile tempFile) {
+        tempfileMapper.remove(tempFile);
+        FileClient fileClient = getClient(tempFile.getServerId());
+        fileClient.removeDir(getUserTempPath(tempFile.getMd5()));
+        fileClient.removeFile(getUserDataPath(tempFile.getRelativePath()));
     }
 
     @Override

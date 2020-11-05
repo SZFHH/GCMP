@@ -14,11 +14,23 @@ import java.util.List;
  */
 public class DockerUtils {
 
+    /**
+     * 获取所有的docker镜像
+     *
+     * @param dockerClient must not be null
+     * @return list of images
+     */
     public static List<Image> listImages(DockerClient dockerClient) {
         ListImagesCmd listImagesCmd = dockerClient.listImagesCmd();
         return listImagesCmd.exec();
     }
 
+    /**
+     * 拉取镜像
+     *
+     * @param dockerClient must not be null
+     * @param tag          must not be null
+     */
     public static void pullImage(DockerClient dockerClient, String tag) {
         PullImageCmd pullImageCmd = dockerClient.pullImageCmd(tag);
         try {
@@ -28,6 +40,12 @@ public class DockerUtils {
         }
     }
 
+    /**
+     * 根据dockerfile创建镜像
+     *
+     * @param dockerClient must not be null
+     * @param dockerFile   must not be null
+     */
     public static void createImage(DockerClient dockerClient, File dockerFile) {
         String tag = dockerFile.getName();
         BuildImageCmd imgToCreate = dockerClient.buildImageCmd(dockerFile).withTag(tag);
@@ -38,6 +56,12 @@ public class DockerUtils {
         }
     }
 
+    /**
+     * 删除镜像
+     *
+     * @param dockerClient must not be null
+     * @param tag          must not be null
+     */
     public static void removeImage(DockerClient dockerClient, String tag) {
         RemoveImageCmd imgToRemove = dockerClient.removeImageCmd(tag);
         try {

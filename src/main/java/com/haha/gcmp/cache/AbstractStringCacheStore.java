@@ -8,36 +8,21 @@ import org.slf4j.LoggerFactory;
 import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 
-import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 /**
- * String cache store.
- *
- * @author johnniang
+ * @author SZFHH
+ * @date 2020/10/18
  */
-
 public abstract class AbstractStringCacheStore extends AbstractCacheStore<String, String> {
-    private static final Logger log = LoggerFactory.getLogger(AbstractCacheStore.class);
-
-    protected Optional<CacheWrapper<String>> jsonToCacheWrapper(String json) {
-        Assert.hasText(json, "json value must not be null");
-        CacheWrapper<String> cacheWrapper = null;
-        try {
-            cacheWrapper = JsonUtils.jsonToObject(json, CacheWrapper.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-            log.debug("Failed to convert json to wrapper value bytes: [{}]", json, e);
-        }
-        return Optional.ofNullable(cacheWrapper);
-    }
-
+    private static final Logger log = LoggerFactory.getLogger(AbstractStringCacheStore.class);
 
     public <T> void put(String key, T value) {
         try {
             put(key, JsonUtils.objectToJson(value));
         } catch (JsonProcessingException e) {
+            log.error("Failed to convert object to json value : [{}]", value, e);
             throw new ServiceException("Failed to convert " + value + " to json", e);
         }
     }
@@ -46,6 +31,7 @@ public abstract class AbstractStringCacheStore extends AbstractCacheStore<String
         try {
             put(key, JsonUtils.objectToJson(value), timeout, timeUnit);
         } catch (JsonProcessingException e) {
+            log.error("Failed to convert object to json value : [{}]", value, e);
             throw new ServiceException("Failed to convert " + value + " to json", e);
         }
     }
@@ -56,9 +42,9 @@ public abstract class AbstractStringCacheStore extends AbstractCacheStore<String
         return get(key).map(value -> {
             try {
                 return JsonUtils.jsonToObject(value, type);
-            } catch (IOException e) {
+            } catch (JsonProcessingException e) {
                 log.error("Failed to convert json to type: " + type.getName(), e);
-                return null;
+                throw new ServiceException("Failed to convert json to type:" + type.getName(), e);
             }
         });
     }

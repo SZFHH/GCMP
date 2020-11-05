@@ -4,11 +4,9 @@ package com.haha.gcmp.security.context;
 import com.haha.gcmp.security.authentication.Authentication;
 
 /**
- * Security context implementation.
- *
- * @author johnniang
+ * @author SZFHH
+ * @date 2020/10/18
  */
-
 public class SecurityContextImpl implements SecurityContext {
 
     private Authentication authentication;

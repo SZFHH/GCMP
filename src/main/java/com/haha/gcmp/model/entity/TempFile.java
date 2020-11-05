@@ -4,12 +4,16 @@ package com.haha.gcmp.model.entity;
  * @author SZFHH
  * @date 2020/10/26
  */
-public class TempFileInfo {
+public class TempFile {
     String md5;
     int serverId;
+
+    /**
+     * 文件目标存储位置的相对路径
+     */
     String relativePath;
 
-    public TempFileInfo() {
+    public TempFile() {
     }
 
     public String getRelativePath() {
@@ -28,7 +32,7 @@ public class TempFileInfo {
         this.serverId = serverId;
     }
 
-    public TempFileInfo(String md5, int serverId, String relativePath) {
+    public TempFile(String md5, int serverId, String relativePath) {
         this.md5 = md5;
         this.serverId = serverId;
         this.relativePath = relativePath;

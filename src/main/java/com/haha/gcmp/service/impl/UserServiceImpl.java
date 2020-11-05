@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /**
+ * User service implementation.
+ *
  * @author SZFHH
  * @date 2020/10/23
  */
@@ -53,10 +55,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public int createUser(RegisterParam registerParam) {
+    public void createUser(RegisterParam registerParam) {
         User user = registerParam.toEntity();
         setPassword(user, registerParam.getPassword());
-        return userMapper.insert(user);
+        userMapper.insert(user);
     }
 
     @Override

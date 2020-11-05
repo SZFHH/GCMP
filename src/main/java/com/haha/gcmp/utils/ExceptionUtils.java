@@ -4,12 +4,10 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 /**
- * Exception utilities.
- * <p>Part from apache commons lang3 project.</p>
- *
- * @author johnniang
- * @see "org.apache.commons.lang3.exception.ExceptionUtils"
+ * @author SZFHH
+ * @date 2020/10/24
  */
+
 public class ExceptionUtils {
 
     /**

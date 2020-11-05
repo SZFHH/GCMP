@@ -3,9 +3,10 @@ package com.haha.gcmp.exception;
 import org.springframework.http.HttpStatus;
 
 /**
- * Exception of entity not found.
+ * not found exception
  *
- * @author johnniang
+ * @author SZFHH
+ * @date 2020/10/23
  */
 public class NotFoundException extends AbstractGcmpException {
 

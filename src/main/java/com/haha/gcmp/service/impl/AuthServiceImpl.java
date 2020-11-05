@@ -21,6 +21,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * Authentication service implementation.
+ *
  * @author SZFHH
  * @date 2020/10/23
  */

@@ -4,10 +4,8 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
 /**
- * Security context holder.
- *
- * @author johnniang
- * @date 12/11/18
+ * @author SZFHH
+ * @date 2020/10/18
  */
 public class SecurityContextHolder {
 

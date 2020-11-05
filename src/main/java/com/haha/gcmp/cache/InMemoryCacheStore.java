@@ -1,6 +1,5 @@
 package com.haha.gcmp.cache;
 
-
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,34 +11,30 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * In-memory cache store.
+ * memory cache store
  *
- * @author johnniang
+ * @author SZFHH
+ * @date 2020/10/18
  */
 
 public class InMemoryCacheStore extends AbstractStringCacheStore {
     private static final Logger log = LoggerFactory.getLogger(InMemoryCacheStore.class);
     /**
-     * Cleaner schedule period. (s)
+     * 过期清理周期（秒）
      */
     private final static long PERIOD = 60;
 
     /**
-     * Cache container.
+     * 缓存容器
      */
     private final ConcurrentHashMap<String, CacheWrapper<String>> CACHE_CONTAINER = new ConcurrentHashMap<>();
 
-    private final ScheduledExecutorService executor;
-
-    /**
-     * Lock.
-     */
     private final Lock lock = new ReentrantLock();
 
     public InMemoryCacheStore() {
         // Run a cache store cleaner
         ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("InMemoryCache-pool-%d").build();
-        executor = new ScheduledThreadPoolExecutor(1, namedThreadFactory);
+        ScheduledExecutorService executor = new ScheduledThreadPoolExecutor(1, namedThreadFactory);
         executor.scheduleAtFixedRate(new CacheExpiryCleaner(), 0, PERIOD, TimeUnit.SECONDS);
     }
 
@@ -74,7 +69,7 @@ public class InMemoryCacheStore extends AbstractStringCacheStore {
             Optional<String> valueOptional = get(key);
 
             if (valueOptional.isPresent()) {
-                log.warn("Failed to put the cache, because the key: [{}] has been present already", key);
+                log.debug("Failed to put the cache, because the key: [{}] has been present already", key);
                 return false;
             }
 
@@ -93,17 +88,6 @@ public class InMemoryCacheStore extends AbstractStringCacheStore {
 
         CACHE_CONTAINER.remove(key);
         log.debug("Removed key: [{}]", key);
-    }
-
-
-    public void preDestroy() {
-        log.debug("Cancelling all timer tasks");
-        executor.shutdown();
-        clear();
-    }
-
-    private void clear() {
-        CACHE_CONTAINER.clear();
     }
 
 

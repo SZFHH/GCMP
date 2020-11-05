@@ -1,13 +1,31 @@
 package com.haha.gcmp.model.params;
 
 /**
+ * Image param
+ *
  * @author SZFHH
  * @date 2020/10/24
  */
-public class ImageToAddParam {
+public class ImageParam {
+
+    /**
+     * docker镜像tag
+     */
     String tag;
+
+    /**
+     * 镜像描述
+     */
     String desc;
+
+    /**
+     * 镜像简化名字
+     */
     String alias;
+
+    /**
+     * dockerFile文件
+     */
     String dockerFile;
 
     public boolean isCommon() {

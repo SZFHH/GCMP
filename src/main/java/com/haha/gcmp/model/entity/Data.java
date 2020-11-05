@@ -6,7 +6,7 @@ import java.util.Comparator;
  * @author SZFHH
  * @date 2020/10/25
  */
-public class DataFile implements Comparator<DataFile> {
+public class Data implements Comparator<Data> {
     private boolean file;
 
     private String name;
@@ -23,10 +23,10 @@ public class DataFile implements Comparator<DataFile> {
         this.path = path;
     }
 
-    public DataFile() {
+    public Data() {
     }
 
-    public DataFile(boolean file, String name, long size, String path) {
+    public Data(boolean file, String name, long size, String path) {
         this.file = file;
         this.name = name;
         this.size = size;
@@ -59,7 +59,7 @@ public class DataFile implements Comparator<DataFile> {
     }
 
     @Override
-    public int compare(DataFile leftFile, DataFile rightFile) {
+    public int compare(Data leftFile, Data rightFile) {
         if (leftFile.file && !rightFile.file) {
             return 1;
         }

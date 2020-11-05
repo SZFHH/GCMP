@@ -5,14 +5,13 @@ import org.springframework.lang.NonNull;
 
 
 /**
- * Authentication.
- *
- * @author johnniang
+ * @author SZFHH
+ * @date 2020/10/18
  */
 public interface Authentication {
 
     /**
-     * Get user detail.
+     * 获取 user detail.
      *
      * @return user detail
      */

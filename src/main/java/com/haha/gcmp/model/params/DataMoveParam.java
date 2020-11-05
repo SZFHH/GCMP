@@ -1,12 +1,17 @@
 package com.haha.gcmp.model.params;
 
 /**
+ * Data move param
+ *
  * @author SZFHH
  * @date 2020/10/27
  */
 public class DataMoveParam {
+
     String srcRelativePath;
+
     String targetRelativePath;
+
     int serverId;
 
     public String getTargetRelativePath() {

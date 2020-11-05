@@ -14,6 +14,12 @@ import java.util.Arrays;
  * @date 2020/10/31
  */
 public class SshUtils {
+    /**
+     * 验证连接是否存活
+     *
+     * @param connection ssh连接
+     * @return true if connection is alive，false otherwise
+     */
     public static boolean validate(Connection connection) {
         Session session = null;
         boolean alive = false;
@@ -30,6 +36,14 @@ public class SshUtils {
         return alive;
     }
 
+    /**
+     * 执行shell 命令
+     *
+     * @param connection ssh连接
+     * @param cmd        命令
+     * @return 执行结果输出
+     * @throws IOException
+     */
     public static String execCmd(Connection connection, String cmd) throws IOException {
         Session session = null;
         String rv;
@@ -46,7 +60,13 @@ public class SshUtils {
         return rv;
     }
 
-    public static long[] processMemoryInfo(String rawInfo) {
+    /**
+     * 处理命令：free-b 输出的原始内存信息
+     *
+     * @param rawInfo 内存原始信息
+     * @return long[2](内存总空间 ， 可用内存空间)
+     */
+    private static long[] processMemoryInfo(String rawInfo) {
         String[] lines = rawInfo.split("\\n");
         long[] rv = new long[2];
         for (String line : lines) {
@@ -60,19 +80,39 @@ public class SshUtils {
         return rv;
     }
 
+    /**
+     * 获取内存信息
+     *
+     * @param connection ssh连接
+     * @return long[2](内存总空间 ， 可用内存空间)
+     * @throws IOException
+     */
     public static long[] getMemoryInfo(Connection connection) throws IOException {
         String cmd = "free -b";
         String rawInfo = execCmd(connection, cmd);
         return processMemoryInfo(rawInfo);
     }
 
+    /**
+     * 获取磁盘信息
+     *
+     * @param connection ssh连接
+     * @return long[2](磁盘总空间 ， 可用磁盘空间)
+     * @throws IOException
+     */
     public static long[] getDiskInfo(Connection connection) throws IOException {
         String cmd = "df";
         String rawInfo = execCmd(connection, cmd);
         return processDiskInfo(rawInfo);
     }
 
-    public static long[] processDiskInfo(String rawInfo) {
+    /**
+     * 处理命令：df 输出的原始磁盘信息
+     *
+     * @param rawInfo 磁盘原始信息
+     * @return long[2](磁盘总空间 ， 可用磁盘空间)
+     */
+    private static long[] processDiskInfo(String rawInfo) {
         String[] lines = rawInfo.split("\\n");
         long[] rv = new long[2];
         for (String line : lines) {

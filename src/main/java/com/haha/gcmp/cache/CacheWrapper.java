@@ -1,15 +1,14 @@
 package com.haha.gcmp.cache;
 
-
 import java.io.Serializable;
 import java.util.Date;
 
 /**
- * Cache wrapper.
+ * Cache wrapper
  *
- * @author johnniang
+ * @author SZFHH
+ * @date 2020/10/18
  */
-
 class CacheWrapper<V> implements Serializable {
 
     public V getData() {
@@ -36,18 +35,9 @@ class CacheWrapper<V> implements Serializable {
         this.createAt = createAt;
     }
 
-    /**
-     * Cache data
-     */
     private V data;
 
-    /**
-     * Expired time.
-     */
     private Date expireAt;
 
-    /**
-     * Create time.
-     */
     private Date createAt;
 }

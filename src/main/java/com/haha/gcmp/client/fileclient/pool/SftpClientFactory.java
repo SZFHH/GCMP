@@ -44,11 +44,9 @@ public class SftpClientFactory extends BasePooledObjectFactory<SftpClient> {
             connection.connect();
             authenticated = connection.authenticateWithPassword(username, password);
         } catch (IOException e) {
-            logger.error("SSH连接异常。服务器：" + hostName, e);
             throw new ServiceException("SSH连接IO异常。服务器：" + hostName, e);
         }
         if (!authenticated) {
-            logger.error("SSH连接验证异常。服务器：" + hostName);
             throw new ServiceException("SSH连接验证异常。服务器：" + hostName);
         }
         return new SftpClient(connection);

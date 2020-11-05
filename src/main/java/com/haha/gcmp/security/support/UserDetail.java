@@ -5,11 +5,9 @@ import org.springframework.lang.NonNull;
 
 
 /**
- * User detail.
- *
- * @author johnniang
+ * @author SZFHH
+ * @date 2020/10/18
  */
-
 public class UserDetail {
 
     private User user;

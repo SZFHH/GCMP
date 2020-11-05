@@ -2,7 +2,7 @@ package com.haha.gcmp.model.entity;
 
 import java.util.Objects;
 
-import static com.haha.gcmp.config.GcmpConst.DEFAULT_DOCKER_QUOTA;
+import static com.haha.gcmp.model.support.GcmpConst.DEFAULT_DOCKER_QUOTA;
 
 /**
  * @author SZFHH

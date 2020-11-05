@@ -6,7 +6,6 @@ import com.haha.gcmp.exception.AbstractGcmpException;
 import com.haha.gcmp.security.context.SecurityContextHolder;
 import com.haha.gcmp.security.handler.AuthenticationFailureHandler;
 import com.haha.gcmp.security.handler.DefaultAuthenticationFailureHandler;
-import com.haha.gcmp.service.PropertyService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,17 +24,13 @@ import java.io.IOException;
 import java.util.*;
 
 /**
- * Abstract authentication filter.
- *
- * @author johnniang
- * @date 19-4-16
+ * @author SZFHH
+ * @date 2020/10/18
  */
-
 public abstract class AbstractAuthenticationFilter extends OncePerRequestFilter {
     private static final Logger log = LoggerFactory.getLogger(AbstractAuthenticationFilter.class);
     protected final AntPathMatcher antPathMatcher;
     protected final GcmpProperties gcmpProperties;
-    protected final PropertyService propertyService;
     protected final AbstractStringCacheStore cacheStore;
     private final UrlPathHelper urlPathHelper = new UrlPathHelper();
 
@@ -49,12 +44,9 @@ public abstract class AbstractAuthenticationFilter extends OncePerRequestFilter 
 
 
     AbstractAuthenticationFilter(GcmpProperties gcmpProperties,
-                                 PropertyService propertyService,
                                  AbstractStringCacheStore cacheStore) {
         this.gcmpProperties = gcmpProperties;
-        this.propertyService = propertyService;
         this.cacheStore = cacheStore;
-
         antPathMatcher = new AntPathMatcher();
     }
 
@@ -160,23 +152,7 @@ public abstract class AbstractAuthenticationFilter extends OncePerRequestFilter 
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        // Check whether the blog is installed or not
-//        Boolean isInstalled = propertyService.getByPropertyOrDefault(PrimaryProperties.IS_INSTALLED, Boolean.class, false);
-//
-//        if (!isInstalled && !Mode.TEST.equals(gcmpProperties.getMode())) {
-//            // If not installed
-//            getFailureHandler().onFailure(request, response, new NotInitializationException("当前博客还没有初始化"));
-//            return;
-//        }
-
         try {
-            // Check the one-time-token
-//            if (isSufficientOneTimeToken(request)) {
-//                filterChain.doFilter(request, response);
-//                return;
-//            }
-
-            // Do authenticate
             doAuthenticate(request, response, filterChain);
         } catch (AbstractGcmpException e) {
             getFailureHandler().onFailure(request, response, e);

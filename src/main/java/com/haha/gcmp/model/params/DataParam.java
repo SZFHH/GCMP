@@ -1,12 +1,23 @@
 package com.haha.gcmp.model.params;
 
 /**
+ * Data param
+ *
  * @author SZFHH
  * @date 2020/10/26
  */
 public class DataParam {
+
+    /**
+     * 相对服务器中用户根文件的相对路径
+     */
     private String relativePath;
+
+    /**
+     * 是否是文件
+     */
     private boolean file;
+
     private int serverId;
 
     public int getServerId() {

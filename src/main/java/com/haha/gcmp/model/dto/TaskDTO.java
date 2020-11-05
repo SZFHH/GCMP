@@ -1,6 +1,8 @@
 package com.haha.gcmp.model.dto;
 
 /**
+ * Task output dto
+ *
  * @author SZFHH
  * @date 2020/11/1
  */

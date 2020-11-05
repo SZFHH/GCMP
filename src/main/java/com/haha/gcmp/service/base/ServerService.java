@@ -5,13 +5,12 @@ package com.haha.gcmp.service.base;
  * @date 2020/10/24
  */
 public interface ServerService<T> {
-
-    String getHostIp(String hostName);
-
-    String getHostUser(String hostName);
-
-    String getHostPassword(String hostName);
-
-    T getClient(int idx);
+    /**
+     * Get a client connected to server.
+     *
+     * @param serverId server id
+     * @return Client
+     */
+    T getClient(int serverId);
 
 }

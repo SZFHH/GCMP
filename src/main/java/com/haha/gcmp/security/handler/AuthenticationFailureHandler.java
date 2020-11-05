@@ -8,9 +8,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Authentication failure handler.
- *
- * @author johnniang
+ * @author SZFHH
+ * @date 2020/10/18
  */
 public interface AuthenticationFailureHandler {
 

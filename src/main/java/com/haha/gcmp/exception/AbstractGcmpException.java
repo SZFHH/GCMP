@@ -5,6 +5,8 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
 /**
+ * 本项目的Base exception
+ *
  * @author SZFHH
  * @date 2020/10/23
  */

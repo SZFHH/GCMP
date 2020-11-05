@@ -1,10 +1,10 @@
 package com.haha.gcmp.exception;
 
 /**
- * Not install exception.
+ * not initialization exception
  *
- * @author johnniang
- * @date 19-4-29
+ * @author SZFHH
+ * @date 2020/10/23
  */
 public class NotInitializationException extends BadRequestException {
 

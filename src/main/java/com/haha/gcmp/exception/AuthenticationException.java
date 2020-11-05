@@ -3,10 +3,12 @@ package com.haha.gcmp.exception;
 import org.springframework.http.HttpStatus;
 
 /**
- * Authentication exception.
+ * Authentication exception
  *
- * @author johnniang
+ * @author SZFHH
+ * @date 2020/10/23
  */
+
 public class AuthenticationException extends AbstractGcmpException {
 
     public AuthenticationException(String message) {

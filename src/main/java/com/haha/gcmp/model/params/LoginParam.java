@@ -5,9 +5,11 @@ import com.haha.gcmp.model.entity.User;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
-import static com.haha.gcmp.config.GcmpConst.DEFAULT_DOCKER_QUOTA;
+import static com.haha.gcmp.model.support.GcmpConst.DEFAULT_DOCKER_QUOTA;
 
 /**
+ * Login param
+ *
  * @author SZFHH
  * @date 2020/10/23
  */

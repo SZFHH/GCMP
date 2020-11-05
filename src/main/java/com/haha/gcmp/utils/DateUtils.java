@@ -8,11 +8,10 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Date utilities.
- *
- * @author johnniang
- * @date 3/18/19
+ * @author SZFHH
+ * @date 2020/10/18
  */
+
 public class DateUtils {
 
     private DateUtils() {

@@ -15,12 +15,35 @@ import javax.servlet.http.HttpServletResponse;
 public interface AuthService {
     int ACCESS_TOKEN_EXPIRED_SECONDS = 24 * 3600;
 
+    /**
+     * 验证用户的登录信息
+     *
+     * @param loginParam must not be null.
+     * @return a token
+     */
     AuthToken authenticate(LoginParam loginParam);
 
+    /**
+     * 检查登录凭证
+     *
+     * @param authenticationToken must not be null.
+     * @return user
+     */
     User authCheck(AuthenticationToken authenticationToken);
 
+    /**
+     * 设置remember me
+     *
+     * @param response   must not be null.
+     * @param loginParam must not be null.
+     */
     void setRememberMe(HttpServletResponse response, LoginParam loginParam);
 
+    /**
+     * 退出登录
+     *
+     * @param response must not be null.
+     */
     void logout(HttpServletResponse response);
 }
 

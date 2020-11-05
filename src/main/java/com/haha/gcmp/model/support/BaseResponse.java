@@ -5,9 +5,10 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
 /**
- * Global response entity.
+ * Base response
  *
- * @author johnniang
+ * @author SZFHH
+ * @date 2020/10/18
  */
 
 public class BaseResponse<T> {

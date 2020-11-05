@@ -1,19 +1,42 @@
 package com.haha.gcmp.model.params;
 
 /**
+ * Task param
+ *
  * @author SZFHH
  * @date 2020/11/1
  */
 public class TaskParam {
+
     int serverId;
-    int environmentId;
+
+    /**
+     * 镜像id
+     */
+    int imageId;
+
+    /**
+     * 任务的命令
+     */
     String cmd;
+
+    /**
+     * 额外的python包
+     */
     String extraPythonPackage;
+
+    /**
+     * 需要的gpu数量
+     */
     int gpus;
+
+    /**
+     * python的版本
+     */
     int pyVersion;
 
-    public int getEnvironmentId() {
-        return environmentId;
+    public int getImageId() {
+        return imageId;
     }
 
     public int getPyVersion() {
@@ -24,8 +47,8 @@ public class TaskParam {
         this.pyVersion = pyVersion;
     }
 
-    public void setEnvironmentId(int environmentId) {
-        this.environmentId = environmentId;
+    public void setImageId(int imageId) {
+        this.imageId = imageId;
     }
 
     public int getServerId() {

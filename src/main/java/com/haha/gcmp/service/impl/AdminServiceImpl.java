@@ -8,6 +8,8 @@ import com.haha.gcmp.service.UserService;
 import org.springframework.stereotype.Service;
 
 /**
+ * Admin service implementation.
+ *
  * @author SZFHH
  * @date 2020/10/23
  */

@@ -9,8 +9,6 @@ import com.haha.gcmp.model.entity.Data;
 import com.haha.gcmp.model.entity.ServerProperty;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -25,8 +23,6 @@ import java.util.List;
  */
 public class FtpFileClientImpl extends AbstractFileClient<FTPClient> {
 
-    private static final Logger logger = LoggerFactory.getLogger(FtpFileClientImpl.class);
-
     public FtpFileClientImpl(FtpPoolConfig ftpPoolConfig, SshPoolConfig sshPoolConfig, ServerProperty serverProperty) {
         super(sshPoolConfig, serverProperty);
         FtpClientFactory ftpClientFactory = new FtpClientFactory(ftpPoolConfig, serverProperty);
@@ -40,7 +36,6 @@ public class FtpFileClientImpl extends AbstractFileClient<FTPClient> {
         try {
             ftpFiles = ftpClient.listFiles(dirPath);
         } catch (IOException e) {
-            logger.error("获取文件列表异常。服务器：" + hostName + " 路径：" + dirPath, e);
             throw new ServiceException("获取文件列表异常。服务器：" + hostName + " 路径：" + dirPath, e);
         }
         List<Data> data = new ArrayList<>();
@@ -56,7 +51,6 @@ public class FtpFileClientImpl extends AbstractFileClient<FTPClient> {
         try {
             ftpClient.storeFile(remoteFilePath, new ByteArrayInputStream(data));
         } catch (IOException e) {
-            logger.error("上传文件:" + remoteFilePath + " 至服务器:" + hostName + "异常。", e);
             throw new ServiceException("上传文件:" + remoteFilePath + " 至服务器:" + hostName + "异常。", e);
         }
     }

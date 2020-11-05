@@ -1,21 +1,26 @@
 package com.haha.gcmp.service.impl;
 
+import com.haha.gcmp.client.statusclient.StatusClient;
 import com.haha.gcmp.config.propertites.GcmpProperties;
 import com.haha.gcmp.model.entity.ServerProperty;
 import com.haha.gcmp.model.entity.ServerStatus;
 import com.haha.gcmp.service.ServerStatusService;
 import com.haha.gcmp.service.base.AbstractServerService;
-import com.haha.gcmp.service.support.statusclient.StatusClient;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
+ * Server status service implementation.
+ *
  * @author SZFHH
  * @date 2020/11/1
  */
 @Service
-public class ServerStatusImpl extends AbstractServerService<StatusClient> implements ServerStatusService {
+public class ServerStatusServiceImpl extends AbstractServerService<StatusClient> implements ServerStatusService {
 
-    protected ServerStatusImpl(GcmpProperties gcmpProperties) {
+    protected ServerStatusServiceImpl(GcmpProperties gcmpProperties) {
         super(gcmpProperties);
     }
 
@@ -28,6 +33,26 @@ public class ServerStatusImpl extends AbstractServerService<StatusClient> implem
     public ServerStatus getAll(int serverId) {
         StatusClient statusClient = getClient(serverId);
         return statusClient.getAll();
+    }
+
+    @Override
+    public List<ServerStatus> getServersAll() {
+        List<ServerStatus> rv = new ArrayList<>();
+        int count = gcmpProperties.getServerProperties().size();
+        for (int i = 0; i < count; i++) {
+            rv.add(getAll(i));
+        }
+        return rv;
+    }
+
+    @Override
+    public List<Integer> getServersGpuAvailable() {
+        List<Integer> rv = new ArrayList<>();
+        int count = gcmpProperties.getServerProperties().size();
+        for (int i = 0; i < count; i++) {
+            rv.add(getGpuAvailable(i));
+        }
+        return rv;
     }
 
     @Override

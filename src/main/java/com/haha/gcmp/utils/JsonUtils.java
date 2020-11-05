@@ -13,10 +13,8 @@ import java.io.IOException;
 import java.util.Map;
 
 /**
- * Json utilities.
- *
- * @author johnniang
- * @date 3/18/19
+ * @author SZFHH
+ * @date 2020/10/18
  */
 public class JsonUtils {
 
@@ -67,7 +65,7 @@ public class JsonUtils {
      * @throws IOException throws when fail to convert
      */
     @NonNull
-    public static <T> T jsonToObject(@NonNull String json, @NonNull Class<T> type) throws IOException {
+    public static <T> T jsonToObject(@NonNull String json, @NonNull Class<T> type) throws JsonProcessingException {
         return jsonToObject(json, type, DEFAULT_JSON_MAPPER);
     }
 
@@ -82,7 +80,7 @@ public class JsonUtils {
      * @throws IOException throws when fail to convert
      */
     @NonNull
-    public static <T> T jsonToObject(@NonNull String json, @NonNull Class<T> type, @NonNull ObjectMapper objectMapper) throws IOException {
+    public static <T> T jsonToObject(@NonNull String json, @NonNull Class<T> type, @NonNull ObjectMapper objectMapper) throws JsonProcessingException {
         Assert.hasText(json, "Json content must not be blank");
         Assert.notNull(type, "Target type must not be null");
         Assert.notNull(objectMapper, "Object mapper must not null");

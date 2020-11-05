@@ -8,8 +8,6 @@ import com.haha.gcmp.config.propertites.SshPoolConfig;
 import com.haha.gcmp.exception.ServiceException;
 import com.haha.gcmp.model.entity.Data;
 import com.haha.gcmp.model.entity.ServerProperty;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,7 +21,6 @@ import java.util.List;
  */
 public class SftpFileClientImpl extends AbstractFileClient<SftpClient> {
 
-    private static final Logger logger = LoggerFactory.getLogger(SftpFileClientImpl.class);
 
     public SftpFileClientImpl(SftpPoolConfig sftpPoolConfig, SshPoolConfig sshPoolConfig, ServerProperty serverProperty) {
         super(sshPoolConfig, serverProperty);
@@ -39,7 +36,6 @@ public class SftpFileClientImpl extends AbstractFileClient<SftpClient> {
         try {
             temp = ftpClient.ls(dirPath);
         } catch (IOException e) {
-            logger.error("获取文件列表异常。服务器：" + hostName + " 路径：" + dirPath, e);
             throw new ServiceException("获取文件列表异常。服务器：" + hostName + " 路径：" + dirPath, e);
         }
         List<Data> data = new ArrayList<>();
@@ -55,7 +51,6 @@ public class SftpFileClientImpl extends AbstractFileClient<SftpClient> {
         try {
             ftpClient.put(data, remoteFilePath);
         } catch (IOException e) {
-            logger.error("上传文件:" + remoteFilePath + " 至服务器:" + hostName + "异常。", e);
             throw new ServiceException("上传文件:" + remoteFilePath + " 至服务器:" + hostName + "异常。", e);
         }
     }

@@ -4,7 +4,6 @@ import cn.hutool.extra.servlet.ServletUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.haha.gcmp.exception.AbstractGcmpException;
 import com.haha.gcmp.model.support.BaseResponse;
-import com.haha.gcmp.security.resolver.AuthenticationArgumentResolver;
 import com.haha.gcmp.utils.ExceptionUtils;
 import com.haha.gcmp.utils.JsonUtils;
 import org.slf4j.Logger;
@@ -18,14 +17,12 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Default AuthenticationFailureHandler.
- *
- * @author johnniang
- * @date 12/12/18
+ * @author SZFHH
+ * @date 2020/10/18
  */
 
 public class DefaultAuthenticationFailureHandler implements AuthenticationFailureHandler {
-    private static final Logger log = LoggerFactory.getLogger(AuthenticationArgumentResolver.class);
+    private static final Logger log = LoggerFactory.getLogger(DefaultAuthenticationFailureHandler.class);
     private boolean productionEnv = true;
 
     private ObjectMapper objectMapper = JsonUtils.DEFAULT_JSON_MAPPER;

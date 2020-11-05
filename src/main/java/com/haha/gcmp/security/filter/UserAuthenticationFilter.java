@@ -13,7 +13,6 @@ import com.haha.gcmp.security.support.AuthenticationToken;
 import com.haha.gcmp.security.support.UserDetail;
 import com.haha.gcmp.security.util.SecurityUtils;
 import com.haha.gcmp.service.AuthService;
-import com.haha.gcmp.service.PropertyService;
 import com.haha.gcmp.service.UserService;
 import com.haha.gcmp.utils.CookieUtil;
 import com.haha.gcmp.utils.JsonUtils;
@@ -30,18 +29,15 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Optional;
 
-import static com.haha.gcmp.config.GcmpConst.*;
+import static com.haha.gcmp.model.support.GcmpConst.*;
 
 /**
- * Admin authentication filter.
- *
- * @author johnniang
+ * @author SZFHH
+ * @date 2020/10/18
  */
 @Component
 @Order(1)
 public class UserAuthenticationFilter extends AbstractAuthenticationFilter {
-
-    private final GcmpProperties gcmpProperties;
 
     private final UserService userService;
 
@@ -50,11 +46,9 @@ public class UserAuthenticationFilter extends AbstractAuthenticationFilter {
     public UserAuthenticationFilter(AbstractStringCacheStore cacheStore,
                                     UserService userService,
                                     GcmpProperties gcmpProperties,
-                                    PropertyService propertyService,
                                     ObjectMapper objectMapper, AuthService authService) {
-        super(gcmpProperties, propertyService, cacheStore);
+        super(gcmpProperties, cacheStore);
         this.userService = userService;
-        this.gcmpProperties = gcmpProperties;
         this.authService = authService;
 
         addUrlPatterns(
