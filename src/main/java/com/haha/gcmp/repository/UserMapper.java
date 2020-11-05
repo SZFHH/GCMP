@@ -11,11 +11,34 @@ import java.util.List;
  */
 @Mapper
 public interface UserMapper {
+    /**
+     * 根据id获取user
+     *
+     * @param id id
+     * @return user
+     */
     User getById(int id);
 
+    /**
+     * 根据name获取user
+     *
+     * @param userName user name
+     * @return user
+     */
     User getByUserName(String userName);
 
+    /**
+     * 添加user
+     *
+     * @param user must not be null
+     * @return changed lines
+     */
     int insert(User user);
 
+    /**
+     * 获取所有user
+     *
+     * @return list of users.
+     */
     List<User> listAll();
 }

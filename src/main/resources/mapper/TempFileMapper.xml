@@ -4,14 +4,14 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 
-<mapper namespace="com.haha.gcmp.repository.FileMapper">
-    <resultMap id="fullTempFileInfo" type="com.haha.gcmp.model.entity.TempFileInfo">
+<mapper namespace="com.haha.gcmp.repository.TempFileMapper">
+    <resultMap id="fullTempFileInfo" type="com.haha.gcmp.model.entity.TempFile">
         <result property="md5" column="md5"/>
         <result property="serverId" column="server_id"/>
     </resultMap>
 
-    <select id="get" resultMap="fullTempFileInfo">
-        select md5, server_id from temp_file where md5 = #{md5} and server_id = #{serverId}
+    <select id="exists" resultType="_boolean">
+        select count(*) from temp_file where md5 = #{md5} and server_id = #{serverId}
     </select>
 
 

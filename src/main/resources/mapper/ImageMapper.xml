@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 
-<mapper namespace="com.haha.gcmp.repository.DockerMapper">
+<mapper namespace="com.haha.gcmp.repository.ImageMapper">
 
     <resultMap id="fullImage" type="com.haha.gcmp.model.entity.Image">
         <id property="id" column="id"/>
