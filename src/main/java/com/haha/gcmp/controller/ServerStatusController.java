@@ -1,5 +1,6 @@
 package com.haha.gcmp.controller;
 
+import com.haha.gcmp.model.dto.ServerPropertyDto;
 import com.haha.gcmp.model.entity.ServerStatus;
 import com.haha.gcmp.service.ServerStatusService;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,13 +24,19 @@ public class ServerStatusController {
         this.serverStatusService = serverStatusService;
     }
 
-    @GetMapping("all")
+    @GetMapping("available_all")
     public List<ServerStatus> getAll() {
-        return serverStatusService.getServersAll();
+        return serverStatusService.getServersAllAvailable();
     }
 
     @GetMapping("available_gpus")
     public List<Integer> getAvailableGpus() {
         return serverStatusService.getServersGpuAvailable();
+    }
+
+    @GetMapping("server_property")
+    public List<ServerPropertyDto> getServerProperty() {
+        return serverStatusService.getServersServerProperty();
+
     }
 }

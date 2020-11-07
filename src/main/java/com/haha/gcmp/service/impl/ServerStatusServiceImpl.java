@@ -2,6 +2,7 @@ package com.haha.gcmp.service.impl;
 
 import com.haha.gcmp.client.statusclient.StatusClient;
 import com.haha.gcmp.config.propertites.GcmpProperties;
+import com.haha.gcmp.model.dto.ServerPropertyDto;
 import com.haha.gcmp.model.entity.ServerProperty;
 import com.haha.gcmp.model.entity.ServerStatus;
 import com.haha.gcmp.service.ServerStatusService;
@@ -30,17 +31,17 @@ public class ServerStatusServiceImpl extends AbstractServerService<StatusClient>
     }
 
     @Override
-    public ServerStatus getAll(int serverId) {
+    public ServerStatus getAllAvailable(int serverId) {
         StatusClient statusClient = getClient(serverId);
-        return statusClient.getAll();
+        return statusClient.getAllAvailable();
     }
 
     @Override
-    public List<ServerStatus> getServersAll() {
+    public List<ServerStatus> getServersAllAvailable() {
         List<ServerStatus> rv = new ArrayList<>();
         int count = gcmpProperties.getServerProperties().size();
         for (int i = 0; i < count; i++) {
-            rv.add(getAll(i));
+            rv.add(getAllAvailable(i));
         }
         return rv;
     }
@@ -102,5 +103,26 @@ public class ServerStatusServiceImpl extends AbstractServerService<StatusClient>
         StatusClient statusClient = getClient(serverId);
         statusClient.returnGpus(gpus);
     }
+
+    @Override
+    public ServerPropertyDto getServerProperty(int serverId) {
+        return new ServerPropertyDto(
+            gcmpProperties.getServerProperties().get(serverId).getHostName(),
+            getGpuTotal(serverId),
+            gcmpProperties.getServerProperties().get(serverId).getGpuSeries(),
+            getDiskTotal(serverId),
+            getMemoryTotal(serverId));
+    }
+
+    @Override
+    public List<ServerPropertyDto> getServersServerProperty() {
+        List<ServerPropertyDto> rv = new ArrayList<>();
+        int count = gcmpProperties.getServerProperties().size();
+        for (int i = 0; i < count; i++) {
+            rv.add(getServerProperty(i));
+        }
+        return rv;
+    }
+
 
 }

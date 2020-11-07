@@ -5,10 +5,7 @@ import com.haha.gcmp.model.entity.TempFile;
 import com.haha.gcmp.model.params.*;
 import com.haha.gcmp.model.support.CheckFileResult;
 import com.haha.gcmp.service.DataService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -28,22 +25,22 @@ public class DataController {
         this.dataService = dataService;
     }
 
-    @PostMapping("upload")
+    @PostMapping("/chunk")
     public void uploadChunk(UploadChunkParam uploadChunkParam, @RequestParam("file") MultipartFile file) {
         dataService.uploadChunk(uploadChunkParam, file);
     }
 
-    @PostMapping("merge")
+    @PostMapping("/chunk/merge")
     public void mergeChunk(MergeChunkParam mergeChunkParam) {
         dataService.mergeChunk(mergeChunkParam);
     }
 
-    @PostMapping("check")
+    @GetMapping("/chunk")
     public CheckFileResult checkChunk(CheckFileQuery checkFileQuery) {
         return dataService.checkChunk(checkFileQuery);
     }
 
-    @PostMapping("cancel")
+    @DeleteMapping("/chunk")
     public void cancelUpload(TempFile tempFile) {
         dataService.cancelUpload(tempFile);
     }
@@ -53,12 +50,12 @@ public class DataController {
         dataService.move(dataMoveParam);
     }
 
-    @PostMapping("remove")
-    public void remove(DataParam dataParam) {
+    @DeleteMapping("")
+    public void remove(@RequestBody DataParam dataParam) {
         dataService.remove(dataParam);
     }
 
-    @PostMapping("list")
+    @GetMapping("")
     public List<Data> listDir(DataParam dataParam) {
         return dataService.listDataDir(dataParam);
     }

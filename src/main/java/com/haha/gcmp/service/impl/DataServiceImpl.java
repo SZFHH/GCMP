@@ -63,7 +63,7 @@ public class DataServiceImpl extends AbstractServerService<FileClient> implement
 
     @Override
     public List<Data> listDataDir(DataParam dataParam) {
-        return doListDataDir(dataParam.getServerId(), gcmpProperties.getDataRoot(), dataParam.getRelativePath());
+        return doListDataDir(dataParam.getServerId(), getUserDataPath(""), dataParam.getRelativePath());
     }
 
     private List<Data> doListDataDir(int serverId, String rootPath, String relativePath) {
@@ -85,10 +85,11 @@ public class DataServiceImpl extends AbstractServerService<FileClient> implement
     @Override
     public void remove(DataParam dataParam) {
         FileClient fileClient = getClient(dataParam.getServerId());
+        String absolutePath = getUserDataPath(dataParam.getRelativePath());
         if (dataParam.isFile()) {
-            fileClient.removeFile(dataParam.getRelativePath());
+            fileClient.removeFile(absolutePath);
         } else {
-            fileClient.removeDir(dataParam.getRelativePath());
+            fileClient.removeDir(absolutePath);
         }
     }
 

@@ -37,7 +37,7 @@ public class StatusClient {
         Connection connection = new Connection(serverProperty.getHostIp(), 22);
         try {
             connection.connect();
-            authenticated = connection.authenticateWithPassword(serverProperty.getPassword(), serverProperty.getPassword());
+            authenticated = connection.authenticateWithPassword(serverProperty.getUsername(), serverProperty.getPassword());
         } catch (IOException e) {
             throw new ServiceException("SSH连接IO异常。服务器：" + hostName, e);
         }
@@ -61,25 +61,21 @@ public class StatusClient {
         }
     }
 
-    public ServerStatus getAll() {
+    public ServerStatus getAllAvailable() {
         ServerStatus rv = new ServerStatus();
         try {
             long[] diskInfo = SshUtils.getDiskInfo(connection);
-            rv.setDiskTotal(diskInfo[0]);
             rv.setDiskAvailable(diskInfo[1]);
         } catch (IOException e) {
             throw new ServiceException("获取硬盘信息异常：" + hostName, e);
         }
         try {
             long[] memoryInfo = SshUtils.getMemoryInfo(connection);
-            rv.setMemoryTotal(memoryInfo[0]);
             rv.setMemoryAvailable(memoryInfo[1]);
         } catch (IOException e) {
             throw new ServiceException("获取内存信息异常：" + hostName, e);
         }
         rv.setGpuAvailable(gpuAvailable.get());
-        rv.setGpuTotal(gpuTotal);
-        rv.setHostName(hostName);
         return rv;
     }
 

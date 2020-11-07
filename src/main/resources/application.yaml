@@ -1,5 +1,6 @@
 server:
   port: 8090
+
 spring:
   devtools:
     restart:
@@ -11,6 +12,10 @@ spring:
     url: jdbc:mysql://127.0.0.1:3306/gcmp?characterEncoding=utf-8&serverTimezone=UTC
     username: root
     password:
+  thymeleaf:
+    mode: HTML5
+    encoding: UTF-8
+    cache: false
 
 #mybatis的相关配置
 mybatis:

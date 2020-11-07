@@ -1,5 +1,6 @@
 package com.haha.gcmp.service;
 
+import com.haha.gcmp.model.dto.ServerPropertyDto;
 import com.haha.gcmp.model.entity.ServerStatus;
 
 import java.util.List;
@@ -15,14 +16,14 @@ public interface ServerStatusService {
      * @param serverId server id
      * @return server status
      */
-    ServerStatus getAll(int serverId);
+    ServerStatus getAllAvailable(int serverId);
 
     /**
      * 获取所有服务器的所有可用资源信息
      *
      * @return list of server status
      */
-    List<ServerStatus> getServersAll();
+    List<ServerStatus> getServersAllAvailable();
 
     /**
      * 获取所有服务器的可用gpu数
@@ -95,5 +96,20 @@ public interface ServerStatusService {
      * @param gpus     gpus
      */
     void returnGpus(int serverId, int gpus);
+
+    /**
+     * 获取单台服务器的属性
+     *
+     * @param serverId server id
+     * @return ServerPropertyDto
+     */
+    ServerPropertyDto getServerProperty(int serverId);
+
+    /**
+     * 获取所有服务器的属性
+     *
+     * @return list of ServerPropertyDto
+     */
+    List<ServerPropertyDto> getServersServerProperty();
 
 }
