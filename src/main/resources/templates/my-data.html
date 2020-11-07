@@ -140,6 +140,7 @@
                     },
 
                     rename: function () {
+                        $("#renameModel").modal("hide")
                         var sl = [];
                         $(".cartProductItemIfSelected").each(function () {
                             var selected = $(this).attr("selectedd");
@@ -147,8 +148,8 @@
                                 sl.push($(this).attr("idx"));
                             }
                         });
-                        if (sl.length > 1) {
-                            alert("选太多了！")
+                        if (sl.length != 1) {
+                            alert("选太多/太少了！")
                         } else {
                             var idx = sl[0];
                             var srcpath = vue.relativePath + '/' + vue.datas[idx].name;
@@ -158,9 +159,8 @@
                                 targetRelativePath: tgtpath,
                                 serverId: this.serverId
                             }).then(function (response) {
-
+                                vue.load();
                             });
-                            this.load();
                         }
                     },
 
@@ -183,9 +183,9 @@
                                 targetRelativePath: tgtpath,
                                 serverId: this.serverId
                             }).then(function (response) {
-
+                                vue.load();
                             });
-                            this.load();
+
                         }
                     }
 
@@ -444,7 +444,39 @@
 
     </div>
     <!-- End of Content Wrapper -->
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                    <a class="btn btn-primary" href="login.html">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="renameModel" tabindex="-1" role="dialog" aria-labelledby="renameModel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="p-3">
+                    <input v-model="newPath" type="text" class="form-control" placeholder="新的文件(夹)名">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <a class="btn btn-primary" @click="rename">确定</a>
+                </div>
+            </div>
 
+        </div><!-- /.modal -->
+    </div>
 </div>
 <!-- End of Page Wrapper -->
 
@@ -453,36 +485,6 @@
     <i class="fas fa-angle-up"></i>
 </a>
 
-<!-- Logout Modal-->
-<div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-     aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
-                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">×</span>
-                </button>
-            </div>
-            <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                <a class="btn btn-primary" href="login.html">Logout</a>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="modal fade" id="renameModel" tabindex="-1" role="dialog" aria-labelledby="renameModel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="p-3">
-            <input v-model="newPath" type="text" class="form-control" placeholder="新的文件(夹)名">
-        </div>
-        <div class="float-right">
-            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-            <button type="button" class="btn btn-primary" @click="rename">确定</button>
-        </div>
-    </div><!-- /.modal -->
-</div>
 <div class="modal fade" id="moveModel" tabindex="-1" role="dialog" aria-labelledby="moveModel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -513,6 +515,9 @@
         </div><!-- /.modal-content -->
     </div><!-- /.modal -->
 </div>
+<!-- Logout Modal-->
+
+
 </body>
 
 </html>

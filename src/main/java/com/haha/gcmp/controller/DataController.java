@@ -46,7 +46,7 @@ public class DataController {
     }
 
     @PostMapping("move")
-    public void moveData(DataMoveParam dataMoveParam) {
+    public void moveData(@RequestBody DataMoveParam dataMoveParam) {
         dataService.move(dataMoveParam);
     }
 
