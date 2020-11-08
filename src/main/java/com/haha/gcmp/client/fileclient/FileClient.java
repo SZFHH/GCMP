@@ -65,6 +65,14 @@ public interface FileClient {
     void move(String srcPath, String targetPath);
 
     /**
+     * 复制服务器文件（夹）
+     *
+     * @param srcPath    源绝对路径
+     * @param targetPath 目标绝对路径
+     */
+    void copy(String srcPath, String targetPath);
+
+    /**
      * 如果父目录不存在的话，创建父目录
      *
      * @param remotePath 服务器文件（夹）绝对路径

@@ -68,13 +68,13 @@ public abstract class AbstractFileClient<T> implements FileClient {
         String dirPath = FileUtils.getDir(remoteFilePath);
         String unzipCmd = "cd " + dirPath + " && ";
         if (remoteFilePath.endsWith(".tar")) {
-            unzipCmd = "tar -xvf";
+            unzipCmd += "tar -xvf";
         } else if (remoteFilePath.endsWith(".gz")) {
-            unzipCmd = "gzip -d";
+            unzipCmd += "gzip -d";
         } else if (remoteFilePath.endsWith(".tar.gz") || remoteFilePath.endsWith(".tgz")) {
-            unzipCmd = "tar -zxvf";
+            unzipCmd += "tar -zxvf";
         } else if (remoteFilePath.endsWith(".zip")) {
-            unzipCmd = "unzip";
+            unzipCmd += "unzip";
         } else if (remoteFilePath.endsWith(".rar")) {
             throw new BadRequestException("不支持rar格式，请选择(zip,tar,gz,tar.gz,tgz)中的格式");
         }
@@ -87,7 +87,15 @@ public abstract class AbstractFileClient<T> implements FileClient {
     public void move(String srcPath, String targetPath) {
         createParentDirIfNecessary(targetPath, "777");
         String cmd = "mv -f  " + srcPath + " " + targetPath;
-        String msg = String.format("移动文件异常。服务器:%s 源：%s目标: %s", hostName, srcPath, targetPath);
+        String msg = String.format("移动文件(夹)异常。服务器:%s 源：%s目标: %s", hostName, srcPath, targetPath);
+        execShellCmd(cmd, msg);
+    }
+
+    @Override
+    public void copy(String srcPath, String targetPath) {
+        createParentDirIfNecessary(targetPath, "777");
+        String cmd = "cp -rf  " + srcPath + " " + targetPath;
+        String msg = String.format("复制文件(夹)异常。服务器:%s 源：%s目标: %s", hostName, srcPath, targetPath);
         execShellCmd(cmd, msg);
     }
 

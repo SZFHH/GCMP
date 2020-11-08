@@ -215,4 +215,19 @@ public class DataServiceImpl extends AbstractServerService<FileClient> implement
         FileClient fileClient = getClient(dataMoveParam.getServerId());
         fileClient.move(absoluteSrcPath, absoluteTargetPath);
     }
+
+    @Override
+    public void copy(DataMoveParam dataMoveParam) {
+        String absoluteSrcPath = getUserDataPath(dataMoveParam.getSrcRelativePath());
+        String absoluteTargetPath = getUserDataPath(dataMoveParam.getTargetRelativePath());
+        FileClient fileClient = getClient(dataMoveParam.getServerId());
+        fileClient.copy(absoluteSrcPath, absoluteTargetPath);
+    }
+
+    @Override
+    public void newDir(DataParam dataParam) {
+        String absolutePath = getUserDataPath(dataParam.getRelativePath());
+        FileClient fileClient = getClient(dataParam.getServerId());
+        fileClient.mkdirIfNotExist(absolutePath, "777");
+    }
 }

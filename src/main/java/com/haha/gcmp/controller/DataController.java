@@ -50,6 +50,16 @@ public class DataController {
         dataService.move(dataMoveParam);
     }
 
+    @PostMapping("/dir")
+    public void newDir(@RequestBody DataParam dataParam) {
+        dataService.newDir(dataParam);
+    }
+
+    @PostMapping("copy")
+    public void copyData(@RequestBody DataMoveParam dataMoveParam) {
+        dataService.copy(dataMoveParam);
+    }
+
     @DeleteMapping("")
     public void remove(@RequestBody DataParam dataParam) {
         dataService.remove(dataParam);
@@ -61,7 +71,7 @@ public class DataController {
     }
 
     @PostMapping("unzip")
-    public void unzip(DataParam dataParam) {
+    public void unzip(@RequestBody DataParam dataParam) {
         dataService.unzip(dataParam);
     }
 }

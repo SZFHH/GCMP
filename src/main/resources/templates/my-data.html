@@ -119,12 +119,16 @@
                     },
 
                     remove: function (element) {
-                        $(".cartProductItemIfSelected").each(function () {
+                        var counter = 0;
+                        var arr = $(".cartProductItemIfSelected");
+                        arr.each(function () {
                             var selected = $(this).attr("selectedd");
                             if (selected == "true") {
                                 var idx = $(this).attr("idx");
                                 var path = vue.relativePath + '/' + vue.datas[idx].name;
                                 var isFile = vue.datas[idx].file;
+                                $("span.errorMessage").html("正在删除" + vue.datas[idx].name + "...");
+                                $("div.ErrorMessageDiv").removeClass("fade")
                                 axios.delete(vue.uri, {
                                     data: {
                                         relativePath: path,
@@ -132,15 +136,18 @@
                                         serverId: vue.serverId
                                     }
                                 }).then(function (response) {
-
+                                    $("div.ErrorMessageDiv").addClass("fade")
                                 });
                             }
-                        });
-                        this.load();
+                            counter++;
+                            if (counter == arr.length) {
+                                vue.load();
+                            }
+                        })
                     },
 
                     rename: function () {
-                        $("#renameModel").modal("hide")
+                        $("#renameModal").modal("hide")
                         var sl = [];
                         $(".cartProductItemIfSelected").each(function () {
                             var selected = $(this).attr("selectedd");
@@ -165,31 +172,77 @@
                     },
 
                     move: function () {
-                        var sl = [];
+                        $("#moveModal").modal("hide")
                         $(".cartProductItemIfSelected").each(function () {
                             var selected = $(this).attr("selectedd");
                             if (selected == "true") {
-                                sl.push($(this).attr("idx"));
+                                var idx = $(this).attr("idx")
+                                var srcpath = vue.relativePath + '/' + vue.datas[idx].name;
+                                var tgtpath = vue.newPath + '/' + vue.datas[idx].name;
+                                axios.post("/api/data/move", {
+                                    srcRelativePath: srcpath,
+                                    targetRelativePath: tgtpath,
+                                    serverId: vue.serverId
+                                }).then(function (response) {
+                                });
+                            }
+                        })
+                    },
+
+                    copy: function () {
+                        $("#copyModal").modal("hide")
+                        $(".cartProductItemIfSelected").each(function () {
+                            var selected = $(this).attr("selectedd");
+                            if (selected == "true") {
+                                var idx = $(this).attr("idx")
+                                var srcpath = vue.relativePath + '/' + vue.datas[idx].name;
+                                var tgtpath = vue.newPath;
+                                axios.post("/api/data/copy", {
+                                    srcRelativePath: srcpath,
+                                    targetRelativePath: tgtpath,
+                                    serverId: vue.serverId
+                                }).then(function (response) {
+                                });
                             }
                         });
-                        if (sl.length > 1) {
-                            alert("选太多了！")
-                        } else {
-                            var idx = sl[0];
-                            var srcpath = vue.relativePath + '/' + vue.datas[idx].name;
-                            var tgtpath = this.newPath + '/' + vue.datas[idx].name;
-                            axios.post("/api/data/move", {
-                                srcRelativePath: srcpath,
-                                targetRelativePath: tgtpath,
-                                serverId: this.serverId
-                            }).then(function (response) {
-                                vue.load();
-                            });
+                        this.load();
+                    },
+                    newDir: function () {
+                        $("#newDirModal").modal("hide");
+                        var path = this.relativePath + '/' + this.newPath
+                        axios.post("/api/data/dir", {
+                                relativePath: path,
+                                file: false,
+                                serverId: vue.serverId
+                            }
+                        ).then(function (response) {
+                            vue.load();
+                        });
+                    },
+                    unzip: function () {
+                        $(".cartProductItemIfSelected").each(function () {
+                            var selected = $(this).attr("selectedd");
+                            if (selected == "true") {
+                                var idx = $(this).attr("idx")
+                                var path = vue.relativePath + '/' + vue.datas[idx].name;
+                                var file = vue.datas[idx].file;
+                                if (file) {
+                                    $("span.errorMessage").html("正在解压" + vue.datas[idx].name + "...");
+                                    $("div.ErrorMessageDiv").removeClass("fade")
+                                    axios.post("/api/data/unzip", {
+                                        relativePath: path,
+                                        file: true,
+                                        serverId: vue.serverId
+                                    }).then(function (response) {
+                                        $("div.ErrorMessageDiv").addClass("fade")
+                                        vue.load();
+                                    });
+                                }
+                            }
+                        })
 
-                        }
+
                     }
-
-
                 },
                 filters: {
                     renderSize: function (value, file) {
@@ -309,7 +362,9 @@
 
             <!-- Topbar -->
             <nav class="navbar navbar-expand navbar-light bg-white topbar mb-sm-0 static-top shadow">
-
+                <div class="ErrorMessageDiv fade">
+                    <span class="alert p-1 border-dark  errorMessage">df</span>
+                </div>
                 <!-- Topbar Navbar -->
                 <ul class="navbar-nav ml-auto">
 
@@ -365,17 +420,24 @@
                             </span>
                         </a>
                         <div class="btn-group floating">
-                            <a type="button" data-toggle="modal" data-target="#renameModel"
+                            <a type="button" data-toggle="modal" data-target="#renameModal"
                                class="btn btn-light bnt-square btn-sm"><span
                                     class="icon text-gray-600">重命名</span>
                             </a>
-                            <a type="button" data-toggle="modal" data-target="#moveModel"
+                            <a type="button" data-toggle="modal" data-target="#moveModal"
                                class="btn btn-light bnt-square btn-sm "><span
                                     class="icon text-gray-600">移动到</span>
                             </a>
-                            <a type="button" data-toggle="modal" data-target="#copyModel"
+                            <a type="button" data-toggle="modal" data-target="#copyModal"
                                class="btn btn-light bnt-square btn-sm"><span
                                     class="icon text-gray-600">复制到</span>
+                            </a>
+                            <a @click="unzip" type="button" class="btn btn-light bnt-square btn-sm"><span
+                                    class="icon text-gray-600">解压</span>
+                            </a>
+                            <a type="button" data-toggle="modal" data-target="#newDirModal"
+                               class="btn btn-light bnt-square btn-sm"><span
+                                    class="icon text-gray-600">创建文件夹</span>
                             </a>
                         </div>
 
@@ -462,7 +524,22 @@
             </div>
         </div>
     </div>
-    <div class="modal fade" id="renameModel" tabindex="-1" role="dialog" aria-labelledby="renameModel"
+    <div class="modal fade" id="newDirModal" tabindex="-1" role="dialog" aria-labelledby="newDirModal"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="p-3">
+                    <input v-model="newPath" type="text" class="form-control" placeholder="新的文件(夹)名">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <a class="btn btn-primary" @click="newDir">确定</a>
+                </div>
+            </div>
+
+        </div><!-- /.modal -->
+    </div>
+    <div class="modal fade" id="renameModal" tabindex="-1" role="dialog" aria-labelledby="renameModal"
          aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -477,44 +554,44 @@
 
         </div><!-- /.modal -->
     </div>
+    <div class="modal fade" id="moveModal" tabindex="-1" role="dialog" aria-labelledby="moveModal"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="p-3">
+                    <input v-model="newPath" type="text" class="form-control" placeholder="新的父文件夹路径，根目录为/">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <a class="btn btn-primary" @click="move">确定</a>
+                </div>
+            </div>
+
+        </div><!-- /.modal -->
+    </div>
+    <div class="modal fade" id="copyModal" tabindex="-1" role="dialog" aria-labelledby="copyModal"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="p-3">
+                    <input v-model="newPath" type="text" class="form-control" placeholder="新的父文件夹路径，根目录为/">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <a class="btn btn-primary" @click="copy">确定</a>
+                </div>
+            </div>
+        </div><!-- /.modal -->
+    </div>
+
 </div>
+
 <!-- End of Page Wrapper -->
 
 <!-- Scroll to Top Button-->
 <a class="scroll-to-top rounded" href="#page-top">
     <i class="fas fa-angle-up"></i>
 </a>
-
-<div class="modal fade" id="moveModel" tabindex="-1" role="dialog" aria-labelledby="moveModel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="p-3">
-                <input v-model="newPath" type="text" class="form-control" placeholder="新的父文件夹路径，根目录为/"
-                       aria-describedby="basic-addon1">
-            </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-                <button type="button" class="btn btn-primary" @click="move">确定</button>
-            </div>
-        </div><!-- /.modal-content -->
-    </div><!-- /.modal -->
-</div>
-<div class="modal fade" id="copyModel" tabindex="-1" role="dialog" aria-labelledby="copyModel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="p-3">
-                <input v-model="newPath" type="text" class="form-control" placeholder="新的父文件夹路径，根目录为/"
-                       aria-describedby="basic-addon1">
-            </div>
-
-            <div class="pull-right">
-                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-                <button type="button" class="btn btn-primary" @click="copy">确定</button>
-            </div>
-        </div><!-- /.modal-content -->
-    </div><!-- /.modal -->
-</div>
 <!-- Logout Modal-->
 
 

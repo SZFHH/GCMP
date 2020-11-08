@@ -88,4 +88,18 @@ public interface DataService {
      * @param dataMoveParam must not be null
      */
     void move(DataMoveParam dataMoveParam);
+
+    /**
+     * 拷贝数据
+     *
+     * @param dataMoveParam must not be null
+     */
+    void copy(DataMoveParam dataMoveParam);
+
+    /**
+     * 新建文件夹
+     *
+     * @param dataParam data param
+     */
+    void newDir(DataParam dataParam);
 }
