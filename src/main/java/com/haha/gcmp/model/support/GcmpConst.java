@@ -9,6 +9,9 @@ import org.springframework.http.HttpHeaders;
  * @date 2020/10/18
  */
 public class GcmpConst {
+    public final static String LOCAL_CHARSET = "UTF-8";
+
+    public final static String SERVER_CHARSET = "ISO-8859-1";
 
     public final static String FTP_TYPE_FTP = "ftp";
 

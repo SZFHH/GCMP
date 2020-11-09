@@ -99,7 +99,14 @@ public interface DataService {
     /**
      * 新建文件夹
      *
-     * @param dataParam data param
+     * @param dataParam must not be null
      */
     void newDir(DataParam dataParam);
+
+    /**
+     * 下载文件（非分片传输，有大小限制）
+     *
+     * @param dataParam must not be null
+     */
+    byte[] getFile(DataParam dataParam);
 }

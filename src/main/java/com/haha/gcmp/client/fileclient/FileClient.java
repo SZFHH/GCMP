@@ -28,6 +28,14 @@ public interface FileClient {
     void put(byte[] data, String remoteFilePath);
 
     /**
+     * 从服务器获取文件
+     *
+     * @param remoteFilePath 服务器上的绝对路径
+     * @return 文件byte数组
+     */
+    byte[] get(String remoteFilePath);
+
+    /**
      * 在服务器上把一些文件合并成一个新的文件
      *
      * @param fileList       服务器上表示文件的绝对路径列表

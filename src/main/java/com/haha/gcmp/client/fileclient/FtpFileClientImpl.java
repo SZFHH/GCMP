@@ -7,11 +7,13 @@ import com.haha.gcmp.config.propertites.SshPoolConfig;
 import com.haha.gcmp.exception.ServiceException;
 import com.haha.gcmp.model.entity.Data;
 import com.haha.gcmp.model.entity.ServerProperty;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,6 +54,20 @@ public class FtpFileClientImpl extends AbstractFileClient<FTPClient> {
             ftpClient.storeFile(remoteFilePath, new ByteArrayInputStream(data));
         } catch (IOException e) {
             throw new ServiceException("上传文件:" + remoteFilePath + " 至服务器:" + hostName + "异常。", e);
+        }
+    }
+
+    @Override
+    protected byte[] doGet(String remoteFilePath, FTPClient ftpClient) {
+        try {
+            InputStream inputStream = ftpClient.retrieveFileStream(remoteFilePath);
+            byte[] rv = IOUtils.toByteArray(inputStream);
+            inputStream.close();
+            ftpClient.completePendingCommand();
+            return rv;
+        } catch (IOException e) {
+            throw new ServiceException("下载文件:" + remoteFilePath + " 从服务器:" + hostName + "异常。", e);
+
         }
     }
 }

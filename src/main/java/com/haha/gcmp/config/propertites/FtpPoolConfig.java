@@ -4,6 +4,8 @@ import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import static com.haha.gcmp.model.support.GcmpConst.LOCAL_CHARSET;
+
 /**
  * FTP pool config
  *
@@ -15,9 +17,9 @@ public class FtpPoolConfig extends GenericObjectPoolConfig<FTPClient> {
 
     private int connectTimeOut = 5000;
 
-    private String controlEncoding = "utf-8";
+    private String controlEncoding = LOCAL_CHARSET;
 
-    private int bufferSize = 4096;
+    private int bufferSize = 8192;
 
     private int fileType = 2;
 

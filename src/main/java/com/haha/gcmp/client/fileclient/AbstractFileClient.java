@@ -15,7 +15,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
+
+import static com.haha.gcmp.model.support.GcmpConst.LOCAL_CHARSET;
+import static com.haha.gcmp.model.support.GcmpConst.SERVER_CHARSET;
 
 /**
  * Base File Client Implementation
@@ -226,14 +230,38 @@ public abstract class AbstractFileClient<T> implements FileClient {
 
     @Override
     public void put(byte[] data, String remoteFilePath) {
+        String reEncodedPath;
+        try {
+            reEncodedPath = new String(remoteFilePath.getBytes(LOCAL_CHARSET), SERVER_CHARSET);
+        } catch (UnsupportedEncodingException e) {
+            throw new ServiceException("编码异常", e);
+        }
         createParentDirIfNecessary(remoteFilePath, "777");
         T ftpClient = getFtpClient();
         try {
-            doPut(data, remoteFilePath, ftpClient);
+            doPut(data, reEncodedPath, ftpClient);
         } finally {
             returnFtpClient(ftpClient);
         }
     }
 
     protected abstract void doPut(byte[] data, String remoteFilePath, T ftpClient);
+
+    @Override
+    public byte[] get(String remoteFilePath) {
+        String reEncodedPath;
+        try {
+            reEncodedPath = new String(remoteFilePath.getBytes(LOCAL_CHARSET), SERVER_CHARSET);
+        } catch (UnsupportedEncodingException e) {
+            throw new ServiceException("编码异常", e);
+        }
+        T ftpClient = getFtpClient();
+        try {
+            return doGet(reEncodedPath, ftpClient);
+        } finally {
+            returnFtpClient(ftpClient);
+        }
+    }
+
+    protected abstract byte[] doGet(String remoteFilePath, T ftpClient);
 }

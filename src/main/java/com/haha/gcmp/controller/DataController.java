@@ -1,13 +1,18 @@
 package com.haha.gcmp.controller;
 
+import com.haha.gcmp.exception.ServiceException;
 import com.haha.gcmp.model.entity.Data;
 import com.haha.gcmp.model.entity.TempFile;
 import com.haha.gcmp.model.params.*;
 import com.haha.gcmp.model.support.CheckFileResult;
 import com.haha.gcmp.service.DataService;
+import com.haha.gcmp.utils.FileUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 
 /**
@@ -31,17 +36,17 @@ public class DataController {
     }
 
     @PostMapping("/chunk/merge")
-    public void mergeChunk(MergeChunkParam mergeChunkParam) {
+    public void mergeChunk(@RequestBody MergeChunkParam mergeChunkParam) {
         dataService.mergeChunk(mergeChunkParam);
     }
 
-    @GetMapping("/chunk")
-    public CheckFileResult checkChunk(CheckFileQuery checkFileQuery) {
+    @PostMapping("/chunk/check")
+    public CheckFileResult checkChunk(@RequestBody CheckFileQuery checkFileQuery) {
         return dataService.checkChunk(checkFileQuery);
     }
 
     @DeleteMapping("/chunk")
-    public void cancelUpload(TempFile tempFile) {
+    public void cancelUpload(@RequestBody TempFile tempFile) {
         dataService.cancelUpload(tempFile);
     }
 
@@ -73,5 +78,18 @@ public class DataController {
     @PostMapping("unzip")
     public void unzip(@RequestBody DataParam dataParam) {
         dataService.unzip(dataParam);
+    }
+
+    @GetMapping("/download")
+    public void downLoad(DataParam dataParam, HttpServletResponse httpServletResponse) {
+        byte[] fileByte = dataService.getFile(dataParam);
+        httpServletResponse.setContentType("application/force-download");
+        httpServletResponse.addHeader("Content-Disposition", "attachment;fileName=" + FileUtils.getFileName(dataParam.getRelativePath()));
+        try (OutputStream os = httpServletResponse.getOutputStream()) {
+            os.write(fileByte);
+            os.flush();
+        } catch (IOException e) {
+            throw new ServiceException("下载文件写入HttpServletResponse输出流异常", e);
+        }
     }
 }

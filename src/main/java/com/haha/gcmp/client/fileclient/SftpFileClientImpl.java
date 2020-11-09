@@ -54,5 +54,15 @@ public class SftpFileClientImpl extends AbstractFileClient<SftpClient> {
             throw new ServiceException("上传文件:" + remoteFilePath + " 至服务器:" + hostName + "异常。", e);
         }
     }
+
+    @Override
+    protected byte[] doGet(String remoteFilePath, SftpClient ftpClient) {
+        try {
+            return ftpClient.get(remoteFilePath);
+        } catch (IOException e) {
+            throw new ServiceException("下载文件:" + remoteFilePath + " 从服务器:" + hostName + "异常。", e);
+
+        }
+    }
 }
 

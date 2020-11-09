@@ -230,4 +230,12 @@ public class DataServiceImpl extends AbstractServerService<FileClient> implement
         FileClient fileClient = getClient(dataParam.getServerId());
         fileClient.mkdirIfNotExist(absolutePath, "777");
     }
+
+    @Override
+    public byte[] getFile(DataParam dataParam) {
+        String absolutePath = getUserDataPath(dataParam.getRelativePath());
+        FileClient fileClient = getClient(dataParam.getServerId());
+        return fileClient.get(absolutePath);
+
+    }
 }
