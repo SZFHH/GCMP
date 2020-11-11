@@ -121,7 +121,7 @@ public class StatusClient {
 
     public int requestForGpus(int num) {
         int n;
-        while ((n = gpuAvailable.get()) > num) {
+        while ((n = gpuAvailable.get()) >= num) {
             if (gpuAvailable.compareAndSet(n, n - num)) {
                 return -1;
             }
