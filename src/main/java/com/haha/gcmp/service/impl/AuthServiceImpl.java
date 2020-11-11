@@ -38,7 +38,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthToken authenticate(LoginParam loginParam) {
-        String userName = loginParam.getUserName();
+        String userName = loginParam.getUsername();
         String password = loginParam.getPassword();
         AuthenticationToken authenticationToken = new AuthenticationToken(userName, password);
         User user = authCheck(authenticationToken);

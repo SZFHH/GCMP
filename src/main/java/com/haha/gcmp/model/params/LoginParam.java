@@ -16,29 +16,41 @@ import static com.haha.gcmp.model.support.GcmpConst.DEFAULT_DOCKER_QUOTA;
 public class LoginParam implements BaseParam<User> {
     @NotBlank(message = "用户名或邮箱不能为空")
     @Size(max = 255, message = "用户名或邮箱的字符长度不能超过 {max}")
-    private String userName;
+    private String username;
 
     @NotBlank(message = "登录密码不能为空")
     @Size(max = 100, message = "用户密码字符长度不能超过 {max}")
     private String password;
 
-    public boolean isRememberMe() {
-        return rememberMe;
-    }
-
     private boolean rememberMe;
 
-    public String getUserName() {
-        return userName;
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getPassword() {
         return password;
     }
 
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public boolean isRememberMe() {
+        return rememberMe;
+    }
+
+    public void setRememberMe(boolean rememberMe) {
+        this.rememberMe = rememberMe;
+    }
+
     @Override
     public User toEntity() {
-        return new User(userName, password, DEFAULT_DOCKER_QUOTA);
+        return new User(username, password, DEFAULT_DOCKER_QUOTA);
     }
 }
 

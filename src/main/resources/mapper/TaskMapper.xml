@@ -15,22 +15,25 @@
         <result property="imageId" column="image_id"/>
         <result property="podName" column="pod_name"/>
         <result property="userId" column="user_id"/>
+        <result property="removed" column="removed"/>
+        <result property="startTime" column="start_time"/>
+
     </resultMap>
     <select id="getById" resultMap="fullTask">
-        select id,cmd,status,server_id,gpus,image_id,pod_name,user_id from task where id = #{id}
+        select id,cmd,status,server_id,gpus,image_id,pod_name,user_id,removed,start_time from task where id = #{id}
     </select>
 
     <select id="listByUserId" resultMap="fullTask">
-        select id,cmd,status,server_id,gpus,image_id,pod_name,user_id from task where user_id = #{userId}
+        select id,cmd,status,server_id,gpus,image_id,pod_name,user_id,removed,start_time from task where user_id = #{userId}
     </select>
 
     <select id="listAll" resultMap="fullTask">
-        select id,cmd,status,server_id,gpus,image_id,pod_name,user_id from task
+        select id,cmd,status,server_id,gpus,image_id,pod_name,user_id,removed,start_time from task
     </select>
 
     <insert id="insert">
-        insert into task (cmd,status,server_id,gpus,image_id,pod_name,user_id)
-        values (#{cmd}, #{status}, #{serverId}, #{gpus},#{imageId},#{podName},#{userId})
+        insert into task (cmd,status,server_id,gpus,image_id,pod_name,user_id,start_time)
+        values (#{cmd}, #{status}, #{serverId}, #{gpus},#{imageId},#{podName},#{userId},#{startTime})
     </insert>
 
 
@@ -47,7 +50,7 @@
     </update>
 
     <update id="casUpdateStatus">
-        update task set status = #{status} where id = #{id} and status="running"
+        update task set status = #{status} where id = #{id} and status!='DELETED'
     </update>
 
 </mapper>

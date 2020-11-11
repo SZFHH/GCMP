@@ -10,21 +10,21 @@ import static com.haha.gcmp.model.support.GcmpConst.DEFAULT_DOCKER_QUOTA;
  */
 public class User {
     private int id;
-    private String userName;
+    private String username;
     private String password;
     private int dockerQuota;
 
     public User() {
     }
 
-    public User(String userName, String password, int dockerQuota) {
-        this.userName = userName;
+    public User(String username, String password, int dockerQuota) {
+        this.username = username;
         this.password = password;
         this.dockerQuota = dockerQuota;
     }
 
-    public User(String userName, String password) {
-        this.userName = userName;
+    public User(String username, String password) {
+        this.username = username;
         this.password = password;
         this.dockerQuota = DEFAULT_DOCKER_QUOTA;
     }
@@ -37,12 +37,12 @@ public class User {
         this.dockerQuota = dockerQuota;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getUsername() {
+        return username;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getPassWord() {

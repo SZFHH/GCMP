@@ -10,7 +10,15 @@ public class Image {
     String desc;
     int owner;
     String alias;
-    
+
+    public Image(int id, String tag, String desc, int owner, String alias) {
+        this.id = id;
+        this.tag = tag;
+        this.desc = desc;
+        this.owner = owner;
+        this.alias = alias;
+    }
+
     public int getId() {
         return id;
     }
@@ -25,6 +33,9 @@ public class Image {
 
     public void setTag(String tag) {
         this.tag = tag;
+    }
+
+    public Image() {
     }
 
     public String getDesc() {
@@ -51,14 +62,4 @@ public class Image {
         this.alias = alias;
     }
 
-
-    public Image(String tag, String desc, int owner, String alias) {
-        this.tag = tag;
-        this.desc = desc;
-        this.owner = owner;
-        this.alias = alias;
-    }
-
-    public Image() {
-    }
 }

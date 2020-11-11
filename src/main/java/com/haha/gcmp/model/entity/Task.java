@@ -16,6 +16,15 @@ public class Task {
     private String podName;
     private int userId;
     private int removed;
+    private long startTime;
+
+    public long getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
+    }
 
     public int getRemoved() {
         return removed;

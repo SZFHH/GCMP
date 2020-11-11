@@ -18,9 +18,11 @@
     <select id="listByOwner" resultMap="fullImage">
         select id,owner,tag,description,alias from image where owner = #{ownerId}
     </select>
+
     <select id="getById" resultMap="fullImage">
         select id,owner,tag,description,alias from image where id = #{id}
     </select>
+
     <select id="listAll" resultMap="fullImage">
         select id,owner,tag,description,alias from image
     </select>
@@ -34,6 +36,7 @@
         update image set tag = #{tag}, description = #{desc}, alias = #{alias}
         where id = #{id}
     </update>
+
     <delete id="remove">
         delete from image where id = #{id}
     </delete>

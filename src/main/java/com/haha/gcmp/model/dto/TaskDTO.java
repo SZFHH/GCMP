@@ -12,7 +12,17 @@ public class TaskDTO {
     private String status;
     private int serverId;
     private int gpus;
-    private String environment;
+    private String image;
+    private String gpuSeries;
+    private long startTime;
+
+    public long getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
+    }
 
     public int getId() {
         return id;
@@ -54,12 +64,12 @@ public class TaskDTO {
         this.gpus = gpus;
     }
 
-    public String getEnvironment() {
-        return environment;
+    public String getImage() {
+        return image;
     }
 
-    public void setEnvironment(String environment) {
-        this.environment = environment;
+    public void setImage(String image) {
+        this.image = image;
     }
 
     public String getGpuSeries() {
@@ -70,6 +80,5 @@ public class TaskDTO {
         this.gpuSeries = gpuSeries;
     }
 
-    private String gpuSeries;
 
 }

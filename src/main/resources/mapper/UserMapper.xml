@@ -8,7 +8,7 @@
 
     <resultMap id="fullUser" type="com.haha.gcmp.model.entity.User">
         <id property="id" column="id"/>
-        <result property="userName" column="user_name"/>
+        <result property="username" column="user_name"/>
         <result property="password" column="password"/>
         <result property="dockerQuota" column="docker_quota"/>
     </resultMap>

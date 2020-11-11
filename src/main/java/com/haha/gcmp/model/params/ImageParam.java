@@ -9,6 +9,11 @@ package com.haha.gcmp.model.params;
 public class ImageParam {
 
     /**
+     * docker镜像id
+     */
+    int id;
+
+    /**
      * docker镜像tag
      */
     String tag;
@@ -27,6 +32,14 @@ public class ImageParam {
      * dockerFile文件
      */
     String dockerFile;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public boolean isCommon() {
         return "".equals(dockerFile);
