@@ -29,6 +29,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.util.Optional;
 
 import static com.haha.gcmp.model.support.GcmpConst.*;
@@ -95,7 +96,7 @@ public class AdminAuthenticationFilter extends AbstractAuthenticationFilter {
             Optional<Integer> optionalUserId = cacheStore.get(SecurityUtils.buildTokenAccessKey(token), Integer.class);
             if (optionalUserId.isPresent()) {
                 user = userService.getByIdOfNonNull(optionalUserId.get());
-                if (!user.getUserName().equals(gcmpProperties.getAdminName())) {
+                if (!user.getUsername().equals(gcmpProperties.getAdminName())) {
                     user = null;
                 }
             }
@@ -105,6 +106,7 @@ public class AdminAuthenticationFilter extends AbstractAuthenticationFilter {
             Cookie cookie = CookieUtil.findCookie(cookies, REMEMBER_ME_COOKIE_NAME);
             if (cookie != null) {
                 String value = cookie.getValue();
+                value = URLDecoder.decode(value, "utf-8");
                 AuthenticationToken authenticationToken = JsonUtils.jsonToObject(value, AuthenticationToken.class);
                 if (authenticationToken.getUserName().equals(gcmpProperties.getAdminName())) {
                     user = authService.authCheck(authenticationToken);

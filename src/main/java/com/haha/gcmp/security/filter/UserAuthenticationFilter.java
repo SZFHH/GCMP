@@ -27,6 +27,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.util.Optional;
 
 import static com.haha.gcmp.model.support.GcmpConst.*;
@@ -55,7 +56,7 @@ public class UserAuthenticationFilter extends AbstractAuthenticationFilter {
             "/api/user/**",
             "/api/docker/list/user",
             "/api/docker/add/user",
-            "/api/docker/quota",
+//            "/api/docker/quota",
             "/api/docker/remove/user");
 
         addExcludeUrlPatterns(
@@ -90,6 +91,7 @@ public class UserAuthenticationFilter extends AbstractAuthenticationFilter {
             Cookie cookie = CookieUtil.findCookie(cookies, REMEMBER_ME_COOKIE_NAME);
             if (cookie != null) {
                 String value = cookie.getValue();
+                value = URLDecoder.decode(value, "utf-8");
                 AuthenticationToken authenticationToken = JsonUtils.jsonToObject(value, AuthenticationToken.class);
                 user = authService.authCheck(authenticationToken);
             }
