@@ -136,4 +136,28 @@ public interface DockerService {
      * @return user's dockerfile quota
      */
     int getUserDockerFileQuota();
+
+    /**
+     * 获取用户的docker file
+     *
+     * @param imageId image id
+     * @return docker file
+     */
+    String getDockerFile(int imageId);
+
+    /**
+     * 更新用户image
+     *
+     * @param imageParam image param
+     * @return changed lines
+     */
+    int updateUserImage(ImageParam imageParam);
+
+    /**
+     * 更新公共image
+     *
+     * @param imageParam image param
+     * @return changed lines
+     */
+    int updateCommonImage(ImageParam imageParam);
 }

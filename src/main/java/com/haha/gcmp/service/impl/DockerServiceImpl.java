@@ -62,7 +62,7 @@ public class DockerServiceImpl extends AbstractServerService<DockerClient> imple
     @Override
     public Map<String, List<Image>> listAllImage() {
         List<User> allUser = userService.getAllUser();
-        Map<Integer, String> userMap = CollectionUtils.convertToMap(allUser, User::getId, User::getUserName);
+        Map<Integer, String> userMap = CollectionUtils.convertToMap(allUser, User::getId, User::getUsername);
         List<Image> allImages = imageMapper.listAll();
 
         return CollectionUtils.convertToListMap(allImages, image -> userMap.get(image.getOwner()));
@@ -87,7 +87,7 @@ public class DockerServiceImpl extends AbstractServerService<DockerClient> imple
 
     @Override
     public void addCommonImage(ImageParam imageParam) {
-        Image image = new Image(imageParam.getTag(), imageParam.getDesc(), adminService.getAdminId(), imageParam.getAlias());
+        Image image = fromImageParam(imageParam, true);
         imageMapper.insert(image);
     }
 
@@ -96,7 +96,6 @@ public class DockerServiceImpl extends AbstractServerService<DockerClient> imple
         for (int i = 0; i < serverCount; i++) {
             removeImage(i, tag);
         }
-
     }
 
     @Override
@@ -130,7 +129,7 @@ public class DockerServiceImpl extends AbstractServerService<DockerClient> imple
     @Override
     public boolean isSufficientImageQuota() {
         User user = userService.getCurrentUser();
-        if (user.getUserName().equals(gcmpProperties.getAdminName())) {
+        if (user.getUsername().equals(gcmpProperties.getAdminName())) {
             return true;
         }
         return user.getDockerQuota() > getDockerFileCount();
@@ -154,26 +153,78 @@ public class DockerServiceImpl extends AbstractServerService<DockerClient> imple
     }
 
     @Override
+    public String getDockerFile(int imageId) {
+        Image image = imageMapper.getById(imageId);
+        if (image == null) {
+            throw new BadRequestException("该镜像不存在");
+        }
+        String tag = image.getTag();
+        try {
+            return getDockerFile(tag);
+        } catch (IOException e) {
+            throw new ServiceException("读取dockerFile异常, imageId:" + imageId + " tag: " + tag, e);
+        }
+
+    }
+
+    private Image fromImageParam(ImageParam imageParam, boolean isCommon) {
+        int ownerId = adminService.getAdminId();
+        String tag = imageParam.getTag();
+        if (!isCommon) {
+            User user = userService.getCurrentUser();
+            ownerId = user.getId();
+            tag = user.getUsername() + "_" + imageParam.getAlias();
+        }
+
+        return new Image(imageParam.getId(), tag, imageParam.getDesc(), ownerId, imageParam.getAlias());
+    }
+
+    @Override
+    public int updateUserImage(ImageParam imageParam) {
+        Image newImage = fromImageParam(imageParam, false);
+        String tag = imageParam.getTag();
+        try {
+            removeDockerFile(tag);
+            tag = newImage.getTag();
+            saveDockerFile(imageParam.getDockerFile(), tag);
+        } catch (IOException e) {
+            throw new ServiceException("更新用户镜像异常，tag: " + tag, e);
+        }
+        return imageMapper.update(newImage);
+
+    }
+
+    @Override
+    public int updateCommonImage(ImageParam imageParam) {
+        Image image = fromImageParam(imageParam, true);
+        return imageMapper.update(image);
+    }
+
+    @Override
     public void addUserImage(ImageParam imageParam) {
         if (!isSufficientImageQuota()) {
             throw new BadRequestException("镜像数量达到限额！");
         }
-        User user = userService.getCurrentUser();
-        String tag = user.getUserName() + "_" + imageParam.getAlias();
+        Image image = fromImageParam(imageParam, false);
+        String tag = image.getTag();
         try {
             saveDockerFile(imageParam.getDockerFile(), tag);
         } catch (IOException e) {
-            throw new ServiceException("保存用户:" + user.getUserName() + " 镜像:" + imageParam.getAlias() + "异常！", e);
+            throw new ServiceException("保存用户镜像:" + tag + "异常！", e);
         }
-
-        Image image = new Image(tag, imageParam.getDesc(), user.getId(), imageParam.getAlias());
         imageMapper.insert(image);
     }
 
     @Override
     public Path getUserDockerFileDir() {
         User user = userService.getCurrentUser();
-        return Paths.get(gcmpProperties.getDockerFileRoot(), user.getUserName());
+        return Paths.get(gcmpProperties.getDockerFileRoot(), user.getUsername());
+    }
+
+    private void removeDockerFile(String tag) throws IOException {
+        Path dirPath = getUserDockerFileDir();
+        Path filePath = dirPath.resolve(tag);
+        FileUtils.deleteFile(filePath);
     }
 
     private void saveDockerFile(String dockFile, String tag) throws IOException {
@@ -184,6 +235,12 @@ public class DockerServiceImpl extends AbstractServerService<DockerClient> imple
             throw new BadRequestException("镜像已存在,请更换镜像名或删除已存在的镜像。");
         }
         FileUtils.writeFile(filePath, dockFile);
+    }
+
+    private String getDockerFile(String tag) throws IOException {
+        Path dirPath = getUserDockerFileDir();
+        Path filePath = dirPath.resolve(tag);
+        return FileUtils.readFile(filePath);
     }
 
     @Override

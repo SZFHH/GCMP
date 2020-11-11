@@ -2,6 +2,7 @@ package com.haha.gcmp.controller;
 
 import com.haha.gcmp.model.entity.Image;
 import com.haha.gcmp.model.params.ImageParam;
+import com.haha.gcmp.model.support.BaseResponse;
 import com.haha.gcmp.service.DockerService;
 import org.springframework.web.bind.annotation.*;
 
@@ -48,6 +49,16 @@ public class DockerController {
         dockerService.addUserImage(imageParam);
     }
 
+    @PutMapping("user")
+    public void updateUserImage(@RequestBody ImageParam imageParam) {
+        dockerService.updateUserImage(imageParam);
+    }
+
+    @PutMapping("common")
+    public void updateCommonImage(@RequestBody ImageParam imageParam) {
+        dockerService.updateCommonImage(imageParam);
+    }
+
     @GetMapping("quota")
     public int userDockerFileQuota() {
         return dockerService.getUserDockerFileQuota();
@@ -63,4 +74,8 @@ public class DockerController {
         dockerService.removeCommonImage(imageId);
     }
 
+    @GetMapping("/docker_file/{imageId:\\d+}")
+    public BaseResponse<String> getDockerFile(@PathVariable("imageId") int imageId) {
+        return BaseResponse.ok("", dockerService.getDockerFile(imageId));
+    }
 }
