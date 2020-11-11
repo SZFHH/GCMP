@@ -2,6 +2,7 @@ package com.haha.gcmp.controller;
 
 import com.haha.gcmp.model.dto.TaskDTO;
 import com.haha.gcmp.model.params.TaskParam;
+import com.haha.gcmp.model.support.BaseResponse;
 import com.haha.gcmp.service.TaskService;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,8 +23,8 @@ public class TaskController {
         this.taskService = taskService;
     }
 
-    @PostMapping("submit")
-    public int submitTask(TaskParam taskParam) {
+    @PostMapping("")
+    public int submitTask(@RequestBody TaskParam taskParam) {
         return taskService.submitTask(taskParam);
     }
 
@@ -43,8 +44,8 @@ public class TaskController {
     }
 
     @GetMapping("/log/{taskId:\\d+}")
-    String getLog(@PathVariable("taskId") int taskId) {
-        return taskService.getLog(taskId);
+    BaseResponse<String> getLog(@PathVariable("taskId") int taskId) {
+        return BaseResponse.ok("", taskService.getLog(taskId));
     }
 
 }

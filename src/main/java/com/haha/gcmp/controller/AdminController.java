@@ -37,7 +37,7 @@ public class AdminController {
 
     @PostMapping("login")
     public AuthToken auth(@RequestBody @Valid LoginParam loginParam, HttpServletResponse response) {
-        if (!loginParam.getUserName().equals(gcmpProperties.getAdminName())) {
+        if (!loginParam.getUsername().equals(gcmpProperties.getAdminName())) {
             throw new BadRequestException("请用管理员账户登录！");
         }
         AuthToken authToken = authService.authenticate(loginParam);
