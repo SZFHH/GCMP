@@ -3,11 +3,12 @@ package com.haha.gcmp.utils;
 import ch.ethz.ssh2.ChannelCondition;
 import ch.ethz.ssh2.Connection;
 import ch.ethz.ssh2.Session;
-import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.io.InputStream;
 import java.util.Arrays;
+
+import static com.haha.gcmp.model.support.GcmpConst.DISK_MOUNT_PATH;
 
 /**
  * @author SZFHH
@@ -46,18 +47,49 @@ public class SshUtils {
      */
     public static String execCmd(Connection connection, String cmd) throws IOException {
         Session session = null;
-        String rv;
+        StringBuilder rv = new StringBuilder();
         try {
             session = connection.openSession();
             session.execCommand(cmd);
-            session.waitForCondition(ChannelCondition.EXIT_STATUS, Integer.MAX_VALUE);
-            rv = IOUtils.toString(session.getStdout(), Charset.defaultCharset());
+            InputStream stdout = session.getStdout();
+            InputStream stderr = session.getStderr();
+
+            byte[] buffer = new byte[100];
+
+            while (true) {
+                if ((stdout.available() == 0)) {
+                    int conditions = session.waitForCondition(ChannelCondition.STDOUT_DATA |
+                        ChannelCondition.STDERR_DATA | ChannelCondition.EOF, 1000 * 5);
+                    if ((conditions & ChannelCondition.TIMEOUT) != 0) {
+                        break;
+                    }
+                    if ((conditions & ChannelCondition.EOF) != 0) {
+                        if ((conditions & (ChannelCondition.STDOUT_DATA |
+                            ChannelCondition.STDERR_DATA)) == 0) {
+                            break;
+                        }
+                    }
+                }
+                while (stdout.available() > 0) {
+                    int len = stdout.read(buffer);
+                    if (len > 0) {
+                        rv.append(new String(buffer, 0, len));
+                    }
+                }
+                while (stderr.available() > 0) {
+                    int len = stderr.read(buffer);
+                    if (len > 0) {
+                        rv.append(new String(buffer, 0, len));
+                    }
+                }
+            }
+
         } finally {
             if (session != null) {
                 session.close();
             }
         }
-        return rv;
+        return rv.toString();
     }
 
     /**
@@ -120,7 +152,7 @@ public class SshUtils {
                 continue;
             }
             String[] items = Arrays.stream(line.split("\\s")).filter(s -> !s.equals("")).toArray(String[]::new);
-            if ("/".equals(items[5])) {
+            if (DISK_MOUNT_PATH.equals(items[5])) {
                 rv[0] = Long.parseLong(items[1]) * 1024;
                 rv[1] = Long.parseLong(items[3]) * 1024;
                 break;
