@@ -1,0 +1,13 @@
+table.table tbody tr td,
+table.table thead tr th,
+table.table thead {
+    border-left: 0px solid;
+    border-right: 0px solid;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    font-size: medium;
+}
+
+table.table thead tr th {
+    border-bottom: 0px;
+}

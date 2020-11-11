@@ -16,12 +16,8 @@
     <link href="css/font.css" rel="stylesheet">
     <!-- Custom styles for this template-->
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
-    <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
     <link href="css/gcmp.css" rel="stylesheet">
-    <script src="js/vue/2.5.16/vue.min.js"></script>
-    <script src="js/axios/0.17.1/axios.min.js"></script>
-    <script src="js/moment/2.22.2/moment.js"></script>
-
+    <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
     <!-- Bootstrap core JavaScript-->
     <script src="vendor/jquery/jquery.min.js"></script>
     <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -32,57 +28,31 @@
     <!-- Custom scripts for all pages-->
     <script src="js/sb-admin-2.min.js"></script>
 
-    <script src="vendor/datatables/jquery.dataTables.min.js"></script>
     <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
-
+    <script src="js/vue/2.5.16/vue.min.js"></script>
+    <script src="js/axios/0.17.1/axios.min.js"></script>
+    <script src="js/moment/2.22.2/moment.js"></script>
     <script>
         $(function () {
 
             var vue = new Vue({
                 el: '#wrapper',
                 data: {
-                    serverStatusUri: '/api/status/available_all',
-                    serverPropertyUri: '/api/status/server_property',
-                    serverStatus: [],
-                    serverProperty: []
+                    commonImageUri: '/api/docker/common',
+                    images: [],
+
                 },
                 mounted: function () { //mounted　表示这个 Vue 对象加载成功了
                     this.load();
                 },
                 methods: {
                     load: function () {
-                        axios.get(this.serverStatusUri).then(function (response) {
-                            vue.serverStatus = response.data.data;
-
+                        axios.get(this.commonImageUri).then(function (response) {
+                            vue.images = response.data.data;
                         });
-                        axios.get(this.serverPropertyUri).then(function (response) {
-                            vue.serverProperty = response.data.data;
-
-                        });
-                        window.setInterval(function () {
-                            axios.get(vue.serverStatusUri).then(function (response) {
-                                vue.serverStatus = response.data.data;
-
-                            });
-                        }, 1000 * 5)
-
-
-                    }
-                },
-                filters: {
-                    renderSize: function (value) {
-                        if (null == value || value == '') {
-                            return "0 Bytes";
-                        }
-                        var unitArr = new Array("Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB");
-                        var index = 0;
-                        var srcsize = parseFloat(value);
-                        index = Math.floor(Math.log(srcsize) / Math.log(1024));
-                        var size = srcsize / Math.pow(1024, index);
-                        size = size.toFixed(2);//保留的小数位数
-                        return size + unitArr[index];
                     }
                 }
+
             });
         })
 
@@ -92,7 +62,7 @@
 <body id="page-top">
 
 <!-- Page Wrapper -->
-<div id="wrapper" v-cloak>
+<div id="wrapper">
 
     <!-- Sidebar -->
     <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
@@ -109,7 +79,7 @@
         <hr class="sidebar-divider my-0">
 
         <!-- Nav Item - Dashboard -->
-        <li class="nav-item active">
+        <li class="nav-item">
             <a class="nav-link" href="/">
                 <i class="fas fa-fw fa-tachometer-alt"></i>
                 <span>可用资源</span></a>
@@ -141,7 +111,7 @@
         <hr class="sidebar-divider">
 
         <!-- Nav Item - Charts -->
-        <li class="nav-item">
+        <li class="nav-item active">
             <a class="nav-link" href="/user_common_image">
                 <i class="fas fa-fw fa-chart-area"></i>
                 <span>公共镜像</span></a>
@@ -173,7 +143,9 @@
 
             <!-- Topbar -->
             <nav class="navbar navbar-expand navbar-light bg-white topbar mb-0 static-top shadow">
-
+                <div class="ErrorMessageDiv fade">
+                    <span class="alert p-1 border-dark  errorMessage">df</span>
+                </div>
                 <!-- Sidebar Toggle (Topbar) -->
                 <!--                <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">-->
                 <!--                    <i class="fa fa-bars"></i>-->
@@ -214,36 +186,27 @@
 
                 <!-- DataTales Example -->
                 <div class="card shadow mb-0 ">
-                    <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">可用资源</h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-status table-responsive">
+
+                    <div class="card-body pt-sm-1">
+
+                        <div class="table-responsive pt-1">
                             <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                                 <thead>
                                 <tr>
-                                    <th>Id</th>
-                                    <th>服务器</th>
-                                    <th>GPU型号</th>
-                                    <th>GPU(空闲/总量)</th>
-                                    <th>内存(空闲/总量)</th>
-                                    <th>硬盘(空闲/总量)</th>
+                                    <th width="20%">镜像名</th>
+                                    <th width="45%">详细信息</th>
+                                    <th width="35%">docker hub tag</th>
                                 </tr>
                                 </thead>
+                                <tbody>
+                                <tr v-for="im, i in images">
 
-                                <!--                                <tbody>-->
-                                <tr v-for="sp, i in serverProperty">
-                                    <td>{{i}}</td>
-                                    <td>{{sp.hostName}}</td>
-                                    <td>{{sp.gpuSeries}}</td>
-                                    <td>{{serverStatus[i].gpuAvailable}}/{{sp.gpuTotal}}</td>
-                                    <td>{{serverStatus[i].memoryAvailable|renderSize}}/{{sp.memoryTotal|renderSize}}
-                                    </td>
-                                    <td>{{serverStatus[i].diskAvailable|renderSize}}/{{sp.diskTotal|renderSize}}</td>
-
+                                    <td>{{im.alias}}</td>
+                                    <td>{{im.desc}}</td>
+                                    <td>{{im.tag}}</td>
                                 </tr>
 
-                                <!--                                </tbody>-->
+                                </tbody>
                             </table>
                         </div>
                     </div>
@@ -266,7 +229,6 @@
 
     </div>
     <!-- End of Content Wrapper -->
-
 </div>
 <!-- End of Page Wrapper -->
 
@@ -294,9 +256,6 @@
         </div>
     </div>
 </div>
-
-
-<!-- Page level custom scripts -->
 
 
 </body>

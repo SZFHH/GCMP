@@ -9,19 +9,24 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>SB Admin 2 - Dashboard</title>
+    <title>GCMP</title>
 
     <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
-          rel="stylesheet">
+    <link href="css/font.css" rel="stylesheet">
 
     <!-- Custom styles for this template-->
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
+    <link href="css/gcmp.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="webuploader-0.1.5/webuploader.css">
     <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
     <!-- Bootstrap core JavaScript-->
     <script src="vendor/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="webuploader-0.1.5/webuploader.js"></script>
     <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!--    <script type="text/javascript" src="public/jquery.min.js"></script>-->
+
+    <!--        <script type="text/javascript" src="public/bootstrap.min.js"></script>-->
 
     <!-- Core plugin JavaScript-->
     <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
@@ -38,6 +43,7 @@
     <script src="js/axios/0.17.1/axios.min.js"></script>
     <script src="js/moment/2.22.2/moment.js"></script>
     <script>
+
         $(function () {
 
             //ViewModel
@@ -50,13 +56,27 @@
                     file: false,
                     serverId: 0,
                     pathItems: [],
-                    newPath: ''
+                    newPath: '',
+                    availableGpus: [],
+                    serverAvailableGpusUri: 'api/status/available_gpus'
                 },
                 mounted: function () { //mounted　表示这个 Vue 对象加载成功了
                     this.load();
                 },
                 methods: {
                     load: function () {
+                        this.refresh();
+                        axios.get(this.serverAvailableGpusUri).then(function (response) {
+                            vue.availableGpus = response.data.data;
+                        });
+                        window.setInterval(function () {
+                            axios.get(vue.serverAvailableGpusUri).then(function (response) {
+                                vue.availableGpus = response.data.data;
+                            });
+                        }, 1000 * 60)
+
+                    },
+                    refresh: function () {
                         var url = this.uri + "?relativePath=" + this.relativePath +
                             '&file=' + this.file + '&serverId=' + this.serverId;
                         axios.get(url).then(function (response) {
@@ -64,8 +84,8 @@
                         });
                         this.pathItems = this.relativePath.split('/')
                         this.notselectAll();
-
                     },
+
                     selectSingle: function (element) {
                         var tgt = element.currentTarget;
                         var selected = tgt.getAttribute("selectedd")
@@ -79,6 +99,10 @@
                     },
                     notselectAll: function () {
                         $(".cartProductItemIfSelected").each(function () {
+                            $(this).attr("src", "img/cartNotSelected.png");
+                            $(this).attr("selectedd", "false");
+                        });
+                        $(".selectAllItem").each(function () {
                             $(this).attr("src", "img/cartNotSelected.png");
                             $(this).attr("selectedd", "false");
                         });
@@ -105,7 +129,8 @@
                     intoDir: function (element) {
                         var tgt = element.currentTarget;
                         this.relativePath += '/' + tgt.innerText;
-                        this.load()
+                        this.newPath = this.relativePath
+                        this.refresh()
                     },
                     jumpDir: function (index) {
                         this.relativePath = '';
@@ -115,35 +140,52 @@
                         if (this.relativePath != '') {
                             this.relativePath = this.relativePath.substr(0, this.relativePath.length - 1);
                         }
-                        this.load();
+                        this.refresh();
                     },
-
-                    remove: function (element) {
-                        var counter = 0;
+                    getSelectedList: function () {
                         var arr = $(".cartProductItemIfSelected");
+                        var rv = [];
                         arr.each(function () {
                             var selected = $(this).attr("selectedd");
                             if (selected == "true") {
                                 var idx = $(this).attr("idx");
-                                var path = vue.relativePath + '/' + vue.datas[idx].name;
-                                var isFile = vue.datas[idx].file;
-                                $("span.errorMessage").html("正在删除" + vue.datas[idx].name + "...");
-                                $("div.ErrorMessageDiv").removeClass("fade")
-                                axios.delete(vue.uri, {
-                                    data: {
-                                        relativePath: path,
-                                        file: isFile,
-                                        serverId: vue.serverId
-                                    }
-                                }).then(function (response) {
-                                    $("div.ErrorMessageDiv").addClass("fade")
-                                });
-                            }
-                            counter++;
-                            if (counter == arr.length) {
-                                vue.load();
+                                rv.push(idx);
                             }
                         })
+                        return rv;
+                    },
+                    download: function () {
+                        var selectedList = this.getSelectedList()
+                        for (let i = 0; i < selectedList.length; i++) {
+                            var idx = selectedList[i];
+                            var path = this.relativePath + '/' + this.datas[idx].name;
+                            var isFile = this.datas[idx].file;
+                            if (Boolean(isFile)) {
+                                var url = "/api/data/download" + "?relativePath=" + path +
+                                    '&file=' + isFile + '&serverId=' + this.serverId;
+                                window.open(url, "_blank");
+                            }
+                        }
+                        this.notselectAll();
+                    },
+                    remove: async function () {
+                        var selectedList = this.getSelectedList()
+                        for (let i = 0; i < selectedList.length; i++) {
+                            var idx = selectedList[i];
+                            var path = this.relativePath + '/' + this.datas[idx].name;
+                            var isFile = this.datas[idx].file;
+                            $("span.errorMessage").html("正在删除" + this.datas[idx].name + "...");
+                            $("div.ErrorMessageDiv").removeClass("fade")
+                            await axios.delete(this.uri, {
+                                data: {
+                                    relativePath: path,
+                                    file: isFile,
+                                    serverId: this.serverId
+                                }
+                            }).then(function (response) {
+                                vue.rst(i, selectedList.length - 1)
+                            });
+                        }
                     },
 
                     rename: function () {
@@ -166,46 +208,56 @@
                                 targetRelativePath: tgtpath,
                                 serverId: this.serverId
                             }).then(function (response) {
-                                vue.load();
+                                vue.refresh();
+                            });
+                        }
+                    },
+                    rst: function (i, length) {
+                        $("div.ErrorMessageDiv").addClass("fade")
+                        if (i == length) {
+                            this.notselectAll();
+                            this.refresh();
+                        }
+
+                    },
+
+
+                    move: async function () {
+                        $("#moveModal").modal("hide");
+                        var selectedList = this.getSelectedList()
+                        for (let i = 0; i < selectedList.length; i++) {
+                            var idx = selectedList[i]
+                            var srcpath = this.relativePath + '/' + this.datas[idx].name;
+                            var tgtpath = this.newPath + '/' + this.datas[idx].name;
+                            $("span.errorMessage").html("正在移动" + this.datas[idx].name + "...");
+                            $("div.ErrorMessageDiv").removeClass("fade")
+                            await axios.post("/api/data/move", {
+                                srcRelativePath: srcpath,
+                                targetRelativePath: tgtpath,
+                                serverId: this.serverId
+                            }).then(function (response) {
+                                vue.rst(i, selectedList.length - 1)
                             });
                         }
                     },
 
-                    move: function () {
-                        $("#moveModal").modal("hide")
-                        $(".cartProductItemIfSelected").each(function () {
-                            var selected = $(this).attr("selectedd");
-                            if (selected == "true") {
-                                var idx = $(this).attr("idx")
-                                var srcpath = vue.relativePath + '/' + vue.datas[idx].name;
-                                var tgtpath = vue.newPath + '/' + vue.datas[idx].name;
-                                axios.post("/api/data/move", {
-                                    srcRelativePath: srcpath,
-                                    targetRelativePath: tgtpath,
-                                    serverId: vue.serverId
-                                }).then(function (response) {
-                                });
-                            }
-                        })
-                    },
-
-                    copy: function () {
-                        $("#copyModal").modal("hide")
-                        $(".cartProductItemIfSelected").each(function () {
-                            var selected = $(this).attr("selectedd");
-                            if (selected == "true") {
-                                var idx = $(this).attr("idx")
-                                var srcpath = vue.relativePath + '/' + vue.datas[idx].name;
-                                var tgtpath = vue.newPath;
-                                axios.post("/api/data/copy", {
-                                    srcRelativePath: srcpath,
-                                    targetRelativePath: tgtpath,
-                                    serverId: vue.serverId
-                                }).then(function (response) {
-                                });
-                            }
-                        });
-                        this.load();
+                    copy: async function () {
+                        $("#copyModal").modal("hide");
+                        var selectedList = this.getSelectedList()
+                        for (let i = 0; i < selectedList.length; i++) {
+                            var idx = selectedList[i]
+                            var srcpath = this.relativePath + '/' + this.datas[idx].name;
+                            var tgtpath = this.newPath;
+                            $("span.errorMessage").html("正在复制" + this.datas[idx].name + "...");
+                            $("div.ErrorMessageDiv").removeClass("fade")
+                            await axios.post("/api/data/copy", {
+                                srcRelativePath: srcpath,
+                                targetRelativePath: tgtpath,
+                                serverId: this.serverId
+                            }).then(function (response) {
+                                vue.rst(i, selectedList.length - 1)
+                            });
+                        }
                     },
                     newDir: function () {
                         $("#newDirModal").modal("hide");
@@ -216,32 +268,32 @@
                                 serverId: vue.serverId
                             }
                         ).then(function (response) {
-                            vue.load();
+                            vue.refresh();
                         });
                     },
-                    unzip: function () {
-                        $(".cartProductItemIfSelected").each(function () {
-                            var selected = $(this).attr("selectedd");
-                            if (selected == "true") {
-                                var idx = $(this).attr("idx")
-                                var path = vue.relativePath + '/' + vue.datas[idx].name;
-                                var file = vue.datas[idx].file;
-                                if (file) {
-                                    $("span.errorMessage").html("正在解压" + vue.datas[idx].name + "...");
-                                    $("div.ErrorMessageDiv").removeClass("fade")
-                                    axios.post("/api/data/unzip", {
-                                        relativePath: path,
-                                        file: true,
-                                        serverId: vue.serverId
-                                    }).then(function (response) {
-                                        $("div.ErrorMessageDiv").addClass("fade")
-                                        vue.load();
-                                    });
-                                }
+                    unzip: async function () {
+                        var selectedList = this.getSelectedList()
+                        for (let i = 0; i < selectedList.length; i++) {
+                            var idx = selectedList[i]
+                            var path = vue.relativePath + '/' + vue.datas[idx].name;
+                            var file = vue.datas[idx].file;
+                            if (file) {
+                                $("span.errorMessage").html("正在解压" + vue.datas[idx].name + "...");
+                                $("div.ErrorMessageDiv").removeClass("fade")
+                                await axios.post("/api/data/unzip", {
+                                    relativePath: path,
+                                    file: true,
+                                    serverId: vue.serverId
+                                }).then(function (response) {
+                                    vue.rst(i, selectedList.length - 1)
+                                });
                             }
-                        })
-
-
+                        }
+                    },
+                    chooseServer: function (serverId) {
+                        this.serverId = serverId;
+                        this.relativePath = "";
+                        this.refresh();
                     }
                 },
                 filters: {
@@ -262,27 +314,223 @@
                     }
                 }
             });
-        })
+            WebUploader.Uploader.register({
+                "before-send-file": "beforeSendFile",
+                "before-send": "beforeSend",
+                "after-send-file": "afterSendFile",
+            }, {
+                //时间点1：所有分块进行上传之前调用此函数
+                beforeSendFile: function (file) {
+                    file.exised = false;
+                    file.target_relative_path = vue.relativePath + '/' + file.name;
+                    // console.log("beforeSendFile");
+                    // Deferred对象在钩子回掉函数中经常要用到，用来处理需要等待的异步操作。
+                    var task = WebUploader.Deferred();
+                    // 根据文件内容来查询MD5
+                    uploader.md5File(file, 0, md5_siz5).progress(function (percentage) {   // 及时显示进度
+                        // console.log('计算md5进度:', percentage);
+                        //getProgressBar(file, percentage, "MD5", "MD5");
+                    }).then(function (val) { // 完成
+                        $('#' + file.id).find('td.state').text('正在上传');
+                        // console.log('md5 result:', val);
+                        file.file_md5 = val;
+                        // 进行md5判断
+                        file.chunks = Math.ceil(file.size / chun_size);
+                        // console.log(file.size)
+                        // console.log(chun_size)
+                        axios.post("/api/data/chunk/check", {
+                            serverId: vue.serverId,
+                            md5: file.file_md5,
+                            totalChunks: file.chunks,
+                            chunkSize: chun_size,
+                            totalSize: file.size,
+                            relativePath: file.target_relative_path
+                        }).then(function (response) {
+                            var data = response.data;
 
+                            status = data.data.status;
+
+                            if (status == 0) {
+                                uploader.skipFile(file);
+                                file.exised = true;
+                                // console.log("文件已存在");
+                            } else {
+                                file.existsChunks = data.data.existedChunk;
+                                // console.log(data.data.existedChunk)
+                            }
+                            task.resolve();
+
+                        })
+
+                    });
+                    return task.promise();
+                },
+                beforeSend: function (block) {
+                    file_chunks = block.chunks
+                    // console.log("block")
+                    var task = WebUploader.Deferred();
+                    var file = block.file;
+                    var existsChunks = file.existsChunks;
+                    var blockChunk = block.chunk + 1;
+
+                    var flag = false;
+                    for (var i = 0; i < existsChunks.length; i++) {
+                        if (blockChunk == existsChunks[i]) {
+                            flag = true;
+                            break;
+                        }
+                    }
+                    if (flag) {
+                        task.reject();
+                    } else {
+                        task.resolve();
+                        // console.log("当前分块：" + blockChunk);
+                    }
+
+                    return task.promise();
+                },
+                afterSendFile: function (file) {
+                    // console.log("finished");
+                    var deferred = WebUploader.Deferred();
+                    // console.log(file.chunks > 1);
+                    //判断是否要分片
+                    $('#' + file.id).find('button.btn')[0].style.display = 'none';
+                    if (file.chunks > 1 && file.exised == false) {
+                        $('#' + file.id).find('td.state').text('正在合并');
+
+                        // log('正在合并...');
+                        axios.post('/api/data/chunk/merge', {
+                            serverId: vue.serverId,
+                            md5: file.file_md5,
+                            relativePath: file.target_relative_path,
+                            totalChunks: file.chunks
+                        }).then(function (data) {
+                            deferred.resolve();
+                        });
+                    } else {
+                        deferred.resolve();
+                    }
+                    return deferred.promise();
+                }
+            });
+            var uploader;
+            var chun_size = 1024 * 1024 * 8;
+            var md5_siz5 = 1024 * 1024 * 10;
+
+            var $list = $("#uploadTable > tbody");
+            var count = 0;
+            // var map = new HashMap();
+            //监听分块上传过程中的三个时间点
+
+
+            var uploader;
+            $('#uploadModal').on('shown.bs.modal', function (e) {
+
+                if (uploader == undefined) {
+
+                    uploader = WebUploader
+                        .create({
+                            // swf文件路径
+                            swf: 'webuploader-0.1.5/Uploader.swf',
+                            // 文件接收服务端。
+                            server: '/api/data/chunk',
+                            // 选择文件的按钮。可选。
+                            // 内部根据当前运行是创建，可能是input元素，也可能是flash.
+                            pick: {
+                                id: '#picker',//这个id是你要点击上传文件的id
+                                multiple: true
+                            },
+                            // 不压缩image, 默认如果是jpeg，文件上传前会压缩一把再上传！
+                            resize: false,
+                            auto: true,
+                            //开启分片上传
+                            chunked: true,
+                            chunkSize: chun_size,   //每一片的大小
+                            chunkRetry: 3,              // 如果遇到网络错误,重新上传次数
+                            threads: 1,                   // [默认值：3] 上传并发数。允许同时最大上传进程数。
+                            prepareNextFile: true,
+                            // accept: {
+                            //     extensions: "txt,jpg,jpeg,bmp,png,zip,rar,war,pdf,cebx,doc,docx,ppt,pptx,xls,xlsx,iso",
+                            //     mimeTypes: '.txt,.jpg,.jpeg,.bmp,.png,.zip,.rar,.war,.pdf,.cebx,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.iso'
+                            // }
+                        });
+                    uploader.on('uploadBeforeSend', function (block, data) {
+                        //事件里不支持这种用法
+                        // var deferred = WebUploader.Deferred();
+                        data.relativePath = block.file.target_relative_path;
+                        data.serverId = vue.serverId;
+                        data.totalChunks = block.chunks;
+                        data.chunkNumber = block.chunk + 1;
+                        data.md5 = block.file.file_md5;
+                    });
+                    // 当有文件被添加进队列的时候
+                    uploader.on('fileQueued', function (file) {
+                        //保存文件扩展名
+                        var fileSize = file.size;
+                        var fileSizeStr = "";
+
+                        fileSizeStr = WebUploader.Base.formatSize(fileSize);
+                        count++;
+                        $list.append(
+                            '<tr id="' + file.id + '" class="item" flag=0>' +
+                            '<td class="index">' + count + '</td>' +
+                            '<td class="info">' + file.name + '</td>' +
+                            '<td class="size">' + fileSizeStr + '</td>' +
+                            '<td class="state">等待上传...</td>' +
+                            '<td class="percentage"></td>' +
+                            '<td class="operate">' +
+                            '<button name="delete" class="btn btn-sm">删除</button></td></tr>');
+
+                    });
+
+                    // 文件上传过程中创建进度条实时显示。
+                    uploader.on('uploadProgress', function (file, percentage) {
+                        $('#' + file.id).find('td.percentage').text(Math.round(percentage * 99) + '%');
+                    });
+
+                    uploader.on('uploadSuccess', function (file) {
+                        $('#' + file.id).find('td.percentage').text(Math.round(100) + '%');
+                        $('#' + file.id).find('td.state').text('已上传');
+                        vue.refresh();
+
+                    });
+
+                    uploader.on('uploadError', function (file) {
+                        $('#' + file.id).find('td.state').text('上传出错');
+                    });
+
+                    uploader.on('uploadComplete', function (file) {
+                        uploader.removeFile(file);
+                    });
+                }
+            })
+
+
+            $("body").on("click", "#uploadTable button[name='delete']", function () {
+                var id = $(this).parents("tr.item").attr("id");
+                $(this).parents("tr.item").remove();
+                var file = uploader.getFile(id);
+                var md5 = file.file_md5;
+                var relativePath = file.target_relative_path;
+                uploader.removeFile(uploader.getFile(id));
+                uploader.stop(uploader.getFile(id), true);
+
+                axios.delete('/api/data/chunk', {
+                    data: {
+                        serverId: vue.serverId,
+                        md5: md5,
+                        relativePath: relativePath,
+                    }
+                }).then(function (data) {
+                });
+                // map.remove(id);
+            });
+
+        })
 
     </script>
 </head>
-<style>
-    table.table tbody tr td,
-    table.table thead tr th,
-    table.table thead {
-        border-left: 0px solid;
-        border-right: 0px solid;
-        padding-top: 1px;
-        padding-bottom: 1px;
-        font-size: medium;
-    }
 
-    table.table thead tr th {
-        border-bottom: 0px;
-    }
-
-</style>
 <body id="page-top">
 
 <!-- Page Wrapper -->
@@ -292,7 +540,7 @@
     <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
         <!-- Sidebar - Brand -->
-        <a class="sidebar-brand d-flex align-items-center" href="index3.html">
+        <a class="sidebar-brand d-flex align-items-center" href="/">
             <div class="sidebar-brand-icon rotate-n-15">
                 <i class="fas fa-laugh-wink"></i>
             </div>
@@ -313,20 +561,20 @@
         <hr class="sidebar-divider">
 
         <li class="nav-item">
-            <a class="nav-link" href="my-tasks.html">
+            <a class="nav-link" href="/my_task">
                 <i class="fas fa-fw fa-tachometer-alt"></i>
                 <span>我的任务</span></a>
         </li>
 
         <li class="nav-item active">
-            <a class="nav-link" href="/mydata">
+            <a class="nav-link" href="/my_data">
                 <i class="fas fa-fw fa-tachometer-alt"></i>
                 <span>我的文件</span></a>
         </li>
 
         <!-- Nav Item - Utilities Collapse Menu -->
         <li class="nav-item">
-            <a class="nav-link" href="my-images.html">
+            <a class="nav-link" href="/my_image">
                 <i class="fas fa-fw fa-chart-area"></i>
                 <span>我的镜像</span></a>
         </li>
@@ -336,20 +584,25 @@
 
         <!-- Nav Item - Charts -->
         <li class="nav-item">
-            <a class="nav-link" href="user-common-images.html">
+            <a class="nav-link" href="/user_common_image">
                 <i class="fas fa-fw fa-chart-area"></i>
                 <span>公共镜像</span></a>
         </li>
 
         <!-- Nav Item - Tables -->
         <li class="nav-item">
-            <a class="nav-link" href="user-common-data.html">
+            <a class="nav-link" href="/user_common_data">
                 <i class="fas fa-fw fa-table"></i>
                 <span>公共数据集</span></a>
         </li>
 
         <!-- Divider -->
         <hr class="sidebar-divider d-none d-md-block">
+
+        <!--         Sidebar Toggler (Sidebar) -->
+        <!--        <div class="text-center d-none d-md-inline">-->
+        <!--            <button class="rounded-circle border-0" id="sidebarToggle"></button>-->
+        <!--        </div>-->
 
     </ul>
     <!-- End of Sidebar -->
@@ -403,18 +656,18 @@
 
                     <div class="card-body pt-sm-1">
 
-                        <a class="btn btn-light bnt-square btn-sm" @click="remove">
+                        <a class="btn btn-light bnt-square btn-sm" @click="download">
                             <span class="icon text-gray-600">
                             <i class="fas fa-download"></i>
                             </span>
                         </a>
 
-                        <a class="btn btn-light bnt-square btn-sm">
+                        <a class="btn btn-light bnt-square btn-sm" data-toggle="modal" data-target="#uploadModal">
                             <span class="icon text-gray-600">
                             <i class="fas fa-upload"></i>
                             </span>
                         </a>
-                        <a class="btn btn-light bnt-square btn-sm" @click="remove($event)">
+                        <a class="btn btn-light bnt-square btn-sm" @click="remove()">
                             <span class="icon text-gray-600">
                             <i class="fas fa-trash"></i>
                             </span>
@@ -439,6 +692,23 @@
                                class="btn btn-light bnt-square btn-sm"><span
                                     class="icon text-gray-600">创建文件夹</span>
                             </a>
+                            <div class="dropdown">
+                                <button class="btn btn-light bnt-square btn-sm dropdown-toggle text-gray-600"
+                                        type="button"
+                                        id="dropdownMenuButton"
+                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    选择服务器：{{serverId}}
+                                </button>
+                                <div class="dropdown-menu animated--fade-in" aria-labelledby="dropdownMenuButton">
+
+                                    <a type="button" v-for="gpus,i in availableGpus"
+                                       class=" text-gray-600 pt-0 pb-0 dropdown-item"
+                                       href="javascript:void(0)"
+                                       @click="chooseServer(i)">
+                                        {{i}}: {{gpus}} GPU空闲</a>
+
+                                </div>
+                            </div>
                         </div>
 
                         <ol class="breadcrumb mt-1 p-1 bg-white mb-0">
@@ -455,18 +725,16 @@
 
 
                         <div class="table-status table-responsive">
-                            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0"
-                                   border-right="none">
+                            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
 
                                 <thead>
                                 <tr>
                                     <th class="selectAndImage ">
                                         <img @click="selectAll($event)" selectedd="false" class="selectAllItem"
                                              src="img/cartNotSelected.png">
-
                                     </th>
-                                    <th width="60%" style="font-size: small">文件名</th>
-                                    <th width="30%" style="font-size: small">大小</th>
+                                    <th width="60%">文件名</th>
+                                    <th width="30%">大小</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -586,13 +854,44 @@
 
 </div>
 
+<div class="modal fade" id="uploadModal" tabindex="-1" role="dialog" aria-labelledby="uploadModal"
+     aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="p-3">
+                <table class="table table-striped table-bordered" id="uploadTable">
+                    <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th>文件名称</th>
+                        <th>文件大小</th>
+                        <th>上传状态</th>
+                        <th>上传进度</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+
+            <div class="modal-footer">
+                <div class="panel-footer">
+                    <div id="picker" class="p-0">选择文件</div>
+                    <!--                <button id="btn" class="btn btn-default">开始上传</button>-->
+                </div>
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div><!-- /.modal -->
+</div>
+
 <!-- End of Page Wrapper -->
 
 <!-- Scroll to Top Button-->
 <a class="scroll-to-top rounded" href="#page-top">
     <i class="fas fa-angle-up"></i>
 </a>
-<!-- Logout Modal-->
 
 
 </body>
