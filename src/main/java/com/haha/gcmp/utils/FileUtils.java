@@ -36,6 +36,18 @@ public class FileUtils {
     }
 
     /**
+     * 如果父文件夹不存在，创建父文件夹
+     *
+     * @param path must not be null
+     * @throws IOException if an I/O error occurs
+     */
+    public static void createParentDirectory(Path path) throws IOException {
+        Assert.notNull(path, "Path must not be null");
+        Path parentPath = path.getParent();
+        createDirectory(parentPath);
+    }
+
+    /**
      * 如果文件不存在，创建文件
      *
      * @param path 文件路径
@@ -44,6 +56,7 @@ public class FileUtils {
     public static void createFile(Path path) throws IOException {
         Assert.notNull(path, "Path must not be null");
         if (Files.notExists(path)) {
+            createParentDirectory(path);
             Files.createFile(path);
             log.debug("Created file: [{}]", path);
         }
