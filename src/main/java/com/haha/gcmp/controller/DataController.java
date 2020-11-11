@@ -92,4 +92,9 @@ public class DataController {
             throw new ServiceException("下载文件写入HttpServletResponse输出流异常", e);
         }
     }
+
+    @GetMapping("/common")
+    public List<Data> listCommonDataset() {
+        return dataService.listCommonDataset();
+    }
 }

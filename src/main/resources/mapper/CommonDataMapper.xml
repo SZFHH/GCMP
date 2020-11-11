@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.haha.gcmp.repository.CommonDataMapper">
+
+    <resultMap id="data" type="com.haha.gcmp.model.entity.Data">
+        <result property="name" column="dataset_name"/>
+        <result property="size" column="dataset_size"/>
+        <result property="path" column="dataset_path"/>
+    </resultMap>
+
+
+    <select id="getById" resultMap="data">
+        select id,dataset_name,dataset_size,dataset_path from common_data where id = #{id}
+    </select>
+
+    <select id="listAll" resultMap="data">
+         select id,dataset_name,dataset_size,dataset_path from common_data
+    </select>
+
+    <insert id="insert">
+        insert into common_data (dataset_name,dataset_size,dataset_path)
+        values (#{name}, #{size}, #{path})
+    </insert>
+
+    <delete id="remove">
+        delete from common_data where id = #{id}
+    </delete>
+
+
+</mapper>

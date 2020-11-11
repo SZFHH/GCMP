@@ -14,6 +14,7 @@ import com.haha.gcmp.model.entity.TempFile;
 import com.haha.gcmp.model.entity.User;
 import com.haha.gcmp.model.params.*;
 import com.haha.gcmp.model.support.CheckFileResult;
+import com.haha.gcmp.repository.CommonDataMapper;
 import com.haha.gcmp.repository.TempFileMapper;
 import com.haha.gcmp.service.DataService;
 import com.haha.gcmp.service.UserService;
@@ -42,14 +43,16 @@ public class DataServiceImpl extends AbstractServerService<FileClient> implement
     private final SftpPoolConfig sftpPoolConfig;
     private final SshPoolConfig sshPoolConfig;
     private final FtpPoolConfig ftpPoolConfig;
+    private final CommonDataMapper commonDataMapper;
 
-    protected DataServiceImpl(GcmpProperties gcmpProperties, UserService userService, TempFileMapper tempfileMapper, SftpPoolConfig sftpPoolConfig, SshPoolConfig sshPoolConfig, FtpPoolConfig ftpPoolConfig) {
+    protected DataServiceImpl(GcmpProperties gcmpProperties, UserService userService, TempFileMapper tempfileMapper, SftpPoolConfig sftpPoolConfig, SshPoolConfig sshPoolConfig, FtpPoolConfig ftpPoolConfig, CommonDataMapper commonDataMapper) {
         super(gcmpProperties);
         this.userService = userService;
         this.tempfileMapper = tempfileMapper;
         this.sftpPoolConfig = sftpPoolConfig;
         this.sshPoolConfig = sshPoolConfig;
         this.ftpPoolConfig = ftpPoolConfig;
+        this.commonDataMapper = commonDataMapper;
     }
 
     @Override
@@ -96,13 +99,13 @@ public class DataServiceImpl extends AbstractServerService<FileClient> implement
     @Override
     public String getUserDataPath(String relativePath) {
         User user = userService.getCurrentUser();
-        return FileUtils.joinPaths(gcmpProperties.getDataRoot(), user.getUserName(), relativePath);
+        return FileUtils.joinPaths(gcmpProperties.getDataRoot(), user.getUsername(), relativePath);
     }
 
     @Override
     public String getUserTempPath(String identifier) {
         User user = userService.getCurrentUser();
-        return FileUtils.joinPaths(gcmpProperties.getTempFileRoot(), user.getUserName(), identifier);
+        return FileUtils.joinPaths(gcmpProperties.getTempFileRoot(), user.getUsername(), identifier);
     }
 
     @Override
@@ -152,7 +155,7 @@ public class DataServiceImpl extends AbstractServerService<FileClient> implement
     }
 
     private List<Data> listTempFiles(int serverId, String md5) {
-        String tempDir = FileUtils.joinPaths(userService.getCurrentUser().getUserName(), md5);
+        String tempDir = FileUtils.joinPaths(userService.getCurrentUser().getUsername(), md5);
         return doListDataDir(serverId, gcmpProperties.getTempFileRoot(), tempDir);
     }
 
@@ -177,6 +180,9 @@ public class DataServiceImpl extends AbstractServerService<FileClient> implement
         if (param.getTotalChunks() <= 1) {
             String filePath = getUserDataPath(param.getRelativePath());
             fileClient.put(data, filePath);
+            TempFile tempFile = new TempFile(param.getMd5(), param.getServerId(), param.getRelativePath());
+            tempfileMapper.remove(tempFile);
+            fileClient.removeDir(getUserTempPath(param.getMd5()));
         } else {
             int chunkNumber = param.getChunkNumber();
             String userTempDir = getUserTempPath(param.getMd5());
@@ -237,5 +243,10 @@ public class DataServiceImpl extends AbstractServerService<FileClient> implement
         FileClient fileClient = getClient(dataParam.getServerId());
         return fileClient.get(absolutePath);
 
+    }
+
+    @Override
+    public List<Data> listCommonDataset() {
+        return commonDataMapper.listAll();
     }
 }
