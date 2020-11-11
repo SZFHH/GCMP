@@ -9,6 +9,9 @@ import org.springframework.http.HttpHeaders;
  * @date 2020/10/18
  */
 public class GcmpConst {
+
+    public final static String DISK_MOUNT_PATH = "/raid";
+
     public final static String LOCAL_CHARSET = "UTF-8";
 
     public final static String SERVER_CHARSET = "ISO-8859-1";
@@ -23,7 +26,7 @@ public class GcmpConst {
 
     public final static int DEFAULT_DOCKER_QUOTA = 2;
 
-    public final static String POD_STATUS_SUCCEED = "Succeed";
+    public final static String POD_STATUS_SUCCEEDED = "Succeeded";
 
     public final static String POD_STATUS_RUNNING = "Running";
 
@@ -33,7 +36,9 @@ public class GcmpConst {
 
     public final static String POD_STATUS_DELETED = "Deleted";
 
-    public final static String POS_STATUS_UNKNOWN = "Unknown";
+    public final static String POD_STATUS_UNKNOWN = "Unknown";
+
+    public final static String POD_STATUS_RETRY = "Retry";
 
     public final static String PROTOCOL_HTTPS = "https://";
 

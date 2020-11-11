@@ -22,9 +22,9 @@ public enum TaskStatusType {
     RUNNING(1, POD_STATUS_RUNNING),
 
     /**
-     * SUCCEED STATUS
+     * SUCCEEDED STATUS
      */
-    SUCCEED(2, POD_STATUS_SUCCEED),
+    SUCCEEDED(2, POD_STATUS_SUCCEEDED),
 
     /**
      * FAILED STATUS
@@ -39,7 +39,12 @@ public enum TaskStatusType {
     /**
      * UNKNOWN STATUS
      */
-    UNKNOWN(5, POS_STATUS_UNKNOWN);
+    UNKNOWN(5, POD_STATUS_UNKNOWN),
+
+    /**
+     * RETRY STATUS
+     */
+    RETRY(6, POD_STATUS_RETRY);
 
     private final Integer value;
 
@@ -61,7 +66,7 @@ public enum TaskStatusType {
     public static TaskStatusType valueFrom(@Nullable String value) {
         TaskStatusType taskStatusType = null;
         for (TaskStatusType status : values()) {
-            if (taskStatusType.getDesc().equals(value)) {
+            if (status.getDesc().equals(value)) {
                 taskStatusType = status;
                 break;
             }
