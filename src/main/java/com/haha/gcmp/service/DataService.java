@@ -104,9 +104,17 @@ public interface DataService {
     void newDir(DataParam dataParam);
 
     /**
-     * 下载文件（非分片传输，有大小限制）
+     * 下载文件（非分片传输）
      *
      * @param dataParam must not be null
+     * @return byte of file
      */
     byte[] getFile(DataParam dataParam);
+
+    /**
+     * 获得所有的公共数据集记录
+     *
+     * @return list of data
+     */
+    List<Data> listCommonDataset();
 }
