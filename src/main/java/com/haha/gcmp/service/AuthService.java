@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 
 public interface AuthService {
-    int ACCESS_TOKEN_EXPIRED_SECONDS = 24 * 3600;
+    int ACCESS_TOKEN_EXPIRED_SECONDS = 48 * 3600;
 
     /**
      * 验证用户的登录信息

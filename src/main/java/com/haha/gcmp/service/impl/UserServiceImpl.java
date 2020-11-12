@@ -5,6 +5,7 @@ import com.haha.gcmp.exception.NotFoundException;
 import com.haha.gcmp.model.entity.User;
 import com.haha.gcmp.model.params.RegisterParam;
 import com.haha.gcmp.repository.UserMapper;
+import com.haha.gcmp.security.util.SecurityUtils;
 import com.haha.gcmp.service.UserService;
 import org.springframework.stereotype.Service;
 
@@ -44,7 +45,7 @@ public class UserServiceImpl implements UserService {
     public User getByNameOfNonNull(String userName) {
         User user = userMapper.getByUserName(userName);
         if (user == null) {
-            throw new NotFoundException("The user name does not exist").setErrorData(userName);
+            throw new NotFoundException("没找到用户：" + userName);
         }
         return user;
     }
@@ -63,8 +64,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getCurrentUser() {
-        return userMapper.getByUserName("szf");
-//        return SecurityUtils.getCurrentUser();
+        return SecurityUtils.getCurrentUser();
     }
 
     @Override
