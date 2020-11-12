@@ -34,269 +34,144 @@
 
     <script src="vendor/datatables/jquery.dataTables.min.js"></script>
     <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
-
+    <script src="js/gcmp.js"></script>
     <script>
         $(function () {
 
             var vue = new Vue({
-                el: '#wrapper',
-                data: {
-                    serverStatusUri: '/api/status/available_all',
-                    serverPropertyUri: '/api/status/server_property',
-                    serverStatus: [],
-                    serverProperty: []
-                },
-                mounted: function () { //mounted　表示这个 Vue 对象加载成功了
-                    this.load();
-                },
-                methods: {
-                    load: function () {
-                        axios.get(this.serverStatusUri).then(function (response) {
-                            vue.serverStatus = response.data.data;
+                    el: '#wrap',
+                    data: {
+                        loginUri: '/api/user/login',
+                        username: '',
+                        password: '',
+                        rememberMe: false,
+                        token: ''
+                    },
+                    mounted: function () {
+                        this.load();
+                    },
+                    methods: {
+                        load: function () {
+                            axios.get("/api/user/cur_user").then(function (response) {
+                                window.location.href = 'server-status.html'
+                            }).catch(function (err) {
+                                if (err.response) {
+                                    var status = err.response.status;
+                                    if (status == 401) {
+                                        $("span.errorMessage").html("登录信息过期");
+                                        $("div.ErrorMessageDiv").removeClass("fade")
+                                        window.setTimeout(function () {
+                                            $("div.ErrorMessageDiv").addClass("fade")
+                                        }, 2000)
+                                    }
+                                }
 
-                        });
-                        axios.get(this.serverPropertyUri).then(function (response) {
-                            vue.serverProperty = response.data.data;
-
-                        });
-                        window.setInterval(function () {
-                            axios.get(vue.serverStatusUri).then(function (response) {
-                                vue.serverStatus = response.data.data;
-
-                            });
-                        }, 1000 * 5)
-
-
-                    }
-                },
-                filters: {
-                    renderSize: function (value) {
-                        if (null == value || value == '') {
-                            return "0 Bytes";
+                            })
+                        },
+                        login: function () {
+                            axios.post(this.loginUri, {
+                                username: this.username,
+                                password: this.password,
+                                rememberMe: this.rememberMe
+                            }).then(function (response) {
+                                vue.token = response.data.data.accessToken;
+                                window.location.href = 'server-status.html?token=' + vue.token;
+                            })
+                                .catch(function (err) {
+                                    if (err.response) {
+                                        var status = err.response.status;
+                                        $("span.errorMessage").html(err.response.data.message);
+                                        $("div.ErrorMessageDiv").removeClass("fade")
+                                        window.setTimeout(function () {
+                                            $("div.ErrorMessageDiv").addClass("fade")
+                                        }, 2000)
+                                    }
+                                });
+                        },
+                        doNothing: function () {
+                            $("span.errorMessage").html('请联系管理员分配账号');
+                            $("div.ErrorMessageDiv").removeClass("fade")
+                            window.setTimeout(function () {
+                                $("div.ErrorMessageDiv").addClass("fade")
+                            }, 2000)
                         }
-                        var unitArr = new Array("Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB");
-                        var index = 0;
-                        var srcsize = parseFloat(value);
-                        index = Math.floor(Math.log(srcsize) / Math.log(1024));
-                        var size = srcsize / Math.pow(1024, index);
-                        size = size.toFixed(2);//保留的小数位数
-                        return size + unitArr[index];
+
+
                     }
-                }
-            });
+
+                })
+            ;
         })
 
     </script>
 </head>
 
-<body id="page-top">
+<body class="bg-gradient-primary">
 
-<!-- Page Wrapper -->
-<div id="wrapper" v-cloak>
+<div class="container" id="wrap">
 
-    <!-- Sidebar -->
-    <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+    <!-- Outer Row -->
 
-        <!-- Sidebar - Brand -->
-        <a class="sidebar-brand d-flex align-items-center" href="/">
-            <div class="sidebar-brand-icon rotate-n-15">
-                <i class="fas fa-laugh-wink"></i>
-            </div>
-            <div class="sidebar-brand-text mx-3">GCMP</div>
-        </a>
+    <div class="row justify-content-center">
 
-        <!-- Divider -->
-        <hr class="sidebar-divider my-0">
+        <div class="col-xl-10 col-lg-12 col-md-9">
 
-        <!-- Nav Item - Dashboard -->
-        <li class="nav-item active">
-            <a class="nav-link" href="/">
-                <i class="fas fa-fw fa-tachometer-alt"></i>
-                <span>可用资源</span></a>
-        </li>
+            <div class="card o-hidden border-0 shadow-lg my-5">
+                <div class="card-body p-0">
+                    <!-- Nested Row within Card Body -->
+                    <div class="row justify-content-center">
 
-        <!-- Divider -->
-        <hr class="sidebar-divider">
+                        <div class="col-lg-6 ">
+                            <div class="p-5">
+                                <div class="ErrorMessageDiv fade text-center pb-2">
+                                    <span class="alert p-1 border-0 text-danger  errorMessage">df</span>
+                                </div>
+                                <div class="text-center">
+                                    <h1 class="h4 text-gray-900 mb-4">Welcome Back!</h1>
+                                </div>
+                                <form class="user">
+                                    <div class="form-group">
+                                        <input v-model="username" type="text" class="form-control form-control-user"
 
-        <li class="nav-item">
-            <a class="nav-link" href="/my_task">
-                <i class="fas fa-fw fa-tachometer-alt"></i>
-                <span>我的任务</span></a>
-        </li>
+                                               placeholder="用户名">
+                                    </div>
+                                    <div class="form-group">
+                                        <input v-model="password" type="password" class="form-control form-control-user"
+                                               placeholder="密码">
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="custom-control custom-checkbox small">
+                                            <input v-model="rememberMe" type="checkbox" class="custom-control-input"
+                                                   id="customCheck">
+                                            <label class="custom-control-label" for="customCheck">Remember Me</label>
+                                        </div>
+                                    </div>
+                                    <a type="button" @click="login"
+                                       class="btn btn-primary btn-user btn-block">
+                                        Login
+                                    </a>
 
-        <li class="nav-item">
-            <a class="nav-link" href="/my_data">
-                <i class="fas fa-fw fa-tachometer-alt"></i>
-                <span>我的文件</span></a>
-        </li>
-
-        <!-- Nav Item - Utilities Collapse Menu -->
-        <li class="nav-item">
-            <a class="nav-link" href="/my_image">
-                <i class="fas fa-fw fa-chart-area"></i>
-                <span>我的镜像</span></a>
-        </li>
-
-        <!-- Divider -->
-        <hr class="sidebar-divider">
-
-        <!-- Nav Item - Charts -->
-        <li class="nav-item">
-            <a class="nav-link" href="/user_common_image">
-                <i class="fas fa-fw fa-chart-area"></i>
-                <span>公共镜像</span></a>
-        </li>
-
-        <!-- Nav Item - Tables -->
-        <li class="nav-item">
-            <a class="nav-link" href="/user_common_data">
-                <i class="fas fa-fw fa-table"></i>
-                <span>公共数据集</span></a>
-        </li>
-
-        <!-- Divider -->
-        <hr class="sidebar-divider d-none d-md-block">
-
-        <!--         Sidebar Toggler (Sidebar) -->
-        <!--        <div class="text-center d-none d-md-inline">-->
-        <!--            <button class="rounded-circle border-0" id="sidebarToggle"></button>-->
-        <!--        </div>-->
-
-    </ul>
-    <!-- End of Sidebar -->
-
-    <!-- Content Wrapper -->
-    <div id="content-wrapper" class="d-flex flex-column">
-
-        <!-- Main Content -->
-        <div id="content">
-
-            <!-- Topbar -->
-            <nav class="navbar navbar-expand navbar-light bg-white topbar mb-0 static-top shadow">
-
-                <!-- Sidebar Toggle (Topbar) -->
-                <!--                <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">-->
-                <!--                    <i class="fa fa-bars"></i>-->
-                <!--                </button>-->
-
-                <!-- Topbar Navbar -->
-                <ul class="navbar-nav ml-auto">
-
-                    <div class="topbar-divider d-none d-sm-block"></div>
-
-                    <!-- Nav Item - User Information -->
-                    <li class="nav-item dropdown no-arrow">
-                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <span class="mr-2 d-none d-lg-inline text-gray-600 small">Valerie Luna</span>
-                            <!--                            <img class="img-profile rounded-circle" src="https://source.unsplash.com/QAB-WJcbgJk/60x60">-->
-                        </a>
-                        <!-- Dropdown - User Information -->
-                        <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                             aria-labelledby="userDropdown">
-                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
-                                <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                                Logout
-                            </a>
-                        </div>
-                    </li>
-
-                </ul>
-
-            </nav>
-            <!-- End of Topbar -->
-
-            <!-- Begin Page Content -->
-            <div class=" ml-auto">
-
-                <!-- Page Heading -->
-                <!--                <h1 class="h3 mb-2 text-gray-800">Tables</h1>-->
-
-                <!-- DataTales Example -->
-                <div class="card shadow mb-0 ">
-                    <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">可用资源</h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-status table-responsive">
-                            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                                <thead>
-                                <tr>
-                                    <th>Id</th>
-                                    <th>服务器</th>
-                                    <th>GPU型号</th>
-                                    <th>GPU(空闲/总量)</th>
-                                    <th>内存(空闲/总量)</th>
-                                    <th>硬盘(空闲/总量)</th>
-                                </tr>
-                                </thead>
-
-                                <!--                                <tbody>-->
-                                <tr v-for="sp, i in serverProperty">
-                                    <td>{{i}}</td>
-                                    <td>{{sp.hostName}}</td>
-                                    <td>{{sp.gpuSeries}}</td>
-                                    <td>{{serverStatus[i].gpuAvailable}}/{{sp.gpuTotal}}</td>
-                                    <td>{{serverStatus[i].memoryAvailable|renderSize}}/{{sp.memoryTotal|renderSize}}
-                                    </td>
-                                    <td>{{serverStatus[i].diskAvailable|renderSize}}/{{sp.diskTotal|renderSize}}</td>
-
-                                </tr>
-
-                                <!--                                </tbody>-->
-                            </table>
+                                </form>
+                                <hr>
+                                <div class="text-center">
+                                    <a @click="doNothing" class="small" href="javascript:void(0)">忘记密码</a>
+                                </div>
+                                <div class="text-center">
+                                    <a @click="doNothing" class="small" href="javascript:void(0)">注册</a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-
             </div>
 
         </div>
-        <!-- End of Main Content -->
-
-        <!-- Footer -->
-        <footer class="sticky-footer bg-white">
-            <div class="container my-auto">
-                <div class="copyright text-center my-auto">
-                    <span>Copyright &copy; Your Website 2020</span>
-                </div>
-            </div>
-        </footer>
-        <!-- End of Footer -->
 
     </div>
-    <!-- End of Content Wrapper -->
 
 </div>
-<!-- End of Page Wrapper -->
 
-<!-- Scroll to Top Button-->
-<a class="scroll-to-top rounded" href="#page-top">
-    <i class="fas fa-angle-up"></i>
-</a>
-
-<!-- Logout Modal-->
-<div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-     aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
-                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">×</span>
-                </button>
-            </div>
-            <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                <a class="btn btn-primary" href="login.html">Logout</a>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<!-- Page level custom scripts -->
+<!-- Bootstrap core JavaScript-->
 
 
 </body>

@@ -33,6 +33,7 @@
     <script src="js/vue/2.5.16/vue.min.js"></script>
     <script src="js/axios/0.17.1/axios.min.js"></script>
     <script src="js/moment/2.22.2/moment.js"></script>
+    <script src="js/gcmp.js"></script>
     <script>
         $(function () {
 
@@ -58,31 +59,31 @@
                     gpus: 0,
                     pyVersion: 3,
                     cmd: "",
-                    extraPythonPackage: ""
+                    extraPythonPackage: "",
+
+                    user: {},
+                    token: ""
 
 
                 },
                 mounted: function () { //mounted　表示这个 Vue 对象加载成功了
+                    this.getUser();
                     this.load();
                 },
                 methods: {
-                    formatDate: function (date, fmt) {
-                        var o = {
-                            "M+": date.getMonth() + 1,                 //月份
-                            "d+": date.getDate(),                    //日
-                            "h+": date.getHours(),                   //小时
-                            "m+": date.getMinutes(),                 //分
-                            "s+": date.getSeconds(),                 //秒
-                            "q+": Math.floor((date.getMonth() + 3) / 3), //季度
-                            "S": date.getMilliseconds()             //毫秒
-                        };
-                        if (/(y+)/.test(fmt))
-                            fmt = fmt.replace(RegExp.$1, (date.getFullYear() + "").substr(4 - RegExp.$1.length));
-                        for (var k in o)
-                            if (new RegExp("(" + k + ")").test(fmt))
-                                fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
-                        return fmt;
+                    getUser: function () {
+                        this.token = getUrlParam("token");
+                        axios({
+                            method: "get",
+                            url: "/api/user/cur_user",
+                            headers: {'Gcmp-Authorization': this.token}
+                        }).then(function (response) {
+                            vue.user = response.data.data;
+                        }).catch(function (err) {
+                            handleError(err);
+                        })
                     },
+
                     selectSingle: function (element) {
                         var tgt = element.currentTarget;
                         var selected = tgt.getAttribute("selectedd")
@@ -137,33 +138,61 @@
                         return rv;
                     },
                     refresh: function () {
-                        axios.get(this.getTaskUri).then(function (response) {
+                        axios({
+                            method: 'get',
+                            url: this.getTaskUri,
+                            headers: {'Gcmp-Authorization': this.token}
+                        }).then(function (response) {
                             vue.tasks = response.data.data;
+                        }).catch(function (err) {
+                            handleError(err);
                         });
                     },
                     load: function () {
                         this.refresh();
+
                         axios.get(this.serverAvailableGpusUri).then(function (response) {
                             vue.availableGpus = response.data.data;
+                        }).catch(function (err) {
+                            handleError(err);
                         });
-                        axios.get(this.userImageUri).then(function (response) {
+
+                        axios({
+                            method: 'get',
+                            url: this.userImageUri,
+                            headers: {'Gcmp-Authorization': this.token}
+                        }).then(function (response) {
                             vue.userImages = response.data.data;
+                        }).catch(function (err) {
+                            handleError(err);
                         });
+
                         axios.get(this.commonImageUri).then(function (response) {
                             vue.commonImages = response.data.data;
+                        }).catch(function (err) {
+                            handleError(err);
                         });
+
                         window.setInterval(function () {
                             axios.get(vue.serverAvailableGpusUri).then(function (response) {
                                 vue.availableGpus = response.data.data;
+                            }).catch(function (err) {
+                                handleError(err);
                             });
                         }, 1000 * 20)
                     },
                     getLog: function (idx) {
                         var uri = this.getTaskLogUri + "/" + this.tasks[idx].id;
-                        axios.get(uri).then(function (response) {
+                        axios({
+                            method: 'get',
+                            url: uri,
+                            headers: {'Gcmp-Authorization': this.token}
+                        }).then(function (response) {
                             vue.taskLog = response.data.data
                             $("#taskLogModal").modal("show");
-                        })
+                        }).catch(function (err) {
+                            handleError(err);
+                        });
                     },
 
                     remove: function () {
@@ -173,11 +202,17 @@
                             var uri = this.baseUri + '/' + this.tasks[idx].id;
                             $("span.errorMessage").html("正在删除:" + i + 1 + "...");
                             $("div.ErrorMessageDiv").removeClass("fade")
-                            axios.delete(uri).then(function (response) {
+                            axios({
+                                method: 'delete',
+                                url: uri,
+                                headers: {'Gcmp-Authorization': this.token}
+                            }).then(function (response) {
                                 $("div.ErrorMessageDiv").addClass("fade")
                                 if (i == selectedList.length - 1) {
                                     vue.load();
                                 }
+                            }).catch(function (err) {
+                                handleError(err);
                             });
                         }
                         this.notselectAll();
@@ -185,15 +220,22 @@
 
                     add: function () {
                         $("#uploadModal").modal("hide");
-                        axios.post(this.baseUri, {
-                            serverId: this.serverId,
-                            gpus: this.gpus,
-                            imageId: this.imageId,
-                            pyVersion: this.pyVersion,
-                            cmd: this.cmd,
-                            extraPythonPackage: this.extraPythonPackage
+                        axios({
+                            method: 'post',
+                            url: this.baseUri,
+                            data: {
+                                serverId: this.serverId,
+                                gpus: this.gpus,
+                                imageId: this.imageId,
+                                pyVersion: this.pyVersion,
+                                cmd: this.cmd,
+                                extraPythonPackage: this.extraPythonPackage
+                            },
+                            headers: {'Gcmp-Authorization': this.token}
                         }).then(function (response) {
                             vue.refresh();
+                        }).catch(function (err) {
+                            handleError(err);
                         })
                     },
                     upload: function () {
@@ -212,16 +254,26 @@
                     chooseImage(id, imageAlias) {
                         this.imageAlias = imageAlias
                         this.imageId = id;
+                    },
+                    logout: function () {
+                        axios({
+                            method: "post",
+                            url: "/api/user/logout",
+                            headers: {'Gcmp-Authorization': this.token}
+                        }).then(function (response) {
+                            window.location.href = '/'
+                        }).catch(function (err) {
+                            handleError(err);
+                        })
                     }
                 },
                 filters: {
                     timestampToDate: function (t) {
                         let date = new Date();
-                        date.setTime(t * 1000);
-                        return vue.formatDate(date, 'yyyy-MM-dd h:m:s');
+                        date.setTime(t);
+                        return formatDate(date, 'yyyy-MM-dd h:m');
                     }
                 }
-
             });
         })
 
@@ -237,7 +289,7 @@
     <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
         <!-- Sidebar - Brand -->
-        <a class="sidebar-brand d-flex align-items-center" href="/">
+        <a class="sidebar-brand d-flex align-items-center" href="javascript:void(0)">
             <div class="sidebar-brand-icon rotate-n-15">
                 <i class="fas fa-laugh-wink"></i>
             </div>
@@ -248,8 +300,8 @@
         <hr class="sidebar-divider my-0">
 
         <!-- Nav Item - Dashboard -->
-        <li class="nav-item">
-            <a class="nav-link" href="/">
+        <li class="nav-item ">
+            <a class="nav-link" :href="'/server-status.html?token='+token">
                 <i class="fas fa-fw fa-tachometer-alt"></i>
                 <span>可用资源</span></a>
         </li>
@@ -258,20 +310,20 @@
         <hr class="sidebar-divider">
 
         <li class="nav-item active">
-            <a class="nav-link" href="/my_task">
+            <a class="nav-link" :href="'/my-task.html?token='+token">
                 <i class="fas fa-fw fa-tachometer-alt"></i>
                 <span>我的任务</span></a>
         </li>
 
         <li class="nav-item">
-            <a class="nav-link" href="/my_data">
+            <a class="nav-link" :href="'/my-data.html?token='+token">
                 <i class="fas fa-fw fa-tachometer-alt"></i>
                 <span>我的文件</span></a>
         </li>
 
         <!-- Nav Item - Utilities Collapse Menu -->
         <li class="nav-item">
-            <a class="nav-link" href="/my_image">
+            <a class="nav-link" :href="'/my-image.html?token='+token">
                 <i class="fas fa-fw fa-chart-area"></i>
                 <span>我的镜像</span></a>
         </li>
@@ -281,14 +333,14 @@
 
         <!-- Nav Item - Charts -->
         <li class="nav-item">
-            <a class="nav-link" href="/user_common_image">
+            <a class="nav-link" :href="'/user-common-image.html?token='+token">
                 <i class="fas fa-fw fa-chart-area"></i>
                 <span>公共镜像</span></a>
         </li>
 
         <!-- Nav Item - Tables -->
         <li class="nav-item">
-            <a class="nav-link" href="/user_common_data">
+            <a class="nav-link" :href="'/user-common-data.html?token='+token">
                 <i class="fas fa-fw fa-table"></i>
                 <span>公共数据集</span></a>
         </li>
@@ -296,10 +348,6 @@
         <!-- Divider -->
         <hr class="sidebar-divider d-none d-md-block">
 
-        <!--         Sidebar Toggler (Sidebar) -->
-        <!--        <div class="text-center d-none d-md-inline">-->
-        <!--            <button class="rounded-circle border-0" id="sidebarToggle"></button>-->
-        <!--        </div>-->
 
     </ul>
     <!-- End of Sidebar -->
@@ -329,13 +377,13 @@
                     <li class="nav-item dropdown no-arrow">
                         <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <span class="mr-2 d-none d-lg-inline text-gray-600 small">Valerie Luna</span>
-                            <!--                            <img class="img-profile rounded-circle" src="https://source.unsplash.com/QAB-WJcbgJk/60x60">-->
+                            <span class="mr-2 d-none d-lg-inline text-gray-600 small">{{user.username}}</span>
+
                         </a>
                         <!-- Dropdown - User Information -->
                         <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
                              aria-labelledby="userDropdown">
-                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
+                            <a @click="logout" class="dropdown-item" href="javascript:void(0)">
                                 <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
                                 Logout
                             </a>
@@ -372,14 +420,14 @@
                             <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                                 <thead>
                                 <tr>
-                                    <th class="selectAndImage ">
+                                    <th width="3%" class="selectAndImage ">
                                         <img @click="selectAll($event)" selectedd="false" class="selectAllItem"
                                              src="img/cartNotSelected.png">
                                     </th>
-                                    <th>命令</th>
+                                    <th width="30%">命令</th>
                                     <th>占用gpu</th>
                                     <th>gpu型号</th>
-                                    <th>镜像名</th>
+                                    <th width="20%">镜像名</th>
                                     <th>服务器</th>
                                     <th>状态</th>
                                     <th>开始时间</th>
@@ -387,7 +435,7 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <tr v-for="task, i in tasks">
+                                <tr v-for="task, i in tasks" v-if="task.status!='Deleted'">
                                     <td>
                                         <img @click="selectSingle" selectedd="false" :idx=i
                                              class="cartProductItemIfSelected"
@@ -422,7 +470,7 @@
         <footer class="sticky-footer bg-white">
             <div class="container my-auto">
                 <div class="copyright text-center my-auto">
-                    <span>Copyright &copy; Your Website 2020</span>
+                    <span>Copyright &copy; GCMP 2020</span>
                 </div>
             </div>
         </footer>
@@ -549,26 +597,6 @@
 <a class="scroll-to-top rounded" href="#page-top">
     <i class="fas fa-angle-up"></i>
 </a>
-
-<!-- Logout Modal-->
-<div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-     aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
-                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">×</span>
-                </button>
-            </div>
-            <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                <a class="btn btn-primary" href="login.html">Logout</a>
-            </div>
-        </div>
-    </div>
-</div>
 
 
 </body>

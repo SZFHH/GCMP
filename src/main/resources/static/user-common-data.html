@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>GCMP</title>
+
+    <!-- Custom fonts for this template-->
+    <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="css/font.css" rel="stylesheet">
+    <!-- Custom styles for this template-->
+    <link href="css/sb-admin-2.min.css" rel="stylesheet">
+    <link href="css/gcmp.css" rel="stylesheet">
+    <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+    <!-- Bootstrap core JavaScript-->
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script src="js/sb-admin-2.min.js"></script>
+
+    <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
+    <script src="js/vue/2.5.16/vue.min.js"></script>
+    <script src="js/axios/0.17.1/axios.min.js"></script>
+    <script src="js/moment/2.22.2/moment.js"></script>
+    <script src="js/gcmp.js"></script>
+    <script>
+        function getUrlParam(name) {
+            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+            var r = window.location.search.substr(1).match(reg);
+            if (r != null)
+                return decodeURI(r[2]);
+            return null;
+        }
+
+        $(function () {
+
+            var vue = new Vue({
+                el: '#wrapper',
+                data: {
+                    commonDatasetUri: '/api/data/common',
+                    dataset: [],
+                    user: {},
+                    token: ""
+
+                },
+                mounted: function () {
+                    this.getUser();
+                    this.load();
+                },
+                methods: {
+                    getUser: function () {
+                        this.token = getUrlParam("token");
+                        axios({
+                            method: "get",
+                            url: "/api/user/cur_user",
+                            headers: {'Gcmp-Authorization': this.token}
+                        }).then(function (response) {
+                            vue.user = response.data.data;
+                        }).catch(function (err) {
+                            handleError(err);
+                        })
+                    },
+                    load: function () {
+                        axios.get(this.commonDatasetUri).then(function (response) {
+                            vue.dataset = response.data.data;
+                        }).catch(function (err) {
+                            handleError(err);
+                        });
+                    },
+                    logout: function () {
+                        axios({
+                            method: "post",
+                            url: "/api/user/logout",
+                            headers: {'Gcmp-Authorization': this.token}
+                        }).then(function (response) {
+                            window.location.href = '/'
+                        }).catch(function (err) {
+                            handleError(err);
+                        })
+                    }
+                },
+                filters: {
+                    renderSize: function (value) {
+                        renderSize(value)
+                    }
+                }
+
+            });
+        })
+
+    </script>
+</head>
+
+<body id="page-top">
+
+<!-- Page Wrapper -->
+<div id="wrapper">
+
+    <!-- Sidebar -->
+    <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+
+        <!-- Sidebar - Brand -->
+        <a class="sidebar-brand d-flex align-items-center" href="javascript:void(0)">
+            <div class="sidebar-brand-icon rotate-n-15">
+                <i class="fas fa-laugh-wink"></i>
+            </div>
+            <div class="sidebar-brand-text mx-3">GCMP</div>
+        </a>
+
+        <!-- Divider -->
+        <hr class="sidebar-divider my-0">
+
+        <!-- Nav Item - Dashboard -->
+        <li class="nav-item ">
+            <a class="nav-link" :href="'/server-status.html?token='+token">
+                <i class="fas fa-fw fa-tachometer-alt"></i>
+                <span>可用资源</span></a>
+        </li>
+
+        <!-- Divider -->
+        <hr class="sidebar-divider">
+
+        <li class="nav-item">
+            <a class="nav-link" :href="'/my-task.html?token='+token">
+                <i class="fas fa-fw fa-tachometer-alt"></i>
+                <span>我的任务</span></a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" :href="'/my-data.html?token='+token">
+                <i class="fas fa-fw fa-tachometer-alt"></i>
+                <span>我的文件</span></a>
+        </li>
+
+        <!-- Nav Item - Utilities Collapse Menu -->
+        <li class="nav-item">
+            <a class="nav-link" :href="'/my-image.html?token='+token">
+                <i class="fas fa-fw fa-chart-area"></i>
+                <span>我的镜像</span></a>
+        </li>
+
+        <!-- Divider -->
+        <hr class="sidebar-divider">
+
+        <!-- Nav Item - Charts -->
+        <li class="nav-item">
+            <a class="nav-link" :href="'/user-common-image.html?token='+token">
+                <i class="fas fa-fw fa-chart-area"></i>
+                <span>公共镜像</span></a>
+        </li>
+
+        <!-- Nav Item - Tables -->
+        <li class="nav-item active">
+            <a class="nav-link" :href="'/user-common-data.html?token='+token">
+                <i class="fas fa-fw fa-table"></i>
+                <span>公共数据集</span></a>
+        </li>
+
+        <!-- Divider -->
+        <hr class="sidebar-divider d-none d-md-block">
+
+
+    </ul>
+    <!-- End of Sidebar -->
+
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+        <!-- Main Content -->
+        <div id="content">
+
+            <!-- Topbar -->
+            <nav class="navbar navbar-expand navbar-light bg-white topbar mb-0 static-top shadow">
+                <div class="ErrorMessageDiv fade">
+                    <span class="alert p-1 border-dark  errorMessage">df</span>
+                </div>
+                <!-- Sidebar Toggle (Topbar) -->
+                <!--                <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">-->
+                <!--                    <i class="fa fa-bars"></i>-->
+                <!--                </button>-->
+
+                <!-- Topbar Navbar -->
+                <ul class="navbar-nav ml-auto">
+
+                    <div class="topbar-divider d-none d-sm-block"></div>
+
+                    <!-- Nav Item - User Information -->
+                    <li class="nav-item dropdown no-arrow">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="mr-2 d-none d-lg-inline text-gray-600 small">{{user.username}}</span>
+
+                        </a>
+                        <!-- Dropdown - User Information -->
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                             aria-labelledby="userDropdown">
+                            <a @click="logout" class="dropdown-item" href="javascript:void(0)">
+                                <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                Logout
+                            </a>
+                        </div>
+                    </li>
+
+                </ul>
+
+            </nav>
+            <!-- End of Topbar -->
+
+            <!-- Begin Page Content -->
+            <div class=" ml-auto">
+
+                <!-- Page Heading -->
+                <!--                <h1 class="h3 mb-2 text-gray-800">Tables</h1>-->
+
+                <!-- DataTales Example -->
+                <div class="card shadow mb-0 ">
+
+                    <div class="card-body pt-sm-1">
+
+                        <div class="table-responsive pt-1">
+                            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                <thead>
+                                <tr>
+                                    <th width="30%">数据集</th>
+                                    <th width="20%">大小</th>
+                                    <th width="50%">路径</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr v-for="data in dataset">
+
+                                    <td>{{data.name}}</td>
+                                    <td>{{data.size|renderSize}}</td>
+                                    <td>{{data.path}}</td>
+                                </tr>
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+        <!-- End of Main Content -->
+
+        <!-- Footer -->
+        <footer class="sticky-footer bg-white">
+            <div class="container my-auto">
+                <div class="copyright text-center my-auto">
+                    <span>Copyright &copy; GCMP 2020</span>
+                </div>
+            </div>
+        </footer>
+        <!-- End of Footer -->
+
+    </div>
+    <!-- End of Content Wrapper -->
+</div>
+<!-- End of Page Wrapper -->
+
+<!-- Scroll to Top Button-->
+<a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+</a>
+
+
+</body>
+
+</html>
