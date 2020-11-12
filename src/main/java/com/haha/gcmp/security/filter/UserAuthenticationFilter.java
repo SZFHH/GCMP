@@ -53,15 +53,21 @@ public class UserAuthenticationFilter extends AbstractAuthenticationFilter {
         this.authService = authService;
 
         addUrlPatterns(
-            "/api/user/**",
-            "/api/docker/list/user",
-            "/api/docker/add/user",
-//            "/api/docker/quota",
-            "/api/docker/remove/user");
+            "* /api/user/**",
+            "* /api/data/**",
+            "* /api/docker/user/**",
+            "* /api/docker/quota",
+            "* /api/docker/docker_file/**",
+            "* /api/task/**"
+
+
+        );
 
         addExcludeUrlPatterns(
-            "/api/user/register",
-            "/api/user/login"
+            "* /api/user/register",
+            "* /api/user/login",
+            "* /api/data/common",
+            "* /api/task/all"
         );
 
         // set failure handler

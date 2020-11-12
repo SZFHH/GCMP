@@ -61,14 +61,23 @@ public abstract class AbstractAuthenticationFilter extends OncePerRequestFilter 
 
     protected abstract void doAuthenticate(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException;
 
+    private boolean match(String pattern, HttpServletRequest request) {
+        int idx = pattern.indexOf(" ");
+        String method = pattern.substring(0, idx);
+        String uri = pattern.substring(idx + 1);
+        boolean matched = "*".equals(method) || method.equals(request.getMethod());
+        return matched && antPathMatcher.match(uri, urlPathHelper.getRequestUri(request));
+
+    }
+
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         Assert.notNull(request, "Http servlet request must not be null");
 
         // check white list
-        boolean result = excludeUrlPatterns.stream().anyMatch(p -> antPathMatcher.match(p, urlPathHelper.getRequestUri(request)));
+        boolean result = excludeUrlPatterns.stream().anyMatch(p -> match(p, request));
 
-        return result || urlPatterns.stream().noneMatch(p -> antPathMatcher.match(p, urlPathHelper.getRequestUri(request)));
+        return result || urlPatterns.stream().noneMatch(p -> match(p, request));
 
     }
 
