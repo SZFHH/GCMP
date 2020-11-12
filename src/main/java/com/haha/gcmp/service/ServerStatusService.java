@@ -1,6 +1,6 @@
 package com.haha.gcmp.service;
 
-import com.haha.gcmp.model.dto.ServerPropertyDto;
+import com.haha.gcmp.model.dto.ServerPropertyDTO;
 import com.haha.gcmp.model.entity.ServerStatus;
 
 import java.util.List;
@@ -103,13 +103,13 @@ public interface ServerStatusService {
      * @param serverId server id
      * @return ServerPropertyDto
      */
-    ServerPropertyDto getServerProperty(int serverId);
+    ServerPropertyDTO getServerProperty(int serverId);
 
     /**
      * 获取所有服务器的属性
      *
      * @return list of ServerPropertyDto
      */
-    List<ServerPropertyDto> getServersServerProperty();
+    List<ServerPropertyDTO> getServersServerProperty();
 
 }

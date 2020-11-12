@@ -33,7 +33,7 @@ public class TaskController {
         return taskService.listTasksPerUser();
     }
 
-    @GetMapping("admin")
+    @GetMapping("all")
     List<TaskDTO> listAllTasks() {
         return taskService.listAllTasks();
     }

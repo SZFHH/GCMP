@@ -1,5 +1,6 @@
 package com.haha.gcmp.controller;
 
+import com.haha.gcmp.model.dto.UserDTO;
 import com.haha.gcmp.model.entity.User;
 import com.haha.gcmp.model.params.LoginParam;
 import com.haha.gcmp.model.params.RegisterParam;
@@ -45,8 +46,9 @@ public class UserController {
     }
 
     @GetMapping("cur_user")
-    public User currentUser() {
-        return userService.getCurrentUser();
+    public UserDTO currentUser() {
+        User user = userService.getCurrentUser();
+        return new UserDTO(user.getUsername());
     }
 
     @PostMapping("logout")

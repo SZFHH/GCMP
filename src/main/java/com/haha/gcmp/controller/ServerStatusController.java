@@ -1,6 +1,6 @@
 package com.haha.gcmp.controller;
 
-import com.haha.gcmp.model.dto.ServerPropertyDto;
+import com.haha.gcmp.model.dto.ServerPropertyDTO;
 import com.haha.gcmp.model.entity.ServerStatus;
 import com.haha.gcmp.service.ServerStatusService;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,7 +35,7 @@ public class ServerStatusController {
     }
 
     @GetMapping("server_property")
-    public List<ServerPropertyDto> getServerProperty() {
+    public List<ServerPropertyDTO> getServerProperty() {
         return serverStatusService.getServersServerProperty();
 
     }

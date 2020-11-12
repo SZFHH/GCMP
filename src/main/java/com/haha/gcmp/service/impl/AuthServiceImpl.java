@@ -2,7 +2,7 @@ package com.haha.gcmp.service.impl;
 
 import cn.hutool.crypto.digest.BCrypt;
 import com.haha.gcmp.cache.AbstractStringCacheStore;
-import com.haha.gcmp.exception.BadRequestException;
+import com.haha.gcmp.exception.AuthenticationException;
 import com.haha.gcmp.model.entity.User;
 import com.haha.gcmp.model.params.LoginParam;
 import com.haha.gcmp.security.support.AuthenticationToken;
@@ -48,11 +48,11 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public User authCheck(AuthenticationToken authenticationToken) {
         String mismatchTip = "用户名或者密码不正确";
-        String userName = authenticationToken.getUserName();
-        String password = authenticationToken.getPassWord();
-        User user = userService.getByNameOfNonNull(userName);
-        if (!passwordMatch(user, password)) {
-            throw new BadRequestException(mismatchTip);
+        String userName = authenticationToken.getUsername();
+        String password = authenticationToken.getPassword();
+        User user = userService.getByNameOfNullable(userName);
+        if (user == null || !passwordMatch(user, password)) {
+            throw new AuthenticationException(mismatchTip);
         }
         return user;
 
@@ -81,9 +81,9 @@ public class AuthServiceImpl implements AuthService {
 
         token.setAccessToken(GcmpUtils.randomUUIDWithoutDash());
         token.setExpiredIn(ACCESS_TOKEN_EXPIRED_SECONDS);
+        cacheStore.get(SecurityUtils.buildAccessTokenKey(user)).ifPresent(oldToken -> cacheStore.delete(SecurityUtils.buildTokenAccessKey(oldToken)));
 
         cacheStore.put(SecurityUtils.buildAccessTokenKey(user), token.getAccessToken(), ACCESS_TOKEN_EXPIRED_SECONDS, TimeUnit.SECONDS);
-        // Cache those tokens with user id
         cacheStore.put(SecurityUtils.buildTokenAccessKey(token.getAccessToken()), user.getId(), ACCESS_TOKEN_EXPIRED_SECONDS, TimeUnit.SECONDS);
 
         return token;

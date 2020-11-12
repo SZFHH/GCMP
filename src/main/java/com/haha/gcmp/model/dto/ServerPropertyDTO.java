@@ -4,7 +4,7 @@ package com.haha.gcmp.model.dto;
  * @author SZFHH
  * @date 2020/11/7
  */
-public class ServerPropertyDto {
+public class ServerPropertyDTO {
     private String hostName;
     private int gpuTotal;
     private String gpuSeries;
@@ -52,7 +52,7 @@ public class ServerPropertyDto {
     }
 
 
-    public ServerPropertyDto(String hostName, int gpuTotal, String gpuSeries, long diskTotal, long memoryTotal) {
+    public ServerPropertyDTO(String hostName, int gpuTotal, String gpuSeries, long diskTotal, long memoryTotal) {
         this.hostName = hostName;
         this.gpuTotal = gpuTotal;
         this.gpuSeries = gpuSeries;

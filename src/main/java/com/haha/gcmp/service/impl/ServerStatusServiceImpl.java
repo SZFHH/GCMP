@@ -2,7 +2,7 @@ package com.haha.gcmp.service.impl;
 
 import com.haha.gcmp.client.statusclient.StatusClient;
 import com.haha.gcmp.config.propertites.GcmpProperties;
-import com.haha.gcmp.model.dto.ServerPropertyDto;
+import com.haha.gcmp.model.dto.ServerPropertyDTO;
 import com.haha.gcmp.model.entity.ServerProperty;
 import com.haha.gcmp.model.entity.ServerStatus;
 import com.haha.gcmp.service.ServerStatusService;
@@ -105,8 +105,8 @@ public class ServerStatusServiceImpl extends AbstractServerService<StatusClient>
     }
 
     @Override
-    public ServerPropertyDto getServerProperty(int serverId) {
-        return new ServerPropertyDto(
+    public ServerPropertyDTO getServerProperty(int serverId) {
+        return new ServerPropertyDTO(
             gcmpProperties.getServerProperties().get(serverId).getHostName(),
             getGpuTotal(serverId),
             gcmpProperties.getServerProperties().get(serverId).getGpuSeries(),
@@ -115,8 +115,8 @@ public class ServerStatusServiceImpl extends AbstractServerService<StatusClient>
     }
 
     @Override
-    public List<ServerPropertyDto> getServersServerProperty() {
-        List<ServerPropertyDto> rv = new ArrayList<>();
+    public List<ServerPropertyDTO> getServersServerProperty() {
+        List<ServerPropertyDTO> rv = new ArrayList<>();
         int count = gcmpProperties.getServerProperties().size();
         for (int i = 0; i < count; i++) {
             rv.add(getServerProperty(i));
