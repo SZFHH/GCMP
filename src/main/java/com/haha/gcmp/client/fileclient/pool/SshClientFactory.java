@@ -1,15 +1,13 @@
 package com.haha.gcmp.client.fileclient.pool;
 
 import ch.ethz.ssh2.Connection;
-import com.haha.gcmp.config.propertites.SshPoolConfig;
 import com.haha.gcmp.exception.ServiceException;
 import com.haha.gcmp.model.entity.ServerProperty;
 import com.haha.gcmp.utils.SshUtils;
 import org.apache.commons.pool2.BasePooledObjectFactory;
 import org.apache.commons.pool2.PooledObject;
 import org.apache.commons.pool2.impl.DefaultPooledObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
 import java.io.IOException;
 
@@ -20,13 +18,12 @@ import java.io.IOException;
  * @date 2020/10/31
  */
 public class SshClientFactory extends BasePooledObjectFactory<Connection> {
-    private static final Logger logger = LoggerFactory.getLogger(SshClientFactory.class);
 
-    private final SshPoolConfig sshPoolConfig;
+    private final GenericObjectPoolConfig<Connection> sshPoolConfig;
 
     private final ServerProperty serverProperty;
 
-    public SshClientFactory(SshPoolConfig sshPoolConfig, ServerProperty serverProperty) {
+    public SshClientFactory(GenericObjectPoolConfig<Connection> sshPoolConfig, ServerProperty serverProperty) {
         this.sshPoolConfig = sshPoolConfig;
         this.serverProperty = serverProperty;
     }
@@ -70,7 +67,7 @@ public class SshClientFactory extends BasePooledObjectFactory<Connection> {
         return SshUtils.validate(connection);
     }
 
-    public SshPoolConfig getSshPoolConfig() {
+    public GenericObjectPoolConfig<Connection> getSshPoolConfig() {
         return sshPoolConfig;
     }
 }

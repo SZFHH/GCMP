@@ -136,15 +136,6 @@ public interface FileClient {
     void removeDirIfExists(String remotePath);
 
     /**
-     * 执行shell命令
-     *
-     * @param cmd          命令
-     * @param exceptionMsg 出错异常信息
-     * @return 命令的输出
-     */
-    String execShellCmd(String cmd, String exceptionMsg);
-
-    /**
      * 更改文件（夹）权限
      *
      * @param permission 新的权限

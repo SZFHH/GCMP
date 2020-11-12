@@ -1,135 +1,80 @@
 package com.haha.gcmp.client.statusclient;
 
-import ch.ethz.ssh2.Connection;
-import com.haha.gcmp.exception.ServiceException;
-import com.haha.gcmp.model.entity.ServerProperty;
 import com.haha.gcmp.model.entity.ServerStatus;
-import com.haha.gcmp.utils.SshUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * 服务器空闲资源 Client
- *
  * @author SZFHH
- * @date 2020/11/1
+ * @date 2020/11/12
  */
-public class StatusClient {
+public interface StatusClient {
+    /**
+     * 获取单台服务器所有状态信息
+     *
+     * @return ServerStatus
+     */
+    ServerStatus getAllAvailable();
 
-    private static final Logger logger = LoggerFactory.getLogger(StatusClient.class);
+    /**
+     * 获取GPU型号
+     *
+     * @return gpu型号
+     */
+    String getGpuSeries();
 
-    private final String hostName;
-    private final String gpuSeries;
-    private final int gpuTotal;
-    private AtomicInteger gpuAvailable;
-    private final long diskTotal;
-    private final long memoryTotal;
-    private final ReentrantLock lock;
-    private final Connection connection;
+    /**
+     * 获取单台服务器gpu总数
+     *
+     * @return gpu总数
+     */
+    int getGpuTotal();
 
-    public StatusClient(ServerProperty serverProperty) {
-        this.hostName = serverProperty.getHostName();
-        boolean authenticated;
-        Connection connection = new Connection(serverProperty.getHostIp(), 22);
-        try {
-            connection.connect();
-            authenticated = connection.authenticateWithPassword(serverProperty.getUsername(), serverProperty.getPassword());
-        } catch (IOException e) {
-            throw new ServiceException("SSH连接IO异常。服务器：" + hostName, e);
-        }
-        if (!authenticated) {
-            throw new ServiceException("SSH连接验证异常。服务器：" + hostName);
-        }
-        this.gpuTotal = serverProperty.getGpus();
-        this.gpuAvailable = new AtomicInteger(gpuTotal);
-        this.gpuSeries = serverProperty.getGpuSeries();
-        this.connection = connection;
-        this.lock = new ReentrantLock();
-        try {
-            this.memoryTotal = SshUtils.getMemoryInfo(this.connection)[0];
-        } catch (IOException e) {
-            throw new ServiceException("获取内存信息异常：" + hostName, e);
-        }
-        try {
-            this.diskTotal = SshUtils.getDiskInfo(this.connection)[0];
-        } catch (IOException e) {
-            throw new ServiceException("获取硬盘信息异常：" + hostName, e);
-        }
-    }
+    /**
+     * 获取单台服务器可用gpu
+     *
+     * @return 可用gpu
+     */
+    int getGpuAvailable();
 
-    public ServerStatus getAllAvailable() {
-        ServerStatus rv = new ServerStatus();
-        try {
-            long[] diskInfo = SshUtils.getDiskInfo(connection);
-            rv.setDiskAvailable(diskInfo[1]);
-        } catch (IOException e) {
-            throw new ServiceException("获取硬盘信息异常：" + hostName, e);
-        }
-        try {
-            long[] memoryInfo = SshUtils.getMemoryInfo(connection);
-            rv.setMemoryAvailable(memoryInfo[1]);
-        } catch (IOException e) {
-            throw new ServiceException("获取内存信息异常：" + hostName, e);
-        }
-        rv.setGpuAvailable(gpuAvailable.get());
-        return rv;
-    }
+    /**
+     * 获取单台服务器硬盘总量
+     *
+     * @return 硬盘总量
+     */
+    long getDiskTotal();
 
-    public String getGpuSeries() {
-        return gpuSeries;
-    }
+    /**
+     * 获取单台服务器内存总量
+     *
+     * @return 内存总量
+     */
+    long getMemoryTotal();
 
-    public int getGpuTotal() {
-        return gpuTotal;
-    }
+    /**
+     * 获取空闲硬盘空间
+     *
+     * @return 空闲硬盘空间
+     */
+    long getDiskAvailable();
 
-    public int getGpuAvailable() {
-        return gpuAvailable.get();
-    }
+    /**
+     * 获取看空闲内存空间
+     *
+     * @return 空闲内存空间
+     */
+    long getMemoryAvailable();
 
-    public ReentrantLock getLock() {
-        return lock;
-    }
+    /**
+     * 申请gpu
+     *
+     * @param num 申请gpu数
+     * @return 如果成功：-1，否则返回当前可用gpu数
+     */
+    int requestForGpus(int num);
 
-    public long getDiskTotal() {
-        return diskTotal;
-    }
-
-    public long getMemoryTotal() {
-        return memoryTotal;
-    }
-
-    public long getDiskAvailable() {
-        try {
-            return SshUtils.getDiskInfo(this.connection)[1];
-        } catch (IOException e) {
-            throw new ServiceException("获取硬盘信息异常：" + hostName, e);
-        }
-    }
-
-    public long getMemoryAvailable() {
-        try {
-            return SshUtils.getMemoryInfo(this.connection)[1];
-        } catch (IOException e) {
-            throw new ServiceException("获取内存信息异常：" + hostName, e);
-        }
-    }
-
-    public int requestForGpus(int num) {
-        int n;
-        while ((n = gpuAvailable.get()) >= num) {
-            if (gpuAvailable.compareAndSet(n, n - num)) {
-                return -1;
-            }
-        }
-        return gpuAvailable.get();
-    }
-
-    public void returnGpus(int num) {
-        gpuAvailable.addAndGet(num);
-    }
+    /**
+     * 归还gpu
+     *
+     * @param num 归还gpu数
+     */
+    void returnGpus(int num);
 }

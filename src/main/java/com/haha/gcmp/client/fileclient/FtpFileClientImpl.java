@@ -2,8 +2,8 @@ package com.haha.gcmp.client.fileclient;
 
 import com.haha.gcmp.client.fileclient.pool.FtpClientFactory;
 import com.haha.gcmp.client.fileclient.pool.FtpClientPool;
+import com.haha.gcmp.config.propertites.FileSshPoolConfig;
 import com.haha.gcmp.config.propertites.FtpPoolConfig;
-import com.haha.gcmp.config.propertites.SshPoolConfig;
 import com.haha.gcmp.exception.ServiceException;
 import com.haha.gcmp.model.entity.Data;
 import com.haha.gcmp.model.entity.ServerProperty;
@@ -25,7 +25,7 @@ import java.util.List;
  */
 public class FtpFileClientImpl extends AbstractFileClient<FTPClient> {
 
-    public FtpFileClientImpl(FtpPoolConfig ftpPoolConfig, SshPoolConfig sshPoolConfig, ServerProperty serverProperty) {
+    public FtpFileClientImpl(FtpPoolConfig ftpPoolConfig, FileSshPoolConfig sshPoolConfig, ServerProperty serverProperty) {
         super(sshPoolConfig, serverProperty);
         FtpClientFactory ftpClientFactory = new FtpClientFactory(ftpPoolConfig, serverProperty);
         FtpClientPool ftpClientPool = new FtpClientPool(ftpClientFactory);

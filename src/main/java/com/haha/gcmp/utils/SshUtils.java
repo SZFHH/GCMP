@@ -98,7 +98,7 @@ public class SshUtils {
      * @param rawInfo 内存原始信息
      * @return long[2](内存总空间 ， 可用内存空间)
      */
-    private static long[] processMemoryInfo(String rawInfo) {
+    public static long[] processMemoryInfo(String rawInfo) {
         String[] lines = rawInfo.split("\\n");
         long[] rv = new long[2];
         for (String line : lines) {
@@ -113,38 +113,12 @@ public class SshUtils {
     }
 
     /**
-     * 获取内存信息
-     *
-     * @param connection ssh连接
-     * @return long[2](内存总空间 ， 可用内存空间)
-     * @throws IOException
-     */
-    public static long[] getMemoryInfo(Connection connection) throws IOException {
-        String cmd = "free -b";
-        String rawInfo = execCmd(connection, cmd);
-        return processMemoryInfo(rawInfo);
-    }
-
-    /**
-     * 获取磁盘信息
-     *
-     * @param connection ssh连接
-     * @return long[2](磁盘总空间 ， 可用磁盘空间)
-     * @throws IOException
-     */
-    public static long[] getDiskInfo(Connection connection) throws IOException {
-        String cmd = "df";
-        String rawInfo = execCmd(connection, cmd);
-        return processDiskInfo(rawInfo);
-    }
-
-    /**
      * 处理命令：df 输出的原始磁盘信息
      *
      * @param rawInfo 磁盘原始信息
      * @return long[2](磁盘总空间 ， 可用磁盘空间)
      */
-    private static long[] processDiskInfo(String rawInfo) {
+    public static long[] processDiskInfo(String rawInfo) {
         String[] lines = rawInfo.split("\\n");
         long[] rv = new long[2];
         for (String line : lines) {

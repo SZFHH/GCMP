@@ -3,10 +3,10 @@ package com.haha.gcmp.service.impl;
 import com.haha.gcmp.client.fileclient.FileClient;
 import com.haha.gcmp.client.fileclient.FtpFileClientImpl;
 import com.haha.gcmp.client.fileclient.SftpFileClientImpl;
+import com.haha.gcmp.config.propertites.FileSshPoolConfig;
 import com.haha.gcmp.config.propertites.FtpPoolConfig;
 import com.haha.gcmp.config.propertites.GcmpProperties;
 import com.haha.gcmp.config.propertites.SftpPoolConfig;
-import com.haha.gcmp.config.propertites.SshPoolConfig;
 import com.haha.gcmp.exception.ServiceException;
 import com.haha.gcmp.model.entity.Data;
 import com.haha.gcmp.model.entity.ServerProperty;
@@ -41,11 +41,11 @@ public class DataServiceImpl extends AbstractServerService<FileClient> implement
     private final UserService userService;
     private final TempFileMapper tempfileMapper;
     private final SftpPoolConfig sftpPoolConfig;
-    private final SshPoolConfig sshPoolConfig;
+    private final FileSshPoolConfig sshPoolConfig;
     private final FtpPoolConfig ftpPoolConfig;
     private final CommonDataMapper commonDataMapper;
 
-    protected DataServiceImpl(GcmpProperties gcmpProperties, UserService userService, TempFileMapper tempfileMapper, SftpPoolConfig sftpPoolConfig, SshPoolConfig sshPoolConfig, FtpPoolConfig ftpPoolConfig, CommonDataMapper commonDataMapper) {
+    protected DataServiceImpl(GcmpProperties gcmpProperties, UserService userService, TempFileMapper tempfileMapper, SftpPoolConfig sftpPoolConfig, FileSshPoolConfig sshPoolConfig, FtpPoolConfig ftpPoolConfig, CommonDataMapper commonDataMapper) {
         super(gcmpProperties);
         this.userService = userService;
         this.tempfileMapper = tempfileMapper;

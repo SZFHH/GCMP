@@ -3,8 +3,8 @@ package com.haha.gcmp.client.fileclient;
 import ch.ethz.ssh2.SFTPv3DirectoryEntry;
 import com.haha.gcmp.client.fileclient.pool.SftpClientFactory;
 import com.haha.gcmp.client.fileclient.pool.SftpClientPool;
+import com.haha.gcmp.config.propertites.FileSshPoolConfig;
 import com.haha.gcmp.config.propertites.SftpPoolConfig;
-import com.haha.gcmp.config.propertites.SshPoolConfig;
 import com.haha.gcmp.exception.ServiceException;
 import com.haha.gcmp.model.entity.Data;
 import com.haha.gcmp.model.entity.ServerProperty;
@@ -22,7 +22,7 @@ import java.util.List;
 public class SftpFileClientImpl extends AbstractFileClient<SftpClient> {
 
 
-    public SftpFileClientImpl(SftpPoolConfig sftpPoolConfig, SshPoolConfig sshPoolConfig, ServerProperty serverProperty) {
+    public SftpFileClientImpl(SftpPoolConfig sftpPoolConfig, FileSshPoolConfig sshPoolConfig, ServerProperty serverProperty) {
         super(sshPoolConfig, serverProperty);
         SftpClientFactory sftpClientFactory = new SftpClientFactory(sftpPoolConfig, serverProperty);
         SftpClientPool sftpClientPool = new SftpClientPool(sftpClientFactory);

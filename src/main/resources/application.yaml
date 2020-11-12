@@ -64,7 +64,27 @@ ftp-pool:
   #空闲时检测连接是否有效
   testWhileIdle: true
 
-ssh-pool:
+file-ssh-pool:
+  #连接耗尽时是否阻塞, false报异常,ture阻塞直到超时, 默认true
+  blockWhenExhausted: true
+  #最大空闲等待时间(毫秒)，建议设置稍微长点，如90分钟
+  #  maxWaitMillis: 5400000
+  #最大连接数
+  maxTotal: 5
+  #最大空闲连接数
+  maxIdle: 5
+  #最小空闲连接数
+  minIdle: 2
+  #申请连接时 检测是否有效
+  testOnBorrow: true
+  #返回连接时 检测是否有效
+  testOnReturn: false
+  #创建连接时 检测是否有效
+  testOnCreate: false
+  #空闲时检测连接是否有效
+  testWhileIdle: true
+
+status-ssh-pool:
   #连接耗尽时是否阻塞, false报异常,ture阻塞直到超时, 默认true
   blockWhenExhausted: true
   #最大空闲等待时间(毫秒)，建议设置稍微长点，如90分钟

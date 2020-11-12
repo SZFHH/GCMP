@@ -1,7 +1,8 @@
 package com.haha.gcmp.service.impl;
 
-import com.haha.gcmp.client.statusclient.StatusClient;
+import com.haha.gcmp.client.statusclient.StatusClientImpl;
 import com.haha.gcmp.config.propertites.GcmpProperties;
+import com.haha.gcmp.config.propertites.StatusSshPoolConfig;
 import com.haha.gcmp.model.dto.ServerPropertyDTO;
 import com.haha.gcmp.model.entity.ServerProperty;
 import com.haha.gcmp.model.entity.ServerStatus;
@@ -19,20 +20,22 @@ import java.util.List;
  * @date 2020/11/1
  */
 @Service
-public class ServerStatusServiceImpl extends AbstractServerService<StatusClient> implements ServerStatusService {
+public class ServerStatusServiceImpl extends AbstractServerService<StatusClientImpl> implements ServerStatusService {
+    private final StatusSshPoolConfig sshPoolConfig;
 
-    protected ServerStatusServiceImpl(GcmpProperties gcmpProperties) {
+    protected ServerStatusServiceImpl(GcmpProperties gcmpProperties, StatusSshPoolConfig sshPoolConfig) {
         super(gcmpProperties);
+        this.sshPoolConfig = sshPoolConfig;
     }
 
     @Override
-    protected StatusClient doInitClientContainer(ServerProperty serverProperty) {
-        return new StatusClient(serverProperty);
+    protected StatusClientImpl doInitClientContainer(ServerProperty serverProperty) {
+        return new StatusClientImpl(sshPoolConfig, serverProperty);
     }
 
     @Override
     public ServerStatus getAllAvailable(int serverId) {
-        StatusClient statusClient = getClient(serverId);
+        StatusClientImpl statusClient = getClient(serverId);
         return statusClient.getAllAvailable();
     }
 
@@ -58,49 +61,49 @@ public class ServerStatusServiceImpl extends AbstractServerService<StatusClient>
 
     @Override
     public int getGpuAvailable(int serverId) {
-        StatusClient statusClient = getClient(serverId);
+        StatusClientImpl statusClient = getClient(serverId);
         return statusClient.getGpuAvailable();
     }
 
     @Override
     public long getDiskAvailable(int serverId) {
-        StatusClient statusClient = getClient(serverId);
+        StatusClientImpl statusClient = getClient(serverId);
         return statusClient.getDiskAvailable();
     }
 
     @Override
     public long getMemoryAvailable(int serverId) {
-        StatusClient statusClient = getClient(serverId);
+        StatusClientImpl statusClient = getClient(serverId);
         return statusClient.getMemoryAvailable();
     }
 
     @Override
     public int getGpuTotal(int serverId) {
-        StatusClient statusClient = getClient(serverId);
+        StatusClientImpl statusClient = getClient(serverId);
         return statusClient.getGpuTotal();
     }
 
     @Override
     public long getDiskTotal(int serverId) {
-        StatusClient statusClient = getClient(serverId);
+        StatusClientImpl statusClient = getClient(serverId);
         return statusClient.getDiskTotal();
     }
 
     @Override
     public long getMemoryTotal(int serverId) {
-        StatusClient statusClient = getClient(serverId);
+        StatusClientImpl statusClient = getClient(serverId);
         return statusClient.getMemoryTotal();
     }
 
     @Override
     public int requestForGpus(int serverId, int gpus) {
-        StatusClient statusClient = getClient(serverId);
+        StatusClientImpl statusClient = getClient(serverId);
         return statusClient.requestForGpus(gpus);
     }
 
     @Override
     public void returnGpus(int serverId, int gpus) {
-        StatusClient statusClient = getClient(serverId);
+        StatusClientImpl statusClient = getClient(serverId);
         statusClient.returnGpus(gpus);
     }
 

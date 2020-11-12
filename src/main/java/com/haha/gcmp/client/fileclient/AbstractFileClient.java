@@ -1,20 +1,16 @@
 package com.haha.gcmp.client.fileclient;
 
-import ch.ethz.ssh2.Connection;
-import com.haha.gcmp.client.fileclient.pool.SshClientFactory;
-import com.haha.gcmp.client.fileclient.pool.SshClientPool;
-import com.haha.gcmp.config.propertites.SshPoolConfig;
+import com.haha.gcmp.client.AbstractSshClient;
+import com.haha.gcmp.config.propertites.FileSshPoolConfig;
 import com.haha.gcmp.exception.BadRequestException;
 import com.haha.gcmp.exception.NotFoundException;
 import com.haha.gcmp.exception.ServiceException;
 import com.haha.gcmp.model.entity.Data;
 import com.haha.gcmp.model.entity.ServerProperty;
 import com.haha.gcmp.utils.FileUtils;
-import com.haha.gcmp.utils.SshUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
@@ -27,38 +23,18 @@ import static com.haha.gcmp.model.support.GcmpConst.SERVER_CHARSET;
  * @author SZFHH
  * @date 2020/10/31
  */
-public abstract class AbstractFileClient<T> implements FileClient {
-    private final SshClientPool sshClientPool;
+public abstract class AbstractFileClient<T> extends AbstractSshClient implements FileClient {
     protected String hostName;
     private GenericObjectPool<T> ftpClientPool;
 
-
-    protected AbstractFileClient(SshPoolConfig sshPoolConfig, ServerProperty serverProperty) {
-        SshClientFactory sshClientFactory = new SshClientFactory(sshPoolConfig, serverProperty);
-        sshClientPool = new SshClientPool(sshClientFactory);
-        hostName = serverProperty.getHostName();
+    protected AbstractFileClient(FileSshPoolConfig sshPoolConfig, ServerProperty serverProperty) {
+        super(sshPoolConfig, serverProperty);
     }
 
     public void setFtpClientPool(GenericObjectPool<T> ftpClientPool) {
         this.ftpClientPool = ftpClientPool;
     }
 
-    @Override
-    public String execShellCmd(String cmd, String exceptionMsg) {
-        Connection connection;
-        try {
-            connection = sshClientPool.borrowObject();
-        } catch (Exception e) {
-            throw new ServiceException("从ssh连接池获取连接异常", e);
-        }
-        try {
-            return SshUtils.execCmd(connection, cmd);
-        } catch (IOException e) {
-            throw new ServiceException(exceptionMsg, e);
-        } finally {
-            sshClientPool.returnObject(connection);
-        }
-    }
 
     @Override
     public void removeDir(String remotePath) {
