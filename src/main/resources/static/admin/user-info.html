@@ -12,53 +12,46 @@
     <title>GCMP</title>
 
     <!-- Custom fonts for this template-->
-    <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-    <link href="css/font.css" rel="stylesheet">
+    <link href="/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="/css/font.css" rel="stylesheet">
     <!-- Custom styles for this template-->
-    <link href="css/sb-admin-2.min.css" rel="stylesheet">
-    <link href="css/gcmp.css" rel="stylesheet">
-    <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+    <link href="/css/sb-admin-2.min.css" rel="stylesheet">
+    <link href="/css/gcmp.css" rel="stylesheet">
+    <link href="/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
     <!-- Bootstrap core JavaScript-->
-    <script src="vendor/jquery/jquery.min.js"></script>
-    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="/vendor/jquery/jquery.min.js"></script>
+    <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
     <!-- Core plugin JavaScript-->
-    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+    <script src="/vendor/jquery-easing/jquery.easing.min.js"></script>
 
     <!-- Custom scripts for all pages-->
-    <script src="js/sb-admin-2.min.js"></script>
+    <script src="/js/sb-admin-2.min.js"></script>
 
-    <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
-    <script src="js/vue/2.5.16/vue.min.js"></script>
-    <script src="js/axios/0.17.1/axios.min.js"></script>
-    <script src="js/moment/2.22.2/moment.js"></script>
-    <script src="js/gcmp.js"></script>
+    <script src="/vendor/datatables/dataTables.bootstrap4.min.js"></script>
+    <script src="/js/vue/2.5.16/vue.min.js"></script>
+    <script src="/js/axios/0.17.1/axios.min.js"></script>
+    <script src="/js/moment/2.22.2/moment.js"></script>
+    <script src="/js/gcmp.js"></script>
     <script>
-        function getUrlParam(name) {
-            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
-            var r = window.location.search.substr(1).match(reg);
-            if (r != null)
-                return decodeURI(r[2]);
-            return null;
-        }
 
         $(function () {
 
             var vue = new Vue({
                 el: '#wrapper',
                 data: {
-                    getDockerFileUri: '/api/docker/docker_file',
-                    userImageUri: '/api/docker/user',
-                    images: [],
-                    dockerFile: "",
-                    post: true,
-                    imageId: -1,
-                    imageName: "",
-                    imageDesc: "",
-                    imageTag: "",
-                    quota: 0,
+                    userUri: '/api/user/all',
+                    baseUri: '/api/user',
+                    commonImageUri: '/api/docker/common',
+                    users: [],
                     user: {},
-                    token: ""
+                    token: "",
+                    username: "",
+                    userPassword: "",
+                    userId: -1,
+                    userDockerQuota: 2,
+                    post: false
+
 
                 },
                 mounted: function () { //mounted　表示这个 Vue 对象加载成功了
@@ -75,7 +68,25 @@
                         }).then(function (response) {
                             vue.user = response.data.data;
                         }).catch(function (err) {
-                            handleError(err);
+                            handleError(err, true);
+                        })
+                    },
+                    load: function () {
+                        axios.get(this.userUri).then(function (response) {
+                            vue.users = response.data.data;
+                        }).catch(function (err) {
+                            handleError(err, true);
+                        });
+                    },
+                    logout: function () {
+                        axios({
+                            method: "post",
+                            url: "/api/admin/logout",
+                            headers: {'Gcmp-Authorization': this.token}
+                        }).then(function (response) {
+                            window.location.href = '/admin'
+                        }).catch(function (err) {
+                            handleError(err, true);
                         })
                     },
                     selectSingle: function (element) {
@@ -109,134 +120,97 @@
                             });
                         }
                     },
-                    load: function () {
-                        axios({
-                            method: 'get',
-                            url: this.userImageUri,
-                            headers: {'Gcmp-Authorization': this.token}
+                    updateWrapper: function () {
+                        var selectedList = getSelectedList();
+                        if (selectedList.length != 1) {
+                            showErrMsg("必须且只能选择一个！", 2000);
+                            notselectAll();
+                            return;
+                        }
 
-                        }).then(function (response) {
-                            vue.images = response.data.data;
-                        }).catch(function (err) {
-                            handleError(err);
-                        });
-                        axios({
-                            method: 'get',
-                            url: "/api/docker/quota",
-                            headers: {'Gcmp-Authorization': this.token}
-                        }).then(function (response) {
-                            vue.quota = response.data.data;
-                        }).catch(function (err) {
-                            handleError(err);
-                        });
-
-                    },
-                    inDetail: function (idx) {
+                        var idx = selectedList[0];
                         this.post = false
-                        var imageId = this.images[idx].id
-                        this.imageName = this.images[idx].alias
-                        this.imageDesc = this.images[idx].desc;
-                        this.imageId = imageId
-                        this.imageTag = this.images[idx].tag
-                        uri = this.getDockerFileUri + "/" + imageId;
-                        axios({
-                            method: 'get',
-                            url: uri,
-                            headers: {'Gcmp-Authorization': this.token}
-                        }).then(function (response) {
-                            vue.dockerFile = response.data.data
-                            $("#imageModal").modal("show");
-                        }).catch(function (err) {
-                            handleError(err);
-                        });
+                        var userId = this.users[idx].id
+                        this.username = this.users[idx].username
+                        this.userDockerQuota = this.users[idx].dockerQuota;
+                        this.userId = userId
+                        $("#userModal").modal("show");
                     },
 
-                    remove: function () {
+                    remove: async function () {
                         var selectedList = getSelectedList()
                         for (let i = 0; i < selectedList.length; i++) {
                             var idx = selectedList[i];
-                            var uri = this.userImageUri + '/' + this.images[idx].id;
-                            showErrMsg("正在删除" + this.images[idx].alias + "...", -1);
-                            axios({
+                            var uri = this.baseUri + '/' + this.users[idx].id;
+                            showErrMsg("正在删除" + this.users[idx].username + "...", -1);
+                            await axios({
                                 method: 'delete',
                                 url: uri,
                                 headers: {'Gcmp-Authorization': this.token}
                             }).then(function (response) {
                                 hidErrMsg();
-                                if (i == selectedList.length - 1) {
+                                if (i + 1 == selectedList.length) {
+                                    notselectAll();
                                     vue.load();
                                 }
                             }).catch(function (err) {
-                                handleError(err);
+                                handleError(err, true);
                             });
                         }
                         notselectAll();
                     },
                     updateOrAdd: function () {
-                        $("#imageModal").modal("hide");
+                        $("#userModal").modal("hide");
                         if (this.post) {
                             this.add()
                         } else {
                             this.update();
                         }
+                        notselectAll();
                     },
                     update: function () {
                         axios({
                             method: 'put',
                             data: {
-                                id: vue.imageId,
-                                tag: vue.imageTag,
-                                desc: vue.imageDesc,
-                                alias: vue.imageName,
-                                dockerFile: vue.dockerFile
+                                id: vue.userId,
+                                username: vue.username,
+                                password: vue.userPassword,
+                                dockerQuota: vue.userDockerQuota,
                             },
-                            url: this.userImageUri,
+                            url: this.baseUri + '/dockerQuota',
                             headers: {'Gcmp-Authorization': this.token}
                         }).then(function (response) {
                             vue.load();
                         }).catch(function (err) {
-                            handleError(err);
+                            handleError(err, true);
                         });
 
                     },
                     add: function () {
                         axios({
                             method: 'post',
-                            url: this.userImageUri,
+                            url: this.baseUri,
                             data: {
-                                id: -1,
-                                tag: "",
-                                desc: vue.imageDesc,
-                                alias: vue.imageName,
-                                dockerFile: vue.dockerFile
+                                id: vue.userId,
+                                username: vue.username,
+                                password: vue.username,
+                                dockerQuota: vue.userDockerQuota,
                             },
                             headers: {'Gcmp-Authorization': this.token}
                         }).then(function (response) {
                             vue.load();
                         }).catch(function (err) {
-                            handleError(err);
+                            handleError(err, true);
                         });
                     },
                     upload: function () {
                         this.post = true;
-                        this.imageId = -1
-                        this.imageDesc = ""
-                        this.imageName = ""
-                        this.dockerFile = ""
-                        this.imageTag = ""
-                        $("#imageModal").modal("show");
+                        this.userId = -1
+                        this.username = ""
+                        this.userPassword = ""
+                        this.userDockerQuota = 2
+                        $("#userModal").modal("show");
                     },
-                    logout: function () {
-                        axios({
-                            method: "post",
-                            url: "/api/user/logout",
-                            headers: {'Gcmp-Authorization': this.token}
-                        }).then(function (response) {
-                            window.location.href = '/'
-                        }).catch(function (err) {
-                            handleError(err);
-                        })
-                    }
                 }
 
             });
@@ -258,7 +232,7 @@
             <div class="sidebar-brand-icon rotate-n-15">
                 <i class="fas fa-laugh-wink"></i>
             </div>
-            <div class="sidebar-brand-text mx-3">GCMP</div>
+            <div class="sidebar-brand-text mx-3">GCMP ADMIN</div>
         </a>
 
         <!-- Divider -->
@@ -266,7 +240,7 @@
 
         <!-- Nav Item - Dashboard -->
         <li class="nav-item ">
-            <a class="nav-link" :href="'/server-status.html?token='+token">
+            <a class="nav-link" :href="'/admin/server-status.html?token='+token">
                 <i class="fas fa-fw fa-tachometer-alt"></i>
                 <span>可用资源</span></a>
         </li>
@@ -274,38 +248,38 @@
         <!-- Divider -->
         <hr class="sidebar-divider">
 
-        <li class="nav-item">
-            <a class="nav-link" :href="'/my-task.html?token='+token">
+        <li class="nav-item active">
+            <a class="nav-link" :href="'/admin/user-info.html?token='+token">
                 <i class="fas fa-fw fa-tachometer-alt"></i>
-                <span>我的任务</span></a>
+                <span>用户管理</span></a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" :href="'/admin/my-task.html?token='+token">
+                <i class="fas fa-fw fa-tachometer-alt"></i>
+                <span>任务管理</span></a>
         </li>
 
         <li class="nav-item">
-            <a class="nav-link" :href="'/my-data.html?token='+token">
+            <a class="nav-link" :href="'/admin/my-data.html?token='+token">
                 <i class="fas fa-fw fa-tachometer-alt"></i>
-                <span>我的文件</span></a>
+                <span>文件管理</span></a>
         </li>
 
         <!-- Nav Item - Utilities Collapse Menu -->
-        <li class="nav-item active">
-            <a class="nav-link" :href="'/my-image.html?token='+token">
-                <i class="fas fa-fw fa-chart-area"></i>
-                <span>我的镜像</span></a>
-        </li>
 
         <!-- Divider -->
         <hr class="sidebar-divider">
 
         <!-- Nav Item - Charts -->
-        <li class="nav-item">
-            <a class="nav-link" :href="'/user-common-image.html?token='+token">
+        <li class="nav-item ">
+            <a class="nav-link" :href="'/admin/common-image.html?token='+token">
                 <i class="fas fa-fw fa-chart-area"></i>
                 <span>公共镜像</span></a>
         </li>
 
         <!-- Nav Item - Tables -->
         <li class="nav-item">
-            <a class="nav-link" :href="'/user-common-data.html?token='+token">
+            <a class="nav-link" :href="'/admin/common-data.html?token='+token">
                 <i class="fas fa-fw fa-table"></i>
                 <span>公共数据集</span></a>
         </li>
@@ -380,9 +354,9 @@
                             <i class="fas fa-trash"></i>
                             </span>
                         </a>
-                        <span class="pl-3 icon text-gray-600">
-                            镜像上限: {{quota}}
-                        </span>
+                        <a @click="updateWrapper" type="button" class="btn btn-light bnt-square btn-sm"><span
+                                class="icon text-gray-600">更新</span>
+                        </a>
                         <div class="table-responsive pt-1">
                             <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                                 <thead>
@@ -391,24 +365,18 @@
                                         <img @click="selectAll($event)" selectedd="false" class="selectAll"
                                              src="/img/notSelected.png">
                                     </th>
-                                    <th width="20%">镜像名</th>
-                                    <th width="60%">详细信息</th>
-                                    <th width="20%">docker file</th>
+                                    <th>用户名</th>
+                                    <th>镜像上限</th>
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <tr v-for="im, i in images">
+                                <tr v-for="u, i in users">
                                     <td>
                                         <img @click="selectSingle($event)" selectedd="false" :idx="i"
                                              class="selectSingle" src="/img/notSelected.png">
-
                                     </td>
-                                    <td>{{im.alias}}</td>
-                                    <td>{{im.desc}}</td>
-                                    <td @click="inDetail(i)"><a type="button"
-                                                                class="btn btn-light bnt-square btn-sm p-0"><span
-                                            class="icon text-gray-600">显示详情</span>
-                                    </a></td>
+                                    <td>{{u.username}}</td>
+                                    <td>{{u.dockerQuota}}</td>
                                 </tr>
 
                                 </tbody>
@@ -433,29 +401,29 @@
         <!-- End of Footer -->
 
     </div>
+
     <!-- End of Content Wrapper -->
-    <div class="modal fade" id="imageModal" tabindex="-1" role="dialog" aria-labelledby="imageModal"
+    <div class="modal fade" id="userModal" tabindex="-1" role="dialog" aria-labelledby="userModal"
          aria-hidden="true">
         <div class="modal-dialog modal-xl" role="document">
             <div class="modal-content">
                 <form class="form-horizontal p-3" role="form">
                     <div class="form-group">
-                        <label for="name" class="col-sm-2 control-label">镜像名</label>
+                        <label for="name" class="col-sm-2 control-label">用户名</label>
 
-                        <input v-model="imageName" type="text" class="form-control small" id="name"
-                               placeholder="请输入镜像名">
-
-                    </div>
-                    <div class="form-group">
-                        <label for="desc" class="col-sm-2 control-label">说明</label>
-                        <input v-model="imageDesc" type="text" class="form-control" id="desc"
-                               placeholder="请输镜像描述">
+                        <input v-model="username" type="text" class="form-control small" id="name"
+                               placeholder="请输入用户名">
 
                     </div>
                     <div class="form-group">
-                        <label for="dockerfile" class="col-sm-2 control-label">dockerfile</label>
-                        <textarea v-model="dockerFile" class="form-control" rows="15" placeholder="dockerfile"
-                                  id="dockerfile"></textarea>
+                        <label for="password" class="col-sm-2 control-label">密码</label>
+                        <input v-model="username" type="text" class="form-control" id="password" readonly="readonly">
+
+                    </div>
+                    <div class="form-group">
+                        <label for="quota" class="col-sm-2 control-label">镜像数量</label>
+                        <input v-model="userDockerQuota" class="form-control" placeholder=""
+                               id="quota">
                     </div>
                 </form>
                 <div class="modal-footer">
@@ -465,6 +433,7 @@
             </div>
         </div><!-- /.modal -->
     </div>
+
 </div>
 <!-- End of Page Wrapper -->
 

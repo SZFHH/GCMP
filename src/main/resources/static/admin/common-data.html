@@ -12,29 +12,28 @@
     <title>GCMP</title>
 
     <!-- Custom fonts for this template-->
-    <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-    <link href="css/font.css" rel="stylesheet">
+    <link href="/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="/css/font.css" rel="stylesheet">
     <!-- Custom styles for this template-->
-    <link href="css/sb-admin-2.min.css" rel="stylesheet">
-    <link href="css/gcmp.css" rel="stylesheet">
-    <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+    <link href="/css/sb-admin-2.min.css" rel="stylesheet">
+    <link href="/css/gcmp.css" rel="stylesheet">
+    <link href="/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
     <!-- Bootstrap core JavaScript-->
-    <script src="vendor/jquery/jquery.min.js"></script>
-    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="/vendor/jquery/jquery.min.js"></script>
+    <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
     <!-- Core plugin JavaScript-->
-    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+    <script src="/vendor/jquery-easing/jquery.easing.min.js"></script>
 
     <!-- Custom scripts for all pages-->
-    <script src="js/sb-admin-2.min.js"></script>
+    <script src="/js/sb-admin-2.min.js"></script>
 
-    <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
-    <script src="js/vue/2.5.16/vue.min.js"></script>
-    <script src="js/axios/0.17.1/axios.min.js"></script>
-    <script src="js/moment/2.22.2/moment.js"></script>
-    <script src="js/gcmp.js"></script>
+    <script src="/vendor/datatables/dataTables.bootstrap4.min.js"></script>
+    <script src="/js/vue/2.5.16/vue.min.js"></script>
+    <script src="/js/axios/0.17.1/axios.min.js"></script>
+    <script src="/js/moment/2.22.2/moment.js"></script>
+    <script src="/js/gcmp.js"></script>
     <script>
-
         $(function () {
 
             var vue = new Vue({
@@ -60,25 +59,25 @@
                         }).then(function (response) {
                             vue.user = response.data.data;
                         }).catch(function (err) {
-                            handleError(err);
+                            handleError(err, true);
                         })
                     },
                     load: function () {
                         axios.get(this.commonDatasetUri).then(function (response) {
                             vue.dataset = response.data.data;
                         }).catch(function (err) {
-                            handleError(err);
+                            handleError(err, true);
                         });
                     },
                     logout: function () {
                         axios({
                             method: "post",
-                            url: "/api/user/logout",
+                            url: "/api/admin/logout",
                             headers: {'Gcmp-Authorization': this.token}
                         }).then(function (response) {
                             window.location.href = '/'
                         }).catch(function (err) {
-                            handleError(err);
+                            handleError(err, true);
                         })
                     }
                 },
@@ -107,7 +106,7 @@
             <div class="sidebar-brand-icon rotate-n-15">
                 <i class="fas fa-laugh-wink"></i>
             </div>
-            <div class="sidebar-brand-text mx-3">GCMP</div>
+            <div class="sidebar-brand-text mx-3">GCMP ADMIN</div>
         </a>
 
         <!-- Divider -->
@@ -115,46 +114,45 @@
 
         <!-- Nav Item - Dashboard -->
         <li class="nav-item ">
-            <a class="nav-link" :href="'/server-status.html?token='+token">
+            <a class="nav-link" :href="'/admin/server-status.html?token='+token">
                 <i class="fas fa-fw fa-tachometer-alt"></i>
                 <span>可用资源</span></a>
         </li>
 
         <!-- Divider -->
         <hr class="sidebar-divider">
-
         <li class="nav-item">
-            <a class="nav-link" :href="'/my-task.html?token='+token">
+            <a class="nav-link" :href="'/admin/user-info.html?token='+token">
                 <i class="fas fa-fw fa-tachometer-alt"></i>
-                <span>我的任务</span></a>
+                <span>用户管理</span></a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" :href="'/admin/my-task.html?token='+token">
+                <i class="fas fa-fw fa-tachometer-alt"></i>
+                <span>任务管理</span></a>
         </li>
 
         <li class="nav-item">
-            <a class="nav-link" :href="'/my-data.html?token='+token">
+            <a class="nav-link" :href="'/admin/my-data.html?token='+token">
                 <i class="fas fa-fw fa-tachometer-alt"></i>
-                <span>我的文件</span></a>
+                <span>文件管理</span></a>
         </li>
 
         <!-- Nav Item - Utilities Collapse Menu -->
-        <li class="nav-item">
-            <a class="nav-link" :href="'/my-image.html?token='+token">
-                <i class="fas fa-fw fa-chart-area"></i>
-                <span>我的镜像</span></a>
-        </li>
 
         <!-- Divider -->
         <hr class="sidebar-divider">
 
         <!-- Nav Item - Charts -->
         <li class="nav-item">
-            <a class="nav-link" :href="'/user-common-image.html?token='+token">
+            <a class="nav-link" :href="'/admin/common-image.html?token='+token">
                 <i class="fas fa-fw fa-chart-area"></i>
                 <span>公共镜像</span></a>
         </li>
 
         <!-- Nav Item - Tables -->
         <li class="nav-item active">
-            <a class="nav-link" :href="'/user-common-data.html?token='+token">
+            <a class="nav-link" :href="'/admin/common-data.html?token='+token">
                 <i class="fas fa-fw fa-table"></i>
                 <span>公共数据集</span></a>
         </li>

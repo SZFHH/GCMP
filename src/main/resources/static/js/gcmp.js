@@ -6,11 +6,14 @@ function getUrlParam(name) {
     return null;
 }
 
-function handleError(err) {
+function handleError(err, isAdmin) {
     if (err.response) {
         var status = err.response.status;
         if (status == 401) {
-            window.location.href = "/"
+            if (isAdmin)
+                window.location.href = "/admin"
+            else
+                window.location.href = "/"
         } else {
             $("span.errorMessage").html(err.response.data.message);
             $("div.ErrorMessageDiv").removeClass("fade")
@@ -50,4 +53,59 @@ function formatDate(date, fmt) {
         if (new RegExp("(" + k + ")").test(fmt))
             fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
     return fmt;
+}
+
+function syncSelect() {
+    var selectAll = true;
+    $(".selectSingle").each(function () {
+        if ("false" == $(this).attr("selectedd")) {
+            selectAll = false;
+        }
+    });
+    if (selectAll) {
+        $("img.selectAll").attr("src", "/img/selected.png");
+        $("img.selectAll").attr("selectedd", "true");
+    } else {
+        $("img.selectAll").attr("src", "/img/notSelected.png");
+        $("img.selectAll").attr("selectedd", "false");
+    }
+
+}
+
+function getSelectedList() {
+    var arr = $(".selectSingle");
+    var rv = [];
+    arr.each(function () {
+        var selectedd = $(this).attr("selectedd");
+        if (selectedd == "true") {
+            var idx = $(this).attr("idx");
+            rv.push(idx);
+        }
+    })
+    return rv;
+}
+
+function notselectAll() {
+    $(".selectSingle").each(function () {
+        $(this).attr("src", "/img/notSelected.png");
+        $(this).attr("selectedd", "false");
+    });
+    $(".selectAll").each(function () {
+        $(this).attr("src", "/img/notSelected.png");
+        $(this).attr("selectedd", "false");
+    });
+}
+
+function showErrMsg(msg, endu) {
+    $("span.errorMessage").html(msg);
+    $("div.ErrorMessageDiv").removeClass("fade");
+    if (endu > 0) {
+        window.setTimeout(function () {
+            $("div.ErrorMessageDiv").addClass("fade")
+        }, endu)
+    }
+}
+
+function hidErrMsg() {
+    $("div.ErrorMessageDiv").addClass("fade");
 }

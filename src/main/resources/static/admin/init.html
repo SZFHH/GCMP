@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>GCMP</title>
+
+    <!-- Custom fonts for this template-->
+    <link href="/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="/css/font.css" rel="stylesheet">
+    <!-- Custom styles for this template-->
+    <link href="/css/sb-admin-2.min.css" rel="stylesheet">
+    <link href="/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+    <link href="/css/gcmp.css" rel="stylesheet">
+    <script src="/js/vue/2.5.16/vue.min.js"></script>
+    <script src="/js/axios/0.17.1/axios.min.js"></script>
+    <script src="/js/moment/2.22.2/moment.js"></script>
+
+    <!-- Bootstrap core JavaScript-->
+    <script src="/vendor/jquery/jquery.min.js"></script>
+    <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script src="/vendor/jquery-easing/jquery.easing.min.js"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script src="/js/sb-admin-2.min.js"></script>
+
+    <script src="/vendor/datatables/jquery.dataTables.min.js"></script>
+    <script src="/vendor/datatables/dataTables.bootstrap4.min.js"></script>
+    <script src="/js/gcmp.js"></script>
+    <script>
+        $(function () {
+
+            var vue = new Vue({
+                    el: '#wrap',
+                    data: {
+                        initUri: '/api/admin/init',
+                        username: '',
+                        password: '',
+                    },
+                    mounted: function () {
+                        this.load();
+                    },
+                    methods: {
+                        load: function () {
+                            axios.get("/api/admin/name").then(function (response) {
+                                vue.username = response.data.data;
+                            }).catch(function (err) {
+                                if (err.response) {
+                                    showErrMsg(err.response.data.message, 2000)
+                                }
+
+                            })
+                        },
+                        init: function () {
+                            axios.post(this.initUri, {
+                                username: this.username,
+                                password: this.password,
+                            }).then(function (response) {
+                                window.location.href = '/admin';
+                            }).catch(function (err) {
+                                if (err.response) {
+                                    showErrMsg(err.response.data.message, 2000)
+
+                                }
+                            });
+                        }
+                    }
+
+                })
+            ;
+        })
+
+    </script>
+</head>
+
+<body class="bg-gradient-primary">
+
+<div class="container" id="wrap">
+
+    <!-- Outer Row -->
+
+    <div class="row justify-content-center">
+
+        <div class="col-xl-10 col-lg-12 col-md-9">
+
+            <div class="card o-hidden border-0 shadow-lg my-5">
+                <div class="card-body p-0">
+                    <!-- Nested Row within Card Body -->
+                    <div class="row justify-content-center">
+
+                        <div class="col-lg-6 ">
+                            <div class="p-5">
+                                <div class="ErrorMessageDiv fade text-center pb-2">
+                                    <span class="alert p-1 border-0 text-danger  errorMessage">df</span>
+                                </div>
+                                <div class="text-center">
+                                    <h1 class="h4 text-gray-900 mb-4">请设置密码</h1>
+                                </div>
+
+                                <form class="user">
+                                    <div class="form-group">
+
+                                        <input type="text" readonly="readonly" :placeholder="username"
+                                               class="form-control form-control-user">
+                                    </div>
+                                    <div class="form-group">
+                                        <input v-model="password" type="text" class="form-control form-control-user"
+                                               placeholder="密码">
+                                    </div>
+
+                                    <a type="button" @click="init"
+                                       class="btn btn-primary btn-user btn-block">
+                                        确认
+                                    </a>
+
+                                </form>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Bootstrap core JavaScript-->
+
+
+</body>
+
+</html>

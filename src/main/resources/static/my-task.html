@@ -88,54 +88,32 @@
                         var tgt = element.currentTarget;
                         var selected = tgt.getAttribute("selectedd")
                         if ("true" == selected) {
-                            tgt.setAttribute("src", "img/cartNotSelected.png");
+                            tgt.setAttribute("src", "/img/notSelected.png");
                             tgt.setAttribute("selectedd", "false")
                         } else {
-                            tgt.setAttribute("src", "img/cartSelected.png");
+                            tgt.setAttribute("src", "/img/selected.png");
                             tgt.setAttribute("selectedd", "true")
                         }
-                    },
-                    notselectAll: function () {
-                        $(".cartProductItemIfSelected").each(function () {
-                            $(this).attr("src", "img/cartNotSelected.png");
-                            $(this).attr("selectedd", "false");
-                        });
-                        $(".selectAllItem").each(function () {
-                            $(this).attr("src", "img/cartNotSelected.png");
-                            $(this).attr("selectedd", "false");
-                        });
-
+                        syncSelect();
                     },
                     selectAll: function (element) {
                         var tgt = element.currentTarget;
                         var selected = tgt.getAttribute("selectedd")
                         if ("true" == selected) {
-                            tgt.setAttribute("src", "img/cartNotSelected.png");
+                            tgt.setAttribute("src", "/img/notSelected.png");
                             tgt.setAttribute("selectedd", "false")
-                            $(".cartProductItemIfSelected").each(function () {
-                                $(this).attr("src", "img/cartNotSelected.png");
+                            $(".selectSingle").each(function () {
+                                $(this).attr("src", "/img/notSelected.png");
                                 $(this).attr("selectedd", "false");
                             });
                         } else {
-                            tgt.setAttribute("src", "img/cartSelected.png");
+                            tgt.setAttribute("src", "/img/selected.png");
                             tgt.setAttribute("selectedd", "true")
-                            $(".cartProductItemIfSelected").each(function () {
-                                $(this).attr("src", "img/cartSelected.png");
+                            $(".selectSingle").each(function () {
+                                $(this).attr("src", "/img/selected.png");
                                 $(this).attr("selectedd", "true");
                             });
                         }
-                    },
-                    getSelectedList: function () {
-                        var arr = $(".cartProductItemIfSelected");
-                        var rv = [];
-                        arr.each(function () {
-                            var selected = $(this).attr("selectedd");
-                            if (selected == "true") {
-                                var idx = $(this).attr("idx");
-                                rv.push(idx);
-                            }
-                        })
-                        return rv;
                     },
                     refresh: function () {
                         axios({
@@ -196,18 +174,17 @@
                     },
 
                     remove: function () {
-                        var selectedList = this.getSelectedList()
+                        var selectedList = getSelectedList()
                         for (let i = 0; i < selectedList.length; i++) {
                             var idx = selectedList[i];
                             var uri = this.baseUri + '/' + this.tasks[idx].id;
-                            $("span.errorMessage").html("正在删除:" + i + 1 + "...");
-                            $("div.ErrorMessageDiv").removeClass("fade")
+                            showErrMsg("正在删除:" + i + 1 + "...", -1);
                             axios({
                                 method: 'delete',
                                 url: uri,
                                 headers: {'Gcmp-Authorization': this.token}
                             }).then(function (response) {
-                                $("div.ErrorMessageDiv").addClass("fade")
+                                hidErrMsg();
                                 if (i == selectedList.length - 1) {
                                     vue.load();
                                 }
@@ -215,7 +192,7 @@
                                 handleError(err);
                             });
                         }
-                        this.notselectAll();
+                        notselectAll();
                     },
 
                     add: function () {
@@ -421,8 +398,8 @@
                                 <thead>
                                 <tr>
                                     <th width="3%" class="selectAndImage ">
-                                        <img @click="selectAll($event)" selectedd="false" class="selectAllItem"
-                                             src="img/cartNotSelected.png">
+                                        <img @click="selectAll($event)" selectedd="false" class="selectAll"
+                                             src="/img/notSelected.png">
                                     </th>
                                     <th width="30%">命令</th>
                                     <th>占用gpu</th>
@@ -435,11 +412,10 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <tr v-for="task, i in tasks" v-if="task.status!='Deleted'">
+                                <tr v-for="task, i in tasks" v-if="(task.status!='Deleted')&&(task.status!='Retry')">
                                     <td>
-                                        <img @click="selectSingle" selectedd="false" :idx=i
-                                             class="cartProductItemIfSelected"
-                                             src="img/cartNotSelected.png">
+                                        <img @click="selectSingle($event)" selectedd="false" :idx="i"
+                                             class="selectSingle" src="/img/notSelected.png">
 
                                     </td>
                                     <td>{{task.cmd}}</td>
