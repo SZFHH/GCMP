@@ -100,7 +100,6 @@ public class TaskServiceImpl implements TaskService {
                 throw new ServiceException("创建pod异常", e);
             }
             Task task = convertFrom(taskParam, podName);
-            task.setStatus(PENDING);
             taskMapper.insert(task);
             return -1;
         }
@@ -126,7 +125,7 @@ public class TaskServiceImpl implements TaskService {
         task.setServerId(taskParam.getServerId());
         task.setUserId(userService.getCurrentUser().getId());
         task.setPodName(podName);
-        task.setStatus(getPodStatus(podName));
+        task.setStatus(PENDING);
         task.setStartTime(System.currentTimeMillis());
         return task;
     }
@@ -145,13 +144,10 @@ public class TaskServiceImpl implements TaskService {
         return taskDTO;
     }
 
-    private TaskStatusType getPodStatus(String podName) {
-        V1Pod v1Pod;
-        try {
-            v1Pod = k8sApi.readNamespacedPodStatus(podName, "default", "true");
-        } catch (ApiException e) {
-            throw new ServiceException("无法获取pod信息，pod名：" + podName, e);
-        }
+    private TaskStatusType getPodStatus(String podName) throws ApiException {
+
+        V1Pod v1Pod = k8sApi.readNamespacedPodStatus(podName, "default", "true");
+
         return TaskStatusType.valueFrom(v1Pod.getStatus().getPhase());
     }
 
@@ -194,13 +190,13 @@ public class TaskServiceImpl implements TaskService {
         if (status == DELETED) {
             throw new BadRequestException("不能获取删除了的训练任务的日志");
         } else if (status == SUCCEEDED || status == FAILED) {
-            return getLogFromFile(task.getId());
+            return getLogFromFile(task);
         } else {
             try {
                 return getLogFromPod(task.getPodName());
             } catch (ServiceException e) {
                 if (e.getCause().getMessage().endsWith("Not Found")) {
-                    return getLogFromFile(task.getId());
+                    return getLogFromFile(task);
                 } else {
                     throw e;
                 }
@@ -210,17 +206,17 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public String getTaskLogPath(int taskId) {
-        User user = userService.getCurrentUser();
-        return FileUtils.joinPaths(gcmpProperties.getTaskLogRoot(), user.getUsername(), String.valueOf(taskId));
+    public String getTaskLogPath(Task task) {
+
+        return FileUtils.joinPaths(gcmpProperties.getTaskLogRoot(), String.valueOf(task.getUserId()), String.valueOf(task.getId()));
 
     }
 
-    private String getLogFromFile(int taskId) {
+    private String getLogFromFile(Task task) {
         try {
-            return FileUtils.readFile(Paths.get(getTaskLogPath(taskId)));
+            return FileUtils.readFile(Paths.get(getTaskLogPath(task)));
         } catch (IOException ioe) {
-            throw new ServiceException("读取训练任务日志文件异常，任务id" + taskId, ioe);
+            throw new ServiceException("读取训练任务日志文件异常，任务id" + task.getId(), ioe);
         }
     }
 
@@ -297,18 +293,24 @@ public class TaskServiceImpl implements TaskService {
                     taskMapper.removeById(taskId);
 
                     try {
-                        FileUtils.deleteFile(Paths.get(getTaskLogPath(taskId)));
+                        FileUtils.deleteFile(Paths.get(getTaskLogPath(task)));
                     } catch (IOException e) {
                         log.error("删除训练任务日志异常，任务id" + taskId, e);
                     }
                 } else if (status == RUNNING) {
-                    TaskStatusType latestStatus = getPodStatus(task.getPodName());
+                    TaskStatusType latestStatus = null;
+
+                    try {
+                        latestStatus = getPodStatus(task.getPodName());
+                    } catch (ApiException e) {
+                        log.error("k8s获取pod状态异常pod名：" + task.getPodName(), e);
+                    }
                     if (latestStatus == SUCCEEDED || latestStatus == FAILED) {
                         if (taskMapper.casUpdateRemoved(taskId) != 0) {
 
                             String podName = task.getPodName();
                             try {
-                                FileUtils.writeFile(Paths.get(getTaskLogPath(taskId)), getLogFromPod(podName));
+                                FileUtils.writeFile(Paths.get(getTaskLogPath(task)), getLogFromPod(podName));
                             } catch (IOException e) {
                                 log.error("保存训练任务日志异常，任务id" + taskId, e);
                             }
@@ -329,7 +331,12 @@ public class TaskServiceImpl implements TaskService {
                         }
                     }
                 } else if (status == PENDING) {
-                    TaskStatusType latestStatus = getPodStatus(task.getPodName());
+                    TaskStatusType latestStatus = null;
+                    try {
+                        latestStatus = getPodStatus(task.getPodName());
+                    } catch (ApiException e) {
+                        log.error("k8s获取pod状态异常pod名：" + task.getPodName(), e);
+                    }
                     if (latestStatus != PENDING) {
                         task.setStatus(RUNNING);
                         taskMapper.casUpdateStatus(task);

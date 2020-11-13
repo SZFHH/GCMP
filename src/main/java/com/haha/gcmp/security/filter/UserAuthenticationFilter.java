@@ -100,6 +100,7 @@ public class UserAuthenticationFilter extends AbstractAuthenticationFilter {
                 value = URLDecoder.decode(value, "utf-8");
                 AuthenticationToken authenticationToken = JsonUtils.jsonToObject(value, AuthenticationToken.class);
                 user = authService.authCheck(authenticationToken);
+                authService.buildAuthToken(user);
             }
         }
         if (user == null) {

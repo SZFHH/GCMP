@@ -60,16 +60,22 @@ public class AdminAuthenticationFilter extends AbstractAuthenticationFilter {
         this.adminService = adminService;
 
         addUrlPatterns(
-            "/api/admin/**",
-            "/api/docker/list/all",
-            "/api/docker/remove/common",
-            "/api/docker/add/common"
+            "* /api/admin/cur_user",
+            "* /api/admin/logout",
+            "GET /api/docker/common/all",
+            "POST /api/docker/common",
+            "PUT /api/docker/common",
+            "DELETE /api/docker/common/**",
+            "* /api/task/all",
+            "POST /api/user",
+            "DELETE /api/user/**",
+            "GET /api/user/all",
+            "PUT /api/user/dockerQuota",
+            "PUT /api/user/password"
         );
 
         addExcludeUrlPatterns(
-            "/api/admin/login",
-            "/api/admin/is_initialized",
-            "/api/admin/init"
+
         );
 
         // set failure handler
@@ -108,8 +114,9 @@ public class AdminAuthenticationFilter extends AbstractAuthenticationFilter {
                 String value = cookie.getValue();
                 value = URLDecoder.decode(value, "utf-8");
                 AuthenticationToken authenticationToken = JsonUtils.jsonToObject(value, AuthenticationToken.class);
-                if (authenticationToken.getUserName().equals(gcmpProperties.getAdminName())) {
+                if (authenticationToken.getUsername().equals(gcmpProperties.getAdminName())) {
                     user = authService.authCheck(authenticationToken);
+                    authService.buildAuthToken(user);
                 }
 
             }

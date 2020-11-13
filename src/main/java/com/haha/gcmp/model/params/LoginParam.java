@@ -50,7 +50,7 @@ public class LoginParam implements BaseParam<User> {
 
     @Override
     public User toEntity() {
-        return new User(username, password, DEFAULT_DOCKER_QUOTA);
+        return new User(-1, username, password, DEFAULT_DOCKER_QUOTA);
     }
 }
 

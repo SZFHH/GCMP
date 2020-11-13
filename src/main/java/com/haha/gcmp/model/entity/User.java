@@ -2,8 +2,6 @@ package com.haha.gcmp.model.entity;
 
 import java.util.Objects;
 
-import static com.haha.gcmp.model.support.GcmpConst.DEFAULT_DOCKER_QUOTA;
-
 /**
  * @author SZFHH
  * @date 2020/10/23
@@ -17,16 +15,11 @@ public class User {
     public User() {
     }
 
-    public User(String username, String password, int dockerQuota) {
+    public User(int id, String username, String password, int dockerQuota) {
+        this.id = id;
         this.username = username;
         this.password = password;
         this.dockerQuota = dockerQuota;
-    }
-
-    public User(String username, String password) {
-        this.username = username;
-        this.password = password;
-        this.dockerQuota = DEFAULT_DOCKER_QUOTA;
     }
 
     public int getDockerQuota() {
@@ -45,7 +38,7 @@ public class User {
         this.username = username;
     }
 
-    public String getPassWord() {
+    public String getPassword() {
         return password;
     }
 

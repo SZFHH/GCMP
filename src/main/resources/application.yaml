@@ -37,6 +37,8 @@ gcmp:
   #    - { hostName: scw4000-All-Series, hostIp: 192.168.137.143, username: scw4000, password: Group416, gpus: 1, gpuSeries: GTX1080 }
 
   docker-client-port: 2375
+  gcmp-root: /raid/gcmp
+  common-data-root: /raid/gcmp/commonDataset
   docker-file-root: /raid/gcmp/dockerfiles
   data-root: /raid/gcmp/data
   temp-file-root: /raid/gcmp/temp

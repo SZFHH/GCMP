@@ -72,7 +72,11 @@
                         })
                     },
                     load: function () {
-                        axios.get(this.userUri).then(function (response) {
+                        axios({
+                            method: "get",
+                            url: this.userUri,
+                            headers: {'Gcmp-Authorization': this.token}
+                        }).then(function (response) {
                             vue.users = response.data.data;
                         }).catch(function (err) {
                             handleError(err, true);

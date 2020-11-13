@@ -17,8 +17,8 @@
         select id,user_name,password,docker_quota from user where id = #{id}
     </select>
 
-    <select id="getByUserName" resultMap="fullUser">
-        select id,user_name,password,docker_quota from user where user_name = #{userName}
+    <select id="getByUsername" resultMap="fullUser">
+        select id,user_name,password,docker_quota from user where user_name = #{username}
     </select>
 
     <select id="listAll" resultMap="fullUser">
@@ -27,7 +27,22 @@
 
     <insert id="insert">
         insert into user (user_name, password, docker_quota)
-        values (#{userName}, #{password}, #{dockerQuota})
+        values (#{username}, #{password}, #{dockerQuota})
     </insert>
+
+    <update id="update">
+        update user set password = #{password}, docker_quota = #{docker_quota}
+        where id = #{id}
+    </update>
+
+    <update id="updatePassword">
+        update user set password = #{password}
+        where id = #{id}
+    </update>
+
+    <update id="updateDockerQuota">
+        update user set  docker_quota = #{docker_quota}
+        where id = #{id}
+    </update>
 
 </mapper>

@@ -1,6 +1,7 @@
 package com.haha.gcmp.service;
 
 import com.haha.gcmp.model.dto.TaskDTO;
+import com.haha.gcmp.model.entity.Task;
 import com.haha.gcmp.model.params.TaskParam;
 
 import java.util.List;
@@ -51,10 +52,10 @@ public interface TaskService {
     /**
      * 获取任务日志持久化路径
      *
-     * @param taskId task id
+     * @param task must not be null
      * @return path of log file after task is completed
      */
-    String getTaskLogPath(int taskId);
+    String getTaskLogPath(Task task);
 
 
 }

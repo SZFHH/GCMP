@@ -4,6 +4,7 @@ import com.haha.gcmp.model.entity.User;
 import com.haha.gcmp.model.params.LoginParam;
 import com.haha.gcmp.security.support.AuthenticationToken;
 import com.haha.gcmp.security.token.AuthToken;
+import org.springframework.lang.NonNull;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -45,5 +46,21 @@ public interface AuthService {
      * @param response must not be null.
      */
     void logout(HttpServletResponse response);
+
+    /**
+     * 获取用户的token
+     *
+     * @param user must not be null
+     * @return token
+     */
+    String getToken(User user);
+
+    /**
+     * 创建用户的token
+     *
+     * @param user must not be null
+     * @return AuthToken
+     */
+    AuthToken buildAuthToken(@NonNull User user);
 }
 

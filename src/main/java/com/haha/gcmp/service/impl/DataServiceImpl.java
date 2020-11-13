@@ -16,6 +16,7 @@ import com.haha.gcmp.model.params.*;
 import com.haha.gcmp.model.support.CheckFileResult;
 import com.haha.gcmp.repository.CommonDataMapper;
 import com.haha.gcmp.repository.TempFileMapper;
+import com.haha.gcmp.service.AdminService;
 import com.haha.gcmp.service.DataService;
 import com.haha.gcmp.service.UserService;
 import com.haha.gcmp.service.base.AbstractServerService;
@@ -31,7 +32,7 @@ import java.util.List;
 import static com.haha.gcmp.model.support.GcmpConst.FTP_TYPE_SFTP;
 
 /**
- * Data service service implementation.
+ * Data service implementation.
  *
  * @author SZFHH
  * @date 2020/10/25
@@ -44,8 +45,9 @@ public class DataServiceImpl extends AbstractServerService<FileClient> implement
     private final FileSshPoolConfig sshPoolConfig;
     private final FtpPoolConfig ftpPoolConfig;
     private final CommonDataMapper commonDataMapper;
+    private final AdminService adminService;
 
-    protected DataServiceImpl(GcmpProperties gcmpProperties, UserService userService, TempFileMapper tempfileMapper, SftpPoolConfig sftpPoolConfig, FileSshPoolConfig sshPoolConfig, FtpPoolConfig ftpPoolConfig, CommonDataMapper commonDataMapper) {
+    protected DataServiceImpl(GcmpProperties gcmpProperties, UserService userService, TempFileMapper tempfileMapper, SftpPoolConfig sftpPoolConfig, FileSshPoolConfig sshPoolConfig, FtpPoolConfig ftpPoolConfig, CommonDataMapper commonDataMapper, AdminService adminService) {
         super(gcmpProperties);
         this.userService = userService;
         this.tempfileMapper = tempfileMapper;
@@ -53,6 +55,7 @@ public class DataServiceImpl extends AbstractServerService<FileClient> implement
         this.sshPoolConfig = sshPoolConfig;
         this.ftpPoolConfig = ftpPoolConfig;
         this.commonDataMapper = commonDataMapper;
+        this.adminService = adminService;
     }
 
     @Override
@@ -99,6 +102,9 @@ public class DataServiceImpl extends AbstractServerService<FileClient> implement
     @Override
     public String getUserDataPath(String relativePath) {
         User user = userService.getCurrentUser();
+        if (user.getId() == adminService.getAdminId()) {
+            return FileUtils.joinPaths(gcmpProperties.getGcmpRoot(), relativePath);
+        }
         return FileUtils.joinPaths(gcmpProperties.getDataRoot(), user.getUsername(), relativePath);
     }
 

@@ -1,6 +1,6 @@
 package com.haha.gcmp.service;
 
-import com.haha.gcmp.model.params.RegisterParam;
+import com.haha.gcmp.model.params.UserParam;
 
 /**
  * @author SZFHH
@@ -19,7 +19,7 @@ public interface AdminService {
      *
      * @param registerParam register param
      */
-    void initialize(RegisterParam registerParam);
+    void initialize(UserParam registerParam);
 
     /**
      * 获取管理员 id

@@ -25,7 +25,7 @@ public interface UserMapper {
      * @param userName user name
      * @return user
      */
-    User getByUserName(String userName);
+    User getByUsername(String userName);
 
     /**
      * 添加user
@@ -41,4 +41,28 @@ public interface UserMapper {
      * @return list of users.
      */
     List<User> listAll();
+
+    /**
+     * 更新用户信息
+     *
+     * @param user must not be null
+     * @return changed lines
+     */
+    int update(User user);
+
+    /**
+     * 更新用户密码
+     *
+     * @param user must not be null
+     * @return changed lines
+     */
+    int updatePassword(User user);
+
+    /**
+     * 更新用户docker镜像上限
+     *
+     * @param user must not be null
+     * @return changed lines
+     */
+    int updateDockerQuota(User user);
 }

@@ -6,12 +6,22 @@ package com.haha.gcmp.model.dto;
  */
 public class UserDTO {
     String username;
+    String accessToken;
+
+    public UserDTO(String username, String accessToken) {
+        this.username = username;
+        this.accessToken = accessToken;
+    }
 
     public UserDTO() {
     }
 
-    public UserDTO(String username) {
-        this.username = username;
+    public String getAccessToken() {
+        return accessToken;
+    }
+
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
     }
 
     public String getUsername() {

@@ -43,6 +43,10 @@ public class GcmpProperties {
 
     private String cache = "memory";
 
+    private String gcmpRoot;
+
+    private String commonDataRoot;
+
     public String getK8sConfigFilePath() {
         return k8sConfigFilePath;
     }
@@ -153,5 +157,21 @@ public class GcmpProperties {
 
     public void setCache(String cache) {
         this.cache = cache;
+    }
+
+    public String getGcmpRoot() {
+        return gcmpRoot;
+    }
+
+    public void setGcmpRoot(String gcmpRoot) {
+        this.gcmpRoot = gcmpRoot;
+    }
+
+    public String getCommonDataRoot() {
+        return commonDataRoot;
+    }
+
+    public void setCommonDataRoot(String commonDataRoot) {
+        this.commonDataRoot = commonDataRoot;
     }
 }

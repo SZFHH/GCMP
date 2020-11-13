@@ -1,9 +1,10 @@
 package com.haha.gcmp.service.impl;
 
 import cn.hutool.crypto.digest.BCrypt;
+import com.haha.gcmp.exception.BadRequestException;
 import com.haha.gcmp.exception.NotFoundException;
 import com.haha.gcmp.model.entity.User;
-import com.haha.gcmp.model.params.RegisterParam;
+import com.haha.gcmp.model.params.UserParam;
 import com.haha.gcmp.repository.UserMapper;
 import com.haha.gcmp.security.util.SecurityUtils;
 import com.haha.gcmp.service.UserService;
@@ -43,7 +44,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getByNameOfNonNull(String userName) {
-        User user = userMapper.getByUserName(userName);
+        User user = userMapper.getByUsername(userName);
         if (user == null) {
             throw new NotFoundException("没找到用户：" + userName);
         }
@@ -52,13 +53,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getByNameOfNullable(String userName) {
-        return userMapper.getByUserName(userName);
+        return userMapper.getByUsername(userName);
     }
 
     @Override
-    public void createUser(RegisterParam registerParam) {
+    public void createUser(UserParam registerParam) {
         User user = registerParam.toEntity();
-        setPassword(user, registerParam.getPassword());
+        if (userMapper.getByUsername(user.getUsername()) != null) {
+            throw new BadRequestException("用户名已存在");
+        }
+        setPassword(user);
         userMapper.insert(user);
     }
 
@@ -72,7 +76,24 @@ public class UserServiceImpl implements UserService {
         return userMapper.listAll();
     }
 
-    private void setPassword(User user, String plainPassword) {
-        user.setPassword(BCrypt.hashpw(plainPassword, BCrypt.gensalt()));
+    @Override
+    public int updatePassword(User user) {
+        setPassword(user);
+        return userMapper.updatePassword(user);
+    }
+
+    @Override
+    public int updateDockerQuota(User user) {
+        return userMapper.updateDockerQuota(user);
+    }
+
+    @Override
+    public void removeUser(int userId) {
+
+    }
+
+
+    private void setPassword(User user) {
+        user.setPassword(BCrypt.hashpw(user.getPassword(), BCrypt.gensalt()));
     }
 }

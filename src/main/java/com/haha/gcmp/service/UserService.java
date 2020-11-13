@@ -1,7 +1,7 @@
 package com.haha.gcmp.service;
 
 import com.haha.gcmp.model.entity.User;
-import com.haha.gcmp.model.params.RegisterParam;
+import com.haha.gcmp.model.params.UserParam;
 
 import java.util.List;
 
@@ -47,7 +47,7 @@ public interface UserService {
      *
      * @param registerParam register param
      */
-    void createUser(RegisterParam registerParam);
+    void createUser(UserParam registerParam);
 
     /**
      * 获取当前用户
@@ -62,4 +62,27 @@ public interface UserService {
      * @return list of users
      */
     List<User> getAllUser();
+
+    /**
+     * 更新用户密码
+     *
+     * @param user must not be null
+     * @return changed lines
+     */
+    int updatePassword(User user);
+
+    /**
+     * 更新用户docker镜像上限
+     *
+     * @param user must not be null
+     * @return changed lines
+     */
+    int updateDockerQuota(User user);
+
+    /**
+     * 删除用户，删除数据库记录及所有服务器上的文件，docker镜像
+     *
+     * @param userId user id
+     */
+    void removeUser(int userId);
 }

@@ -2,7 +2,7 @@ package com.haha.gcmp.service.impl;
 
 import com.haha.gcmp.config.propertites.GcmpProperties;
 import com.haha.gcmp.model.entity.User;
-import com.haha.gcmp.model.params.RegisterParam;
+import com.haha.gcmp.model.params.UserParam;
 import com.haha.gcmp.service.AdminService;
 import com.haha.gcmp.service.UserService;
 import org.springframework.stereotype.Service;
@@ -32,8 +32,8 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public void initialize(RegisterParam registerParam) {
-        registerParam.setUserName(gcmpProperties.getAdminName());
+    public void initialize(UserParam registerParam) {
+        registerParam.setUsername(gcmpProperties.getAdminName());
         userService.createUser(registerParam);
     }
 
@@ -46,4 +46,5 @@ public class AdminServiceImpl implements AdminService {
         adminId = user.getId();
         return adminId;
     }
+
 }

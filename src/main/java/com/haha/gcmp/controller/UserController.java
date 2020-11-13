@@ -3,8 +3,7 @@ package com.haha.gcmp.controller;
 import com.haha.gcmp.model.dto.UserDTO;
 import com.haha.gcmp.model.entity.User;
 import com.haha.gcmp.model.params.LoginParam;
-import com.haha.gcmp.model.params.RegisterParam;
-import com.haha.gcmp.model.support.BaseResponse;
+import com.haha.gcmp.model.params.UserParam;
 import com.haha.gcmp.security.token.AuthToken;
 import com.haha.gcmp.service.AuthService;
 import com.haha.gcmp.service.UserService;
@@ -12,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * User controller
@@ -39,20 +39,40 @@ public class UserController {
         return authToken;
     }
 
-    @PostMapping("register")
-    public BaseResponse<String> register(@RequestBody @Valid RegisterParam registerParam) {
+    @PostMapping("")
+    public void register(@RequestBody UserParam registerParam) {
         userService.createUser(registerParam);
-        return BaseResponse.ok("注册成功！");
+    }
+
+    @DeleteMapping("/{userId:\\d+}")
+    public void removeUser(@PathVariable("userId") int userId) {
+        userService.removeUser(userId);
     }
 
     @GetMapping("cur_user")
     public UserDTO currentUser() {
         User user = userService.getCurrentUser();
-        return new UserDTO(user.getUsername());
+        return new UserDTO(user.getUsername(), authService.getToken(user));
     }
 
     @PostMapping("logout")
     public void logout(HttpServletResponse response) {
         authService.logout(response);
     }
+
+    @GetMapping("all")
+    public List<User> allUser() {
+        return userService.getAllUser();
+    }
+
+    @PutMapping("/dockerQuota")
+    public void updateDockerQuota(@RequestBody UserParam userParam) {
+        userService.updateDockerQuota(userParam.toEntity());
+    }
+
+    @PutMapping("/password")
+    public void updatePassword(@RequestBody UserParam userParam) {
+        userService.updatePassword(userParam.toEntity());
+    }
+
 }

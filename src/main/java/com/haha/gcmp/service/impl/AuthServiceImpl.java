@@ -73,7 +73,17 @@ public class AuthServiceImpl implements AuthService {
 
     }
 
-    private AuthToken buildAuthToken(@NonNull User user) {
+    @Override
+    public String getToken(User user) {
+        String token = cacheStore.get(SecurityUtils.buildAccessTokenKey(user)).orElse(null);
+        if (token == null) {
+            throw new AuthenticationException("token已过期");
+        }
+        return token;
+    }
+
+    @Override
+    public AuthToken buildAuthToken(@NonNull User user) {
         Assert.notNull(user, "User must not be null");
 
         // Generate new token
@@ -92,7 +102,7 @@ public class AuthServiceImpl implements AuthService {
     private boolean passwordMatch(User user, String plainPassword) {
         Assert.notNull(user, "User must not be null");
 
-        return !StringUtils.isBlank(plainPassword) && BCrypt.checkpw(plainPassword, user.getPassWord());
+        return !StringUtils.isBlank(plainPassword) && BCrypt.checkpw(plainPassword, user.getPassword());
     }
 
 
