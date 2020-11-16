@@ -1,0 +1,4 @@
+sudo vi /lib/systemd/system/docker.service
+
+在ExecStart=/usr/bin/dockerd之后加 -H tcp://0.0.0.0:2375 -H unix://var/run/docker.sock
+

@@ -1,0 +1,68 @@
+sudo touch /etc/apt/sources.list.d/kubernetes.list
+
+sudo chmod 666 /etc/apt/sources.list.d/kubernetes.list
+
+vi /etc/apt/sources.list.d/kubernetes.list
+添加下面内容
+deb http://mirrors.ustc.edu.cn/kubernetes/apt kubernetes-xenial main
+
+gpg --keyserver keyserver.ubuntu.com --recv-keys BA07F4FB
+
+gpg --export --armor BA07F4FB | sudo apt-key add -
+
+sudo ufw disable
+
+sudo swapoff -a
+
+sudo sed -i 's/.*swap.*/#&/' /etc/fstab
+
+sudo apt install -y selinux-utils
+
+setenforce 0
+
+sudo touch /etc/sysctl.d/k8s.conf
+
+sudo chmod 666 /etc/sysctl.d/k8s.conf
+
+vi /etc/sysctl.d/k8s.conf
+添加
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+vm.swappiness = 0
+
+sudo modprobe br_netfilter
+sudo sysctl -p /etc/sysctl.d/k8s.conf
+
+sudo apt update && sudo apt-get install -y kubelet=1.13.1-00 kubernetes-cni=0.6.0-00 kubeadm=1.13.1-00 kubectl=1.13.1-00
+
+vi /etc/hosts
+写入节点ip，比如：
+192.168.236.177 master
+192.168.236.178 node1
+192.168.236.179 node2
+
+上述配置master和slave相同
+
+sudo systemctl enable kubelet
+
+sudo systemctl start kubelet
+
+将master节点的/etc/kubernetes/admin.conf发到slave节点上（随便找个路径）
+mkdir -p $HOME/.kube
+
+sudo cp -i /home/k8s/admin.conf（刚刚随便找的路径） $HOME/.kube/config
+
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+kubeadm join 192.168.137.16:6443 --token abcdef.0123456789abcdef --discovery-token-ca-cert-hash sha256:3ea86746b781e0b6a0aec9000d51fb347e006075e266926e8754973215a2b7bd（就是master节点上说要记住的那一串）
+
+把master上的网络配置kube-flannel.yml复制到slave节点上（随便找路径）
+kubectl apply -f /home/k8s/kube-flannel.yml
+
+在master节点上输入kubectl get nodes，看到类似下面的就配置好了
+NAME STATUS ROLES AGE VERSION
+master Ready master 35m v1.13.1
+node1 Ready <none> 2m23s v1.13.1
+
+
+

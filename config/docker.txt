@@ -1,0 +1,70 @@
+安装docker
+sudo apt-get update
+
+sudo apt-get install \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg-agent \
+    software-properties-common
+
+curl -fsSL https://mirrors.ustc.edu.cn/docker-ce/linux/ubuntu/gpg | sudo apt-key add -
+
+sudo apt-key fingerprint 0EBFCD88
+
+sudo add-apt-repository \
+   "deb [arch=amd64] https://mirrors.ustc.edu.cn/docker-ce/linux/ubuntu/ \
+  $(lsb_release -cs) \
+  stable"
+
+sudo apt-get update
+
+sudo apt-get install docker-ce docker-ce-cli containerd.io
+
+开机启动
+sudo systemctl enable docker
+sudo systemctl start docker
+
+设置用户组
+sudo groupadd docker
+sudo usermod -aG docker $USER
+
+安装nvidia-docker
+docker volume ls -q -f driver=nvidia-docker | xargs -r -I{} -n1 docker ps -q -a -f volume={} | xargs -r docker rm -f
+
+sudo apt-get purge -y nvidia-docker
+
+curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | \
+sudo apt-key add -
+
+distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
+
+curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | \
+sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+
+sudo apt-get update
+
+sudo apt-get install -y nvidia-docker2
+
+sudo pkill -SIGHUP dockerd
+
+vi /etc/docker/daemon.json 复制下面这个
+{
+"default-runtime": "nvidia",
+    "runtimes": {
+        "nvidia": {
+            "path": "nvidia-container-runtime",
+            "runtimeArgs": []
+        }
+    },
+
+"registry-mirrors": ["阿里云加速地址"]
+
+}
+
+重新加载配置文件
+sudo systemctl daemon-reload
+重启docker服务
+sudo systemctl restart docker
+
+
