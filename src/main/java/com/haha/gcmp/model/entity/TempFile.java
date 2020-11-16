@@ -5,13 +5,21 @@ package com.haha.gcmp.model.entity;
  * @date 2020/10/26
  */
 public class TempFile {
-    String md5;
-    int serverId;
+    private String md5;
+    private int serverId;
+    private int userId;
 
     /**
      * 文件目标存储位置的相对路径
      */
-    String relativePath;
+    private String relativePath;
+
+    public TempFile(String md5, int serverId, int userId, String relativePath) {
+        this.md5 = md5;
+        this.serverId = serverId;
+        this.userId = userId;
+        this.relativePath = relativePath;
+    }
 
     public TempFile() {
     }
@@ -32,12 +40,6 @@ public class TempFile {
         this.serverId = serverId;
     }
 
-    public TempFile(String md5, int serverId, String relativePath) {
-        this.md5 = md5;
-        this.serverId = serverId;
-        this.relativePath = relativePath;
-    }
-
     public String getMd5() {
         return md5;
     }
@@ -46,5 +48,11 @@ public class TempFile {
         this.md5 = md5;
     }
 
+    public int getUserId() {
+        return userId;
+    }
 
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
 }

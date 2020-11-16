@@ -30,4 +30,12 @@ public interface TempFileMapper {
      * @return changed lines
      */
     int insert(TempFile tempFile);
+
+    /**
+     * 删除单个用户的所有信息
+     *
+     * @param id user id
+     * @return changed lines
+     */
+    int removeByUserId(int id);
 }

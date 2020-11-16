@@ -8,6 +8,9 @@ package com.haha.gcmp.model.params;
  */
 public abstract class BaseChunkParam {
 
+    /**
+     * 服务器编号
+     */
     private int serverId;
 
     /**
