@@ -29,9 +29,9 @@ mybatis:
 #    map-underscore-to-camel-case: true
 gcmp:
   pypiSource: https://pypi.tuna.tsinghua.edu.cn/simple
-  k8sConfigFilePath: "src/main/resources/config"
-  ftpType: ftp
-  adminName: admin
+  k8s-config-file-path: "src/main/resources/config"
+  ftp-type: ftp
+  admin-name: admin
   server-properties:
     - { hostName: node1, hostIp: 192.168.0.107, username: root, password: 123456, gpus: 1, gpuSeries: GTX1080 }
   #    - { hostName: scw4000-All-Series, hostIp: 192.168.137.143, username: scw4000, password: Group416, gpus: 1, gpuSeries: GTX1080 }
@@ -43,7 +43,9 @@ gcmp:
   data-root: /raid/gcmp/data
   temp-file-root: /raid/gcmp/temp
   task-log-root: /raid/gcmp/tasklogs
+  # 每次返回到前端的任务日志大小
   task-log-limit-bytes: 1024
+  # 同步k8s任务状态到数据库的间隔（s）
   task-clear-period: 10
 
 ftp-pool:
