@@ -45,4 +45,8 @@
         where id = #{id}
     </update>
 
+    <delete id="removeById">
+        delete from user where user_id = {id}
+    </delete>
+
 </mapper>

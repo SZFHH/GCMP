@@ -11,27 +11,19 @@
 
     <title>GCMP</title>
 
-    <!-- Custom fonts for this template-->
     <link href="/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
     <link href="/css/font.css" rel="stylesheet">
-    <!-- Custom styles for this template-->
     <link href="/css/sb-admin-2.min.css" rel="stylesheet">
     <link href="/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
     <link href="/css/gcmp.css" rel="stylesheet">
+
     <script src="/js/vue/2.5.16/vue.min.js"></script>
     <script src="/js/axios/0.17.1/axios.min.js"></script>
     <script src="/js/moment/2.22.2/moment.js"></script>
-
-    <!-- Bootstrap core JavaScript-->
     <script src="/vendor/jquery/jquery.min.js"></script>
     <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Core plugin JavaScript-->
     <script src="/vendor/jquery-easing/jquery.easing.min.js"></script>
-
-    <!-- Custom scripts for all pages-->
     <script src="/js/sb-admin-2.min.js"></script>
-
     <script src="/vendor/datatables/jquery.dataTables.min.js"></script>
     <script src="/vendor/datatables/dataTables.bootstrap4.min.js"></script>
     <script src="/js/gcmp.js"></script>
@@ -57,7 +49,7 @@
                         this.token = getUrlParam("token");
                         axios({
                             method: "get",
-                            url: "/api/user/cur_user",
+                            url: "/api/admin/cur_user",
                             headers: {'Gcmp-Authorization': this.token}
                         }).then(function (response) {
                             vue.user = response.data.data;
@@ -130,7 +122,6 @@
         <!-- Divider -->
         <hr class="sidebar-divider my-0">
 
-        <!-- Nav Item - Dashboard -->
         <li class="nav-item active">
             <a class="nav-link" :href="'/admin/server-status.html?token='+token">
                 <i class="fas fa-fw fa-tachometer-alt"></i>
@@ -156,19 +147,16 @@
                 <span>文件管理</span></a>
         </li>
 
-        <!-- Nav Item - Utilities Collapse Menu -->
 
         <!-- Divider -->
         <hr class="sidebar-divider">
 
-        <!-- Nav Item - Charts -->
         <li class="nav-item">
             <a class="nav-link" :href="'/admin/common-image.html?token='+token">
                 <i class="fas fa-fw fa-chart-area"></i>
                 <span>公共镜像</span></a>
         </li>
 
-        <!-- Nav Item - Tables -->
         <li class="nav-item">
             <a class="nav-link" :href="'/admin/common-data.html?token='+token">
                 <i class="fas fa-fw fa-table"></i>
@@ -191,24 +179,17 @@
             <!-- Topbar -->
             <nav class="navbar navbar-expand navbar-light bg-white topbar mb-0 static-top shadow">
 
-                <!-- Sidebar Toggle (Topbar) -->
-                <!--                <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">-->
-                <!--                    <i class="fa fa-bars"></i>-->
-                <!--                </button>-->
-
-                <!-- Topbar Navbar -->
                 <ul class="navbar-nav ml-auto">
 
                     <div class="topbar-divider d-none d-sm-block"></div>
 
-                    <!-- Nav Item - User Information -->
                     <li class="nav-item dropdown no-arrow">
                         <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <span class="mr-2 d-none d-lg-inline text-gray-600 small">{{user.username}}</span>
 
                         </a>
-                        <!-- Dropdown - User Information -->
+
                         <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
                              aria-labelledby="userDropdown">
                             <a @click="logout" class="dropdown-item" href="javascript:void(0)">
@@ -226,10 +207,6 @@
             <!-- Begin Page Content -->
             <div class=" ml-auto">
 
-                <!-- Page Heading -->
-                <!--                <h1 class="h3 mb-2 text-gray-800">Tables</h1>-->
-
-                <!-- DataTales Example -->
                 <div class="card shadow mb-0 ">
                     <div class="card-header py-3">
                         <h6 class="m-0 font-weight-bold text-primary">可用资源</h6>
@@ -248,7 +225,6 @@
                                 </tr>
                                 </thead>
 
-                                <!--                                <tbody>-->
                                 <tr v-for="sp, i in serverProperty">
                                     <td>{{i}}</td>
                                     <td>{{sp.hostName}}</td>
@@ -260,7 +236,6 @@
 
                                 </tr>
 
-                                <!--                                </tbody>-->
                             </table>
                         </div>
                     </div>

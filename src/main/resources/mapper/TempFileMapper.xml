@@ -8,20 +8,24 @@
     <resultMap id="fullTempFileInfo" type="com.haha.gcmp.model.entity.TempFile">
         <result property="md5" column="md5"/>
         <result property="serverId" column="server_id"/>
+        <result property="userId" column="user_id"/>
     </resultMap>
 
     <select id="exists" resultType="_boolean">
-        select count(*) from temp_file where md5 = #{md5} and server_id = #{serverId}
+        select count(*) from temp_file where user_id = #{userId} and server_id = #{serverId} and md5 = #{md5}
     </select>
 
 
     <insert id="insert">
-        insert into temp_file (md5, server_id, relative_path) values (#{md5}, #{serverId}, #{relativePath})
+        insert into temp_file (md5, server_id, relative_path, user_id) values (#{md5}, #{serverId}, #{relativePath}, #{userId})
     </insert>
 
 
     <delete id="remove">
-        delete from temp_file where md5 = #{md5} and server_id = #{serverId}
+        delete from temp_file where user_id = #{userId} and server_id = #{serverId} and md5 = #{md5}
     </delete>
 
+    <delete id="removeByUserId">
+        delete from temp_file where user_id = #{userId}
+    </delete>
 </mapper>

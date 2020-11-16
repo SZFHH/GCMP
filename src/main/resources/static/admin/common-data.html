@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -11,23 +10,16 @@
 
     <title>GCMP</title>
 
-    <!-- Custom fonts for this template-->
     <link href="/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
     <link href="/css/font.css" rel="stylesheet">
-    <!-- Custom styles for this template-->
     <link href="/css/sb-admin-2.min.css" rel="stylesheet">
     <link href="/css/gcmp.css" rel="stylesheet">
     <link href="/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
-    <!-- Bootstrap core JavaScript-->
+
     <script src="/vendor/jquery/jquery.min.js"></script>
     <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Core plugin JavaScript-->
     <script src="/vendor/jquery-easing/jquery.easing.min.js"></script>
-
-    <!-- Custom scripts for all pages-->
     <script src="/js/sb-admin-2.min.js"></script>
-
     <script src="/vendor/datatables/dataTables.bootstrap4.min.js"></script>
     <script src="/js/vue/2.5.16/vue.min.js"></script>
     <script src="/js/axios/0.17.1/axios.min.js"></script>
@@ -35,7 +27,6 @@
     <script src="/js/gcmp.js"></script>
     <script>
         $(function () {
-
             var vue = new Vue({
                 el: '#wrapper',
                 data: {
@@ -50,11 +41,42 @@
                     this.load();
                 },
                 methods: {
+                    selectSingle: function (element) {
+                        var tgt = element.currentTarget;
+                        var selected = tgt.getAttribute("selectedd")
+                        if ("true" == selected) {
+                            tgt.setAttribute("src", "/img/notSelected.png");
+                            tgt.setAttribute("selectedd", "false")
+                        } else {
+                            tgt.setAttribute("src", "/img/selected.png");
+                            tgt.setAttribute("selectedd", "true")
+                        }
+                        syncSelect();
+                    },
+                    selectAll: function (element) {
+                        var tgt = element.currentTarget;
+                        var selected = tgt.getAttribute("selectedd")
+                        if ("true" == selected) {
+                            tgt.setAttribute("src", "/img/notSelected.png");
+                            tgt.setAttribute("selectedd", "false")
+                            $(".selectSingle").each(function () {
+                                $(this).attr("src", "/img/notSelected.png");
+                                $(this).attr("selectedd", "false");
+                            });
+                        } else {
+                            tgt.setAttribute("src", "/img/selected.png");
+                            tgt.setAttribute("selectedd", "true")
+                            $(".selectSingle").each(function () {
+                                $(this).attr("src", "/img/selected.png");
+                                $(this).attr("selectedd", "true");
+                            });
+                        }
+                    },
                     getUser: function () {
                         this.token = getUrlParam("token");
                         axios({
                             method: "get",
-                            url: "/api/user/cur_user",
+                            url: "/api/admin/cur_user",
                             headers: {'Gcmp-Authorization': this.token}
                         }).then(function (response) {
                             vue.user = response.data.data;
@@ -79,15 +101,32 @@
                         }).catch(function (err) {
                             handleError(err, true);
                         })
+                    },
+                    syncCommonData: function () {
+                        showErrMsg("正在同步数据集信息")
+                        axios({
+                            method: "post",
+                            url: "/api/data/sync_common",
+                            headers: {'Gcmp-Authorization': this.token}
+                        }).then(function (response) {
+                            hidErrMsg()
+                            vue.load();
+                        }).catch(function (err) {
+                            handleError(err, true);
+                        })
                     }
                 },
                 filters: {
-                    renderSize: function (value) {
-                        renderSize(value)
+                    renderSize: function (value, file) {
+                        if (file == false) {
+                            return "--"
+                        }
+                        return renderSize(value)
                     }
                 }
 
-            });
+
+            })
         })
 
     </script>
@@ -101,7 +140,6 @@
     <!-- Sidebar -->
     <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
-        <!-- Sidebar - Brand -->
         <a class="sidebar-brand d-flex align-items-center" href="javascript:void(0)">
             <div class="sidebar-brand-icon rotate-n-15">
                 <i class="fas fa-laugh-wink"></i>
@@ -109,10 +147,8 @@
             <div class="sidebar-brand-text mx-3">GCMP ADMIN</div>
         </a>
 
-        <!-- Divider -->
         <hr class="sidebar-divider my-0">
 
-        <!-- Nav Item - Dashboard -->
         <li class="nav-item ">
             <a class="nav-link" :href="'/admin/server-status.html?token='+token">
                 <i class="fas fa-fw fa-tachometer-alt"></i>
@@ -138,19 +174,15 @@
                 <span>文件管理</span></a>
         </li>
 
-        <!-- Nav Item - Utilities Collapse Menu -->
-
         <!-- Divider -->
         <hr class="sidebar-divider">
 
-        <!-- Nav Item - Charts -->
         <li class="nav-item">
             <a class="nav-link" :href="'/admin/common-image.html?token='+token">
                 <i class="fas fa-fw fa-chart-area"></i>
                 <span>公共镜像</span></a>
         </li>
 
-        <!-- Nav Item - Tables -->
         <li class="nav-item active">
             <a class="nav-link" :href="'/admin/common-data.html?token='+token">
                 <i class="fas fa-fw fa-table"></i>
@@ -170,29 +202,23 @@
         <!-- Main Content -->
         <div id="content">
 
-            <!-- Topbar -->
             <nav class="navbar navbar-expand navbar-light bg-white topbar mb-0 static-top shadow">
                 <div class="ErrorMessageDiv fade">
                     <span class="alert p-1 border-dark  errorMessage">df</span>
                 </div>
-                <!-- Sidebar Toggle (Topbar) -->
-                <!--                <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">-->
-                <!--                    <i class="fa fa-bars"></i>-->
-                <!--                </button>-->
 
-                <!-- Topbar Navbar -->
                 <ul class="navbar-nav ml-auto">
 
                     <div class="topbar-divider d-none d-sm-block"></div>
 
-                    <!-- Nav Item - User Information -->
+
                     <li class="nav-item dropdown no-arrow">
                         <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <span class="mr-2 d-none d-lg-inline text-gray-600 small">{{user.username}}</span>
 
                         </a>
-                        <!-- Dropdown - User Information -->
+
                         <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
                              aria-labelledby="userDropdown">
                             <a @click="logout" class="dropdown-item" href="javascript:void(0)">
@@ -210,28 +236,35 @@
             <!-- Begin Page Content -->
             <div class=" ml-auto">
 
-                <!-- Page Heading -->
-                <!--                <h1 class="h3 mb-2 text-gray-800">Tables</h1>-->
-
-                <!-- DataTales Example -->
                 <div class="card shadow mb-0 ">
 
                     <div class="card-body pt-sm-1">
+                        <a @click="syncCommonData" type="button" class="btn btn-light bnt-square btn-sm"><span
+                                class="icon text-gray-600">同步</span>
+                        </a>
 
                         <div class="table-responsive pt-1">
                             <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                                 <thead>
                                 <tr>
+                                    <th width="3%" class="selectAndImage ">
+                                        <img @click="selectAll($event)" selectedd="false" class="selectAll"
+                                             src="/img/notSelected.png">
+                                    </th>
                                     <th width="30%">数据集</th>
                                     <th width="20%">大小</th>
                                     <th width="50%">路径</th>
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <tr v-for="data in dataset">
+                                <tr v-for="data,i in dataset">
+                                    <td>
+                                        <img @click="selectSingle($event)" selectedd="false" :idx="i"
+                                             class="selectSingle" src="/img/notSelected.png">
 
+                                    </td>
                                     <td>{{data.name}}</td>
-                                    <td>{{data.size|renderSize}}</td>
+                                    <td>{{data.size|renderSize(data.file)}}</td>
                                     <td>{{data.path}}</td>
                                 </tr>
 

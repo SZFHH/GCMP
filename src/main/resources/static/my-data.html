@@ -11,34 +11,20 @@
 
     <title>GCMP</title>
 
-    <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
     <link href="css/font.css" rel="stylesheet">
-
-    <!-- Custom styles for this template-->
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
     <link href="css/gcmp.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="webuploader-0.1.5/webuploader.css">
     <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
-    <!-- Bootstrap core JavaScript-->
+
     <script src="vendor/jquery/jquery.min.js"></script>
     <script type="text/javascript" src="webuploader-0.1.5/webuploader.js"></script>
     <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <!--    <script type="text/javascript" src="public/jquery.min.js"></script>-->
-
-    <!--        <script type="text/javascript" src="public/bootstrap.min.js"></script>-->
-
-    <!-- Core plugin JavaScript-->
     <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
-
-    <!-- Custom scripts for all pages-->
     <script src="js/sb-admin-2.min.js"></script>
-
-    <!-- Page level plugins -->
     <script src="vendor/datatables/jquery.dataTables.min.js"></script>
     <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
-
-
     <script src="js/vue/2.5.16/vue.min.js"></script>
     <script src="js/axios/0.17.1/axios.min.js"></script>
     <script src="js/moment/2.22.2/moment.js"></script>
@@ -343,16 +329,7 @@
                         if (file == false) {
                             return "--"
                         }
-                        if (null == value || value == '') {
-                            return "0 Bytes";
-                        }
-                        var unitArr = new Array("Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB");
-                        var index = 0;
-                        var srcsize = parseFloat(value);
-                        index = Math.floor(Math.log(srcsize) / Math.log(1024));
-                        var size = srcsize / Math.pow(1024, index);
-                        size = size.toFixed(2);//保留的小数位数
-                        return size + unitArr[index];
+                        return renderSize(value);
                     }
                 }
             });
@@ -609,7 +586,6 @@
         <!-- Divider -->
         <hr class="sidebar-divider my-0">
 
-        <!-- Nav Item - Dashboard -->
         <li class="nav-item">
             <a class="nav-link" :href="'/server-status.html?token='+token">
                 <i class="fas fa-fw fa-tachometer-alt"></i>
@@ -631,7 +607,6 @@
                 <span>我的文件</span></a>
         </li>
 
-        <!-- Nav Item - Utilities Collapse Menu -->
         <li class="nav-item">
             <a class="nav-link" :href="'/my-image.html?token='+token">
                 <i class="fas fa-fw fa-chart-area"></i>
@@ -641,14 +616,12 @@
         <!-- Divider -->
         <hr class="sidebar-divider">
 
-        <!-- Nav Item - Charts -->
         <li class="nav-item">
             <a class="nav-link" :href="'/user-common-image.html?token='+token">
                 <i class="fas fa-fw fa-chart-area"></i>
                 <span>公共镜像</span></a>
         </li>
 
-        <!-- Nav Item - Tables -->
         <li class="nav-item">
             <a class="nav-link" :href="'/user-common-data.html?token='+token">
                 <i class="fas fa-fw fa-table"></i>
@@ -678,14 +651,12 @@
 
                     <div class="topbar-divider d-none d-sm-block"></div>
 
-                    <!-- Nav Item - User Information -->
                     <li class="nav-item dropdown no-arrow">
                         <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <span class="mr-2 d-none d-lg-inline text-gray-600 small">{{user.username}}</span>
 
                         </a>
-                        <!-- Dropdown - User Information -->
                         <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
                              aria-labelledby="userDropdown">
                             <a @click="logout" class="dropdown-item" href="javascript:void(0)">
@@ -703,10 +674,6 @@
             <!-- Begin Page Content -->
             <div class=" ml-auto ">
 
-                <!-- Page Heading -->
-                <!--                <h1 class="h3 mb-2 text-gray-800">Tables</h1>-->
-
-                <!-- DataTales Example -->
                 <div class="card shadow ">
 
                     <div class="card-body pt-sm-1">
@@ -767,8 +734,7 @@
                         </div>
 
                         <ol class="breadcrumb mt-1 p-1 bg-white mb-0">
-                            <!--                            <li class="breadcrumb-item" v-bind:class="{ active: i==pathItems.length}">{{item}}-->
-                            <!--                            </li>-->
+
                             <li class="text-dark" @click="jumpDir(-1)"><a href="javascript:void(0)">...</a></li>
                             <li v-for="item,i in pathItems" class="breadcrumb-item text-dark" @click="jumpDir(i)"
                                 :class={'active':i+1==pathItems.length}>
@@ -840,7 +806,7 @@
                 </div>
             </div>
 
-        </div><!-- /.modal -->
+        </div>
     </div>
     <div class="modal fade" id="renameModal" tabindex="-1" role="dialog" aria-labelledby="renameModal"
          aria-hidden="true">
@@ -855,7 +821,7 @@
                 </div>
             </div>
 
-        </div><!-- /.modal -->
+        </div>
     </div>
     <div class="modal fade" id="moveModal" tabindex="-1" role="dialog" aria-labelledby="moveModal"
          aria-hidden="true">
@@ -870,7 +836,7 @@
                 </div>
             </div>
 
-        </div><!-- /.modal -->
+        </div>
     </div>
     <div class="modal fade" id="copyModal" tabindex="-1" role="dialog" aria-labelledby="copyModal"
          aria-hidden="true">
@@ -884,7 +850,7 @@
                     <a class="btn btn-primary" @click="copy">确定</a>
                 </div>
             </div>
-        </div><!-- /.modal -->
+        </div>
     </div>
 
 </div>
@@ -913,12 +879,11 @@
             <div class="modal-footer">
                 <div class="panel-footer">
                     <div id="picker" class="p-0">选择文件</div>
-                    <!--                <button id="btn" class="btn btn-default">开始上传</button>-->
                 </div>
                 <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
             </div>
         </div>
-    </div><!-- /.modal -->
+    </div>
 </div>
 
 <!-- End of Page Wrapper -->
