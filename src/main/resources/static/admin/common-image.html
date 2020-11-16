@@ -212,6 +212,7 @@
     <!-- Sidebar -->
     <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
+        <!-- Sidebar - Brand -->
         <a class="sidebar-brand d-flex align-items-center" href="javascript:void(0)">
             <div class="sidebar-brand-icon rotate-n-15">
                 <i class="fas fa-laugh-wink"></i>
@@ -230,29 +231,31 @@
 
         <!-- Divider -->
         <hr class="sidebar-divider">
+
         <li class="nav-item">
             <a class="nav-link" :href="'/admin/user-info.html?token='+token">
-                <i class="fas fa-fw fa-tachometer-alt"></i>
+                <i class="fas fa-fw fa-user"></i>
                 <span>用户管理</span></a>
         </li>
         <li class="nav-item">
             <a class="nav-link" :href="'/admin/my-task.html?token='+token">
-                <i class="fas fa-fw fa-tachometer-alt"></i>
+                <i class="fas fa-fw fa-chart-area"></i>
                 <span>任务管理</span></a>
         </li>
 
         <li class="nav-item">
             <a class="nav-link" :href="'/admin/my-data.html?token='+token">
-                <i class="fas fa-fw fa-tachometer-alt"></i>
+                <i class="fas fa-fw fa-folder"></i>
                 <span>文件管理</span></a>
         </li>
+
 
         <!-- Divider -->
         <hr class="sidebar-divider">
 
         <li class="nav-item active">
             <a class="nav-link" :href="'/admin/common-image.html?token='+token">
-                <i class="fas fa-fw fa-chart-area"></i>
+                <i class="fas fa-fw fa-cogs"></i>
                 <span>公共镜像</span></a>
         </li>
 
