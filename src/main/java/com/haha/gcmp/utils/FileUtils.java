@@ -9,8 +9,11 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
 
 /**
  * @author SZFHH
@@ -45,6 +48,19 @@ public class FileUtils {
         Assert.notNull(path, "Path must not be null");
         Path parentPath = path.getParent();
         createDirectory(parentPath);
+    }
+
+    /**
+     * 如果文件夹为空，删除
+     *
+     * @param path must not be null
+     * @throws IOException if an I/O error occurs
+     */
+    public static void deleteDirIfEmpty(Path path) throws IOException {
+        long count = Files.list(path).count();
+        if (count == 0) {
+            Files.delete(path);
+        }
     }
 
     /**
@@ -88,6 +104,17 @@ public class FileUtils {
     public static void deleteFile(Path path) throws IOException {
         Assert.notNull(path, "Path must not be null");
         Files.deleteIfExists(path);
+    }
+
+    /**
+     * 如果文件夹存在，删除文件夹
+     *
+     * @param path 文件夹路径
+     * @throws IOException if an I/O error occurs
+     */
+    public static void deleteDir(Path path) throws IOException {
+        Assert.notNull(path, "Path must not be null");
+        Files.walkFileTree(path, new DeleteDirectory());
     }
 
     /**
@@ -147,6 +174,34 @@ public class FileUtils {
     public static String readFile(Path path) throws IOException {
 
         return org.apache.commons.io.FileUtils.readFileToString(path.toFile(), StandardCharsets.UTF_8);
+    }
+
+    public static class DeleteDirectory implements FileVisitor<Path> {
+
+        @Override
+        public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+            Files.deleteIfExists(dir);
+
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+            Files.deleteIfExists(file);
+
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult visitFileFailed(Path file, IOException exc)
+            throws IOException {
+            throw exc;
+        }
     }
 
 }

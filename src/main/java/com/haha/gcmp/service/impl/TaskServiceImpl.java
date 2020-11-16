@@ -24,6 +24,7 @@ import io.kubernetes.client.util.KubeConfig;
 import io.kubernetes.client.util.Yaml;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.FileReader;
@@ -47,21 +48,17 @@ import static com.haha.gcmp.model.enums.TaskStatusType.*;
  */
 @Service
 public class TaskServiceImpl implements TaskService {
-    private final ServerStatusService serverStatusService;
+    private ServerStatusService serverStatusService;
     private final GcmpProperties gcmpProperties;
-    private final DockerService dockerService;
-    private final UserService userService;
-    private final DataService dataService;
+    private DockerService dockerService;
+    private UserService userService;
+    private DataService dataService;
     private final CoreV1Api k8sApi;
     private final TaskMapper taskMapper;
     private final ScheduledExecutorService executor;
 
-    public TaskServiceImpl(ServerStatusService serverStatusService, GcmpProperties gcmpProperties, DockerService dockerService, UserService userService, DataService dataService, TaskMapper taskMapper) {
-        this.serverStatusService = serverStatusService;
+    public TaskServiceImpl(GcmpProperties gcmpProperties, TaskMapper taskMapper) {
         this.gcmpProperties = gcmpProperties;
-        this.dockerService = dockerService;
-        this.userService = userService;
-        this.dataService = dataService;
         this.taskMapper = taskMapper;
 
         try {
@@ -75,6 +72,26 @@ public class TaskServiceImpl implements TaskService {
         executor = new ScheduledThreadPoolExecutor(1, namedThreadFactory);
         executor.scheduleAtFixedRate(new TaskCleaner(), 0, gcmpProperties.getTaskClearPeriod(), TimeUnit.SECONDS);
 
+    }
+
+    @Autowired
+    public void setServerStatusService(ServerStatusService serverStatusService) {
+        this.serverStatusService = serverStatusService;
+    }
+
+    @Autowired
+    public void setDockerService(DockerService dockerService) {
+        this.dockerService = dockerService;
+    }
+
+    @Autowired
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
+    @Autowired
+    public void setDataService(DataService dataService) {
+        this.dataService = dataService;
     }
 
     @Override
@@ -212,6 +229,11 @@ public class TaskServiceImpl implements TaskService {
 
     }
 
+    @Override
+    public List<Task> listByUserId(int userId) {
+        return taskMapper.listByUserId(userId);
+    }
+
     private String getLogFromFile(Task task) {
         try {
             return FileUtils.readFile(Paths.get(getTaskLogPath(task)));
@@ -294,6 +316,7 @@ public class TaskServiceImpl implements TaskService {
 
                     try {
                         FileUtils.deleteFile(Paths.get(getTaskLogPath(task)));
+                        FileUtils.deleteDirIfEmpty(Paths.get(gcmpProperties.getTaskLogRoot(), String.valueOf(task.getUserId())));
                     } catch (IOException e) {
                         log.error("删除训练任务日志异常，任务id" + taskId, e);
                     }

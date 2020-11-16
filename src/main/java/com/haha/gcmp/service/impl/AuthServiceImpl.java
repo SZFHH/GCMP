@@ -13,6 +13,7 @@ import com.haha.gcmp.service.UserService;
 import com.haha.gcmp.utils.CookieUtil;
 import com.haha.gcmp.utils.GcmpUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -29,10 +30,14 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class AuthServiceImpl implements AuthService {
     private final AbstractStringCacheStore cacheStore;
-    private final UserService userService;
+    private UserService userService;
 
-    public AuthServiceImpl(AbstractStringCacheStore cacheStore, UserService userService) {
+    public AuthServiceImpl(AbstractStringCacheStore cacheStore) {
         this.cacheStore = cacheStore;
+    }
+
+    @Autowired
+    public void setUserService(UserService userService) {
         this.userService = userService;
     }
 

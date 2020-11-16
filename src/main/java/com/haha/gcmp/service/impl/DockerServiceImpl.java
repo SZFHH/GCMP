@@ -18,6 +18,7 @@ import com.haha.gcmp.service.base.AbstractServerService;
 import com.haha.gcmp.utils.CollectionUtils;
 import com.haha.gcmp.utils.DockerUtils;
 import com.haha.gcmp.utils.FileUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -38,13 +39,21 @@ import static com.haha.gcmp.model.support.GcmpConst.PROTOCOL_TCP;
 @Service
 public class DockerServiceImpl extends AbstractServerService<DockerClient> implements DockerService {
     private final ImageMapper imageMapper;
-    private final AdminService adminService;
-    private final UserService userService;
+    private AdminService adminService;
+    private UserService userService;
 
-    public DockerServiceImpl(ImageMapper imageMapper, AdminService adminService, UserService userService, GcmpProperties gcmpProperties) {
+    public DockerServiceImpl(ImageMapper imageMapper, GcmpProperties gcmpProperties) {
         super(gcmpProperties);
         this.imageMapper = imageMapper;
+    }
+
+    @Autowired
+    public void setAdminService(AdminService adminService) {
         this.adminService = adminService;
+    }
+
+    @Autowired
+    public void setUserService(UserService userService) {
         this.userService = userService;
     }
 
@@ -91,6 +100,7 @@ public class DockerServiceImpl extends AbstractServerService<DockerClient> imple
         imageMapper.insert(image);
     }
 
+    @Override
     public void removeAllPulledOrCreatedImages(String tag) {
         int serverCount = getServerCount();
         for (int i = 0; i < serverCount; i++) {
@@ -201,6 +211,16 @@ public class DockerServiceImpl extends AbstractServerService<DockerClient> imple
     }
 
     @Override
+    public List<Image> listByOwnerId(int ownerId) {
+        return imageMapper.listByOwner(ownerId);
+    }
+
+    @Override
+    public void removeById(int id) {
+        imageMapper.removeById(id);
+    }
+
+    @Override
     public void addUserImage(ImageParam imageParam) {
         if (!isSufficientImageQuota()) {
             throw new BadRequestException("镜像数量达到限额！");
@@ -274,7 +294,6 @@ public class DockerServiceImpl extends AbstractServerService<DockerClient> imple
         DockerClient dockerClient = getClient(serverId);
         DockerUtils.removeImage(dockerClient, tag);
     }
-
 
     @Override
     protected DockerClient doInitClientContainer(ServerProperty serverProperty) {

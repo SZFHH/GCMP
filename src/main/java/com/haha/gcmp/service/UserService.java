@@ -80,7 +80,7 @@ public interface UserService {
     int updateDockerQuota(User user);
 
     /**
-     * 删除用户，删除数据库记录及所有服务器上的文件，docker镜像
+     * 删除用户，删除数据库记录及所有服务器上的文件，docker镜像，任务
      *
      * @param userId user id
      */

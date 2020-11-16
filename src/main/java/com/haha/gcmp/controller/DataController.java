@@ -57,7 +57,7 @@ public class DataController {
 
     @PostMapping("/dir")
     public void newDir(@RequestBody DataParam dataParam) {
-        dataService.newDir(dataParam);
+        dataService.newRelativeDir(dataParam);
     }
 
     @PostMapping("copy")
@@ -67,7 +67,7 @@ public class DataController {
 
     @DeleteMapping("")
     public void remove(@RequestBody DataParam dataParam) {
-        dataService.remove(dataParam);
+        dataService.removeRelativePath(dataParam);
     }
 
     @GetMapping("")
@@ -96,5 +96,10 @@ public class DataController {
     @GetMapping("/common")
     public List<Data> listCommonDataset() {
         return dataService.listCommonDataset();
+    }
+
+    @PostMapping("/sync_common")
+    public void syncCommonData() {
+        dataService.syncCommonData();
     }
 }

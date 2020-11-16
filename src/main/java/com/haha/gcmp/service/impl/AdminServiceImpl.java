@@ -4,7 +4,9 @@ import com.haha.gcmp.config.propertites.GcmpProperties;
 import com.haha.gcmp.model.entity.User;
 import com.haha.gcmp.model.params.UserParam;
 import com.haha.gcmp.service.AdminService;
+import com.haha.gcmp.service.DataService;
 import com.haha.gcmp.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -15,14 +17,25 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class AdminServiceImpl implements AdminService {
-    private final UserService userService;
+    private UserService userService;
+    private DataService dataService;
     private final GcmpProperties gcmpProperties;
     private int adminId;
 
-    public AdminServiceImpl(UserService userService, GcmpProperties gcmpProperties) {
-        this.userService = userService;
+
+    public AdminServiceImpl(GcmpProperties gcmpProperties) {
         this.gcmpProperties = gcmpProperties;
         this.adminId = -1;
+    }
+
+    @Autowired
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
+    @Autowired
+    public void setDataService(DataService dataService) {
+        this.dataService = dataService;
     }
 
     @Override
@@ -35,6 +48,11 @@ public class AdminServiceImpl implements AdminService {
     public void initialize(UserParam registerParam) {
         registerParam.setUsername(gcmpProperties.getAdminName());
         userService.createUser(registerParam);
+        int size = gcmpProperties.getServerProperties().size();
+        String commonDataRoot = gcmpProperties.getCommonDataRoot();
+        for (int i = 0; i < size; ++i) {
+            dataService.newAbsoluteDir(commonDataRoot, i);
+        }
     }
 
     @Override

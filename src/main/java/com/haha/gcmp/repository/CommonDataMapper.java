@@ -40,4 +40,11 @@ public interface CommonDataMapper {
      * @return changed lines
      */
     int insert(Data data);
+
+    /**
+     * 删除所有的公共数据集记录
+     *
+     * @return changed lines
+     */
+    int removeAll();
 }

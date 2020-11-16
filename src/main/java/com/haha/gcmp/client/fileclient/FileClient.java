@@ -44,18 +44,11 @@ public interface FileClient {
     void mergeFiles(List<String> fileList, String targetFilePath);
 
     /**
-     * 删除服务器文件
+     * 递归删除服务器文件（夹）
      *
-     * @param remotePath 服务器上文件绝对路径
+     * @param remotePath 服务器上文件（夹）绝对路径
      */
-    void removeFile(String remotePath);
-
-    /**
-     * 递归删除服务器文件夹
-     *
-     * @param remotePath 服务器上文件夹绝对路径
-     */
-    void removeDir(String remotePath);
+    void remove(String remotePath);
 
     /**
      * 解压服务器上的压缩包

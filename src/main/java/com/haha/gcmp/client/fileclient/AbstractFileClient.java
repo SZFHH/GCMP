@@ -37,9 +37,9 @@ public abstract class AbstractFileClient<T> extends AbstractSshClient implements
 
 
     @Override
-    public void removeDir(String remotePath) {
+    public void remove(String remotePath) {
         String cmd = "rm -rf " + remotePath;
-        String msg = String.format("删除文件夹异常。服务器:%s 文件夹: %s", hostName, remotePath);
+        String msg = String.format("删除文件（夹）异常。服务器:%s 文件（夹）: %s", hostName, remotePath);
         execShellCmd(cmd, msg);
     }
 
@@ -111,13 +111,6 @@ public abstract class AbstractFileClient<T> extends AbstractSshClient implements
         execShellCmd(cmd, msg);
     }
 
-    @Override
-    public void removeFile(String remotePath) {
-//        System.out.println(remotePath);
-        String cmd = "rm -f " + remotePath;
-        String msg = String.format("删除文件异常。服务器:%s 文件: %s", hostName, remotePath);
-        execShellCmd(cmd, msg);
-    }
 
     @Override
     public void mkdirs(String dirPath, String permission) {
@@ -162,7 +155,7 @@ public abstract class AbstractFileClient<T> extends AbstractSshClient implements
     @Override
     public void removeDirIfExists(String dirPath) {
         if (checkDirectoryExists(dirPath)) {
-            removeDir(dirPath);
+            remove(dirPath);
         }
     }
 

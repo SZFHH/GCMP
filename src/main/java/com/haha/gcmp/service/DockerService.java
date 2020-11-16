@@ -56,6 +56,13 @@ public interface DockerService {
     void addCommonImage(ImageParam imageParam);
 
     /**
+     * 删掉每个服务器上已经拉取的或者创建的镜像
+     *
+     * @param tag image tag
+     */
+    void removeAllPulledOrCreatedImages(String tag);
+
+    /**
      * 删除公共镜像
      *
      * @param imageId image id
@@ -160,4 +167,19 @@ public interface DockerService {
      * @return changed lines
      */
     int updateCommonImage(ImageParam imageParam);
+
+    /**
+     * 根据所有者id，获取其所有镜像
+     *
+     * @param ownerId owner id
+     * @return list of images
+     */
+    List<Image> listByOwnerId(int ownerId);
+
+    /**
+     * 根据镜像id，删除镜像
+     *
+     * @param id image id
+     */
+    void removeById(int id);
 }

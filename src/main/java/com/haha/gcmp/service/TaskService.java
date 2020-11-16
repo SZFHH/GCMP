@@ -57,5 +57,13 @@ public interface TaskService {
      */
     String getTaskLogPath(Task task);
 
+    /**
+     * 获取用户的所有task
+     *
+     * @param userId user id
+     * @return list of task
+     */
+    List<Task> listByUserId(int userId);
+
 
 }

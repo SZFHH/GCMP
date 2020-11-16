@@ -65,4 +65,12 @@ public interface UserMapper {
      * @return changed lines
      */
     int updateDockerQuota(User user);
+
+    /**
+     * 删除用户
+     *
+     * @param id user id
+     * @return changed lines
+     */
+    int removeById(int id);
 }

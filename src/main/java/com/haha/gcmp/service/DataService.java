@@ -34,7 +34,15 @@ public interface DataService {
      *
      * @param dataParam must not be null
      */
-    void remove(DataParam dataParam);
+    void removeRelativePath(DataParam dataParam);
+
+    /**
+     * 删除文件（夹）
+     *
+     * @param absolutePath absolute path
+     * @param serverId     server id
+     */
+    void removeAbsolutePath(String absolutePath, int serverId);
 
     /**
      * 获取用户数据的绝对路径
@@ -97,11 +105,19 @@ public interface DataService {
     void copy(DataMoveParam dataMoveParam);
 
     /**
-     * 新建文件夹
+     * 以相对用户根目录，管理员根目录的路径新建文件夹
      *
      * @param dataParam must not be null
      */
-    void newDir(DataParam dataParam);
+    void newRelativeDir(DataParam dataParam);
+
+    /**
+     * 以绝对路径新建文件夹
+     *
+     * @param absolutePath absolute path
+     * @param serverId     server id
+     */
+    void newAbsoluteDir(String absolutePath, int serverId);
 
     /**
      * 下载文件（非分片传输）
@@ -117,4 +133,16 @@ public interface DataService {
      * @return list of data
      */
     List<Data> listCommonDataset();
+
+    /**
+     * 把公共数据集信息同步到数据库
+     */
+    void syncCommonData();
+
+    /**
+     * 删除temp file表中用户的记录
+     *
+     * @param userId user id
+     */
+    void removeTempFileByUserId(int userId);
 }
