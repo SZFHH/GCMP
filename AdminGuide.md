@@ -6,7 +6,7 @@
 
 账号是分配制的，不支持个人注册。由管理员设置用户名，密码（同用户名），私人镜像数量。
 
-[![DEIkSs.jpg](https://s3.ax1x.com/2020/11/17/DEIkSs.jpg)](https://imgchr.com/i/DEIkSs)
+![admin_user_info.jpg](https://i.loli.net/2020/11/17/T8ZanrxRMGyLg4C.jpg)
 
 注销账户会导致跟该用户相关的所有信息都被删除，包括用户文件，用户镜像，用户任务。
 
@@ -29,7 +29,7 @@
 
 所以在默认配置下管理员看到的文件页面如下：
 
-[![DEoSj1.png](https://s3.ax1x.com/2020/11/17/DEoSj1.png)](https://imgchr.com/i/DEoSj1)
+![admin_data.png](https://i.loli.net/2020/11/17/ZN2nwxPBXuFgoch.png)
 
 以上描述的是每台工作节点（带GPU服务器）上的文件目录结构。
 

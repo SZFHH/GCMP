@@ -59,41 +59,40 @@ java程序运行在主节点上，以下几个是关键配置：
 ### 预览图
 
 用户 - 登录
-[![user_login](https://s3.ax1x.com/2020/11/16/DE1ing.jpg)](https://imgchr.com/i/DE1ing)
+![user_login.jpg](https://i.loli.net/2020/11/17/lAU7jqo5LPRbIty.jpg)
 
 用户 - 我的任务
-[![user_task](https://s3.ax1x.com/2020/11/16/DE1FBQ.jpg)](https://imgchr.com/i/DE1FBQ)
+![user_task.jpg](https://i.loli.net/2020/11/17/L3y4pRIr9jmW1fM.jpg)
 
 用户 - 我的文件
-[![user_data.jpg](https://s3.ax1x.com/2020/11/16/DE19c8.jpg)](https://imgchr.com/i/DE19c8)
+![user_data.jpg](https://i.loli.net/2020/11/17/djFAbTXmfkPiKZx.jpg)
 
 用户 - 我的镜像
-[![user_image](https://s3.ax1x.com/2020/11/16/DE1CjS.jpg)](https://imgchr.com/i/DE1CjS)
+![user_image.jpg](https://i.loli.net/2020/11/17/wnx3eAOWaLf94Xo.jpg)
 
 用户 - 公共镜像
-[![user_common_image](https://s3.ax1x.com/2020/11/16/DE1p1f.jpg)](https://imgchr.com/i/DE1p1f)
+![user_common_image.jpg](https://i.loli.net/2020/11/17/IV3GHu68cmRvirY.jpg)
 
 用户 - 公共数据集
-[![user_common_data](https://s3.ax1x.com/2020/11/16/DE1S9P.jpg)](https://imgchr.com/i/DE1S9P)
+![user_common_data.jpg](https://i.loli.net/2020/11/17/ejxH4d98rwpFEK3.jpg)
 
 管理员 - 用户管理
-[![admin_userinfo.jpg](https://s3.ax1x.com/2020/11/16/DElqne.jpg)](https://imgchr.com/i/DElqne)
+![admin_user_info.jpg](https://i.loli.net/2020/11/17/2TRWUIvs3JZuXKY.jpg)
 
 管理员 - 任务管理
-[![admin_task.jpg](https://s3.ax1x.com/2020/11/16/DElL0H.jpg)](https://imgchr.com/i/DElL0H)
+![admin_task.jpg](https://i.loli.net/2020/11/17/qN3wbkHmoQa7pGC.jpg)
 
 管理员 - 文件管理
-[![admin_data.jpg](https://s3.ax1x.com/2020/11/16/DElvtI.jpg)](https://imgchr.com/i/DElvtI)
+![admin_data.jpg](https://i.loli.net/2020/11/17/HDJVoX7uOftaecm.jpg)
 
 管理员 - 公共镜像管理
-[![admin_common_image.jpg](https://s3.ax1x.com/2020/11/16/DElO7d.jpg)](https://imgchr.com/i/DElO7d)
+![admin_common_image.jpg](https://i.loli.net/2020/11/17/1yL6tXilnYUaFzc.jpg)
 
 管理员 - 公共数据集管理
-[![admin_common_data.jpg](https://s3.ax1x.com/2020/11/16/DEljAA.jpg)](https://imgchr.com/i/DEljAA)
+![admin_common_data.jpg](https://i.loli.net/2020/11/17/bQ8mjhHd1RlrXEI.jpg)
 
 服务器空闲资源资源
-[![server_status](https://s3.ax1x.com/2020/11/16/DElxht.jpg)](https://imgchr.com/i/DElxht)
-
+![server_status.jpg](https://i.loli.net/2020/11/17/mu1jtc7i3oMhwO6.jpg)
 
 
 ### 使用指南

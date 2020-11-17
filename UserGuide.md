@@ -52,7 +52,7 @@
 
 **上传**
 
-[![DEdaFS.png](https://s3.ax1x.com/2020/11/16/DEdaFS.png)](https://imgchr.com/i/DEdaFS)
+![user_task小框.png](https://i.loli.net/2020/11/17/nreRmUVvZA3yMCF.png)
 
 先选服务器，再选GPU数，选择GPU数按钮下拉后能看到的就是所有可选的数字（1-剩余GPU数），这个数字是实时更新的，但如果刚好有两个人一起选，有一个人提交任务时就会报错了，这时重新选GPU数就好了，或者换服务器。
 
@@ -64,7 +64,8 @@
 
 **查看训练过程**
 
-[![DEdLFO.png](https://s3.ax1x.com/2020/11/17/DEdLFO.png)](https://imgchr.com/i/DEdLFO)
+![user_task_log.png](https://i.loli.net/2020/11/17/xodBmrCFk6b2jEN.png)
+
 
 
 
