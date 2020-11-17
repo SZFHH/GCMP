@@ -182,14 +182,18 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public void cancelTask(int taskId) {
         Task task = taskMapper.getById(taskId);
+        // 删除状态优先级是最高的，无论当前任务状态是什么都可以覆盖，TaskCleaner看到DELETED状态就不会更新任务状态了。
         task.setStatus(DELETED);
         taskMapper.updateStatus(task);
+        // 可能和TaskCleaner处理任务完成或失败的逻辑有并发冲突，即使让TaskCleaner抢先了也没关系。
+        // 两者都会删除pod，归还GPU。
         if (taskMapper.casUpdateRemoved(taskId) != 0) {
             String podName = task.getPodName();
             try {
                 k8sApi.deleteNamespacedPod(podName, "default", "true", null, null,
                     2, null, null);
             } catch (ApiException e) {
+                // RETRY状态见TaskCleaner中的注释
                 task.setStatus(RETRY);
                 taskMapper.insert(task);
                 throw new ServiceException("k8s删除pod异常, pod名：" + podName, e);
@@ -305,6 +309,13 @@ public class TaskServiceImpl implements TaskService {
         return podFile;
     }
 
+    /**
+     * 定时从K8S pod获取最新的状态，更新数据库，释放GPU
+     * 用removed字段控制删除pod时的并发冲突，removed为1代表已经有代码在进行pod删除了。
+     * 用status字段表示任务状态，除了四个pod状态：PENDING,RUNNING,SUCCEEDED,FAILED，还加了两个DELETED和RETRY。
+     * DELETED表示用户要删掉的任务，RETRY表示删除pod时出现异常，需要再次尝试的任务。
+     * 状态为DELETED的任务记录每隔一段时间一定会被删除，RETRY的任务记录在再次尝试成功后会被删除。
+     */
     private class TaskCleaner implements Runnable {
         private final Logger log = LoggerFactory.getLogger(TaskCleaner.class);
 
@@ -315,8 +326,8 @@ public class TaskServiceImpl implements TaskService {
                 TaskStatusType status = task.getStatus();
                 int taskId = task.getId();
 
+                // DELETED表示用户要删除的任务，pod在用户发起删除指令时删除，这里只需要删除数据库记录和持久化的日志。
                 if (status == DELETED) {
-
                     taskMapper.removeById(taskId);
 
                     try {
@@ -325,6 +336,8 @@ public class TaskServiceImpl implements TaskService {
                     } catch (IOException e) {
                         log.error("删除训练任务日志异常，任务id" + taskId, e);
                     }
+
+                    // RUNNING表示任务正在运行，需要从pod获取最新的状态
                 } else if (status == RUNNING) {
                     TaskStatusType latestStatus = null;
 
@@ -333,7 +346,10 @@ public class TaskServiceImpl implements TaskService {
                     } catch (ApiException e) {
                         log.error("k8s获取pod状态异常pod名：" + task.getPodName(), e);
                     }
+                    // 如果pod已经完成了任务，就删除pod，持久化日志，释放GPU，更新数据库
                     if (latestStatus == SUCCEEDED || latestStatus == FAILED) {
+                        // 尝试删除pod节点，可能有并发冲突的地方是cancelTask，也就是用户发起删除指令。
+                        // 如果删除命令抢先了，就不用往下执行持久化日志之类的操作了，反正任务最终会被删掉。
                         if (taskMapper.casUpdateRemoved(taskId) != 0) {
 
                             String podName = task.getPodName();
@@ -343,6 +359,7 @@ public class TaskServiceImpl implements TaskService {
                                 log.error("保存训练任务日志异常，任务id" + taskId, e);
                             }
                             task.setStatus(latestStatus);
+                            // 如果在上面代码执行过程中，用户发起了删除命令，就不更新状态
                             taskMapper.casUpdateStatus(task);
                             try {
                                 try {
@@ -351,6 +368,7 @@ public class TaskServiceImpl implements TaskService {
                                 }
                                 serverStatusService.returnGpus(task.getServerId(), task.getGpus());
                             } catch (ApiException e) {
+                                // 如果删除pod的时候出现网络异常等问题，就把这个任务状态设为RETRY，重新加入数据库中
                                 task.setStatus(RETRY);
                                 taskMapper.insert(task);
                                 log.error("k8s删除pod异常，pod名：" + podName, e);
@@ -358,6 +376,7 @@ public class TaskServiceImpl implements TaskService {
 
                         }
                     }
+                    // 正在创建中的任务状态为PENDING
                 } else if (status == PENDING) {
                     TaskStatusType latestStatus = null;
                     try {
@@ -366,9 +385,13 @@ public class TaskServiceImpl implements TaskService {
                         log.error("k8s获取pod状态异常pod名：" + task.getPodName(), e);
                     }
                     if (latestStatus != PENDING) {
+                        // 不管最新的状态是什么，都先设置为RUNNING，之后由RUNNING处理逻辑再去更新
                         task.setStatus(RUNNING);
+                        // 不能和删除命令冲突
                         taskMapper.casUpdateStatus(task);
                     }
+
+                    // 再次尝试删除之前删除失败的pod
                 } else if (status == RETRY) {
                     String podName = task.getPodName();
                     try {
