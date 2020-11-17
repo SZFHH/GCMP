@@ -268,7 +268,8 @@ public class TaskServiceImpl implements TaskService {
         sb.append(cmd);
         String withPyPkgCmd = sb.toString();
 
-        String mountPath = dataService.getUserDataPath("");
+        String userDataPath = dataService.getUserDataPath("");
+        String commonDataRoot = gcmpProperties.getCommonDataRoot();
         String nodeName = gcmpProperties.getServerProperties().get(serverId).getHostName();
         String podFile = String.format(
             "apiVersion: v1\n" +
@@ -284,19 +285,23 @@ public class TaskServiceImpl implements TaskService {
                 "      command: [ \"/bin/bash\", \"-c\", \"%s\" ]\n" +
                 "      volumeMounts:\n" +
                 "      - mountPath: %s\n" +
-                "        name: gcmp-volume\n" +
+                "        name: user-data\n" +
+                "      - mountPath: %s\n" +
+                "        name: common-data\n" +
                 "      resources:\n" +
                 "        limits:\n" +
                 "          nvidia.com/gpu: %s # requesting 1 GPUs\n" +
                 "  volumes:\n" +
-                "  - name: gcmp-volume\n" +
+                "  - name: user-data\n" +
                 "    hostPath:\n" +
-                "      # directory location on host\n" +
                 "      path: %s\n" +
-                "      # this field is optional\n" +
+                "      type: DirectoryOrCreate\n" +
+                "  - name: common-data\n" +
+                "    hostPath:\n" +
+                "      path: %s\n" +
                 "      type: DirectoryOrCreate\n" +
                 "  nodeName: %s",
-            podName, image.getTag(), mountPath, withPyPkgCmd, mountPath, gpus, mountPath, nodeName.toLowerCase());
+            podName, image.getTag(), userDataPath, withPyPkgCmd, userDataPath, commonDataRoot, gpus, userDataPath, commonDataRoot, nodeName.toLowerCase());
         return podFile;
     }
 
