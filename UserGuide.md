@@ -6,7 +6,7 @@
 
 每个用户拥有一个自己的文件夹，彼此独立。该文件夹的绝对路径为：**data-root/用户名**，其中data-root由管理员设定，默认是/raid/gcmp/data。所以以用户user0为例，其上传的所有文件都是在/raid/gcmp/data/user0目录下，这个目录也是user0能访问的最顶层目录（也就是下图中的 **...**）。
 
-[![DEURBV.png](https://s3.ax1x.com/2020/11/16/DEURBV.png)](https://imgchr.com/i/DEURBV)
+![用户文件小框.png](https://i.loli.net/2020/11/17/7ga4ZrcGU2IkxlM.png)
 
 **操作**
 
