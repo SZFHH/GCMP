@@ -40,6 +40,10 @@ kubectl taint node k8s-master node-role.kubernetes.io/master-
 
 请移步[slave配置](https://github.com/SZFHH/GCMP/blob/master/config/slave_k8s.txt)
 
+#### 数据库建表
+
+建表脚本：gcmp.sql
+
 #### 启动主程序
 
 java程序运行在主节点上，以下几个是关键配置：
