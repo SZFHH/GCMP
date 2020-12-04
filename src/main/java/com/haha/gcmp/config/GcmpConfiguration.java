@@ -32,15 +32,6 @@ public class GcmpConfiguration {
         return builder.build();
     }
 
-//    @Bean
-//    public RestTemplate httpsRestTemplate(RestTemplateBuilder builder)
-//        throws NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
-//        RestTemplate httpsRestTemplate = builder.build();
-//        httpsRestTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(HttpClientUtils.createHttpsClient(
-//            (int) haloProperties.getDownloadTimeout().toMillis())));
-//        return httpsRestTemplate;
-//    }
-
     @Bean
     @ConditionalOnMissingBean
     public AbstractStringCacheStore stringCacheStore() {
@@ -53,7 +44,6 @@ public class GcmpConfiguration {
                 break;
 
         }
-        log.info("halo cache store load impl : [{}]", stringCacheStore.getClass());
         return stringCacheStore;
 
     }
