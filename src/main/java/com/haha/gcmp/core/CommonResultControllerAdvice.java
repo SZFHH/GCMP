@@ -16,7 +16,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 
 /**
- * Exception handler of controller
+ * 把普通的返回值包装为BaseResponse
  *
  * @author SZFHH
  * @date 2020/11/4

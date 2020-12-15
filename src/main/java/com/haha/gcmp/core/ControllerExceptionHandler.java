@@ -24,7 +24,7 @@ import javax.validation.ConstraintViolationException;
 import java.util.Map;
 
 /**
- * 把普通的返回值包装为BaseResponse
+ * Exception handler of controller
  *
  * @author SZFHH
  * @date 2020/11/4
