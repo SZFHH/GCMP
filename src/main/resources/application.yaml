@@ -28,7 +28,7 @@ mybatis:
 #  configuration:
 #    map-underscore-to-camel-case: true
 gcmp:
-  pypiSource: https://pypi.tuna.tsinghua.edu.cn/simple
+  pypi-source: https://pypi.tuna.tsinghua.edu.cn/simple
   k8s-config-file-path: "src/main/resources/config"
   ftp-type: ftp
   admin-name: admin
