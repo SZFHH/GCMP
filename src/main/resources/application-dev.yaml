@@ -5,7 +5,10 @@ spring:
   servlet:
     multipart:
       max-file-size: 8388608
-
+  devtools:
+    restart:
+      enabled: true  #设置开启热部署
+  #      additional-paths: src/main/java #重启目录
   #数据库连接配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -15,7 +18,7 @@ spring:
   thymeleaf:
     mode: HTML5
     encoding: UTF-8
-
+    cache: false
 
 #mybatis的相关配置
 mybatis:
@@ -127,6 +130,6 @@ sftp-pool:
 
 logging:
   level:
-    com.haha.gcmp: INFO
+    com.haha.gcmp: DEBUG
   file:
     path: ${user.home}/.gcmp/logs
