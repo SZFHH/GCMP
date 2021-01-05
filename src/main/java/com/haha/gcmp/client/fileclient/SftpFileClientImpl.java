@@ -5,11 +5,13 @@ import com.haha.gcmp.client.fileclient.pool.SftpClientFactory;
 import com.haha.gcmp.client.fileclient.pool.SftpClientPool;
 import com.haha.gcmp.config.propertites.FileSshPoolConfig;
 import com.haha.gcmp.config.propertites.SftpPoolConfig;
+import com.haha.gcmp.exception.BadRequestException;
 import com.haha.gcmp.exception.ServiceException;
 import com.haha.gcmp.model.entity.Data;
 import com.haha.gcmp.model.entity.ServerProperty;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,6 +65,12 @@ public class SftpFileClientImpl extends AbstractFileClient<SftpClient> {
             throw new ServiceException("下载文件:" + remoteFilePath + " 从服务器:" + hostName + "异常。", e);
 
         }
+    }
+
+    @Override
+    protected InputStream doGetInputStream(String remoteFilePath, SftpClient ftpClient) {
+        throw new BadRequestException("Sftp不支持流下载。");
+
     }
 }
 

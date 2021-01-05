@@ -70,4 +70,15 @@ public class FtpFileClientImpl extends AbstractFileClient<FTPClient> {
 
         }
     }
+
+    @Override
+    protected InputStream doGetInputStream(String remoteFilePath, FTPClient ftpClient) {
+        try {
+            return ftpClient.retrieveFileStream(remoteFilePath);
+        } catch (IOException e) {
+            throw new ServiceException("下载文件:" + remoteFilePath + " 从服务器:" + hostName + "异常。", e);
+
+        }
+    }
+
 }

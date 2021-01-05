@@ -22,10 +22,14 @@ import com.haha.gcmp.service.UserService;
 import com.haha.gcmp.service.base.AbstractServerService;
 import com.haha.gcmp.utils.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -267,6 +271,7 @@ public class DataServiceImpl extends AbstractServerService<FileClient> implement
     public byte[] getFile(DataParam dataParam) {
         String absolutePath = getUserDataPath(dataParam.getRelativePath());
         FileClient fileClient = getClient(dataParam.getServerId());
+
         return fileClient.get(absolutePath);
 
     }
@@ -291,5 +296,17 @@ public class DataServiceImpl extends AbstractServerService<FileClient> implement
     @Override
     public void removeTempFileByUserId(int userId) {
         tempfileMapper.removeByUserId(userId);
+    }
+
+    @Override
+    public Resource loadFileAsResource(DataParam dataParam) {
+        String absolutePath = getUserDataPath(dataParam.getRelativePath());
+        FileClient fileClient = getClient(dataParam.getServerId());
+        if (gcmpProperties.getFtpType().equals(FTP_TYPE_SFTP)) {
+            byte[] file = getFile(dataParam);
+            return new ByteArrayResource(file);
+        }
+        InputStream inputStream = fileClient.getInputStream(absolutePath);
+        return new InputStreamResource(inputStream);
     }
 }

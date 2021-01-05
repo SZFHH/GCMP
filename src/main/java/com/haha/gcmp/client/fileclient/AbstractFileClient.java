@@ -11,6 +11,7 @@ import com.haha.gcmp.utils.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
@@ -233,4 +234,22 @@ public abstract class AbstractFileClient<T> extends AbstractSshClient implements
     }
 
     protected abstract byte[] doGet(String remoteFilePath, T ftpClient);
+
+    @Override
+    public InputStream getInputStream(String remoteFilePath) {
+        String reEncodedPath;
+        try {
+            reEncodedPath = new String(remoteFilePath.getBytes(LOCAL_CHARSET), SERVER_CHARSET);
+        } catch (UnsupportedEncodingException e) {
+            throw new ServiceException("编码异常", e);
+        }
+        T ftpClient = getFtpClient();
+        try {
+            return doGetInputStream(reEncodedPath, ftpClient);
+        } finally {
+            returnFtpClient(ftpClient);
+        }
+    }
+
+    protected abstract InputStream doGetInputStream(String remoteFilePath, T ftpClient);
 }

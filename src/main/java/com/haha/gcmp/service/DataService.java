@@ -4,6 +4,7 @@ import com.haha.gcmp.model.entity.Data;
 import com.haha.gcmp.model.entity.TempFile;
 import com.haha.gcmp.model.params.*;
 import com.haha.gcmp.model.support.CheckFileResult;
+import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -145,4 +146,12 @@ public interface DataService {
      * @param userId user id
      */
     void removeTempFileByUserId(int userId);
+
+    /**
+     * 以Resource形式返回文件，减少下载等待时间
+     *
+     * @param dataParam
+     * @return
+     */
+    Resource loadFileAsResource(DataParam dataParam);
 }

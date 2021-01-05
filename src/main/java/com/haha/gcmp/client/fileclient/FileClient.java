@@ -2,6 +2,7 @@ package com.haha.gcmp.client.fileclient;
 
 import com.haha.gcmp.model.entity.Data;
 
+import java.io.InputStream;
 import java.util.List;
 
 /**
@@ -135,4 +136,12 @@ public interface FileClient {
      * @param remotePath 服务器绝对路径
      */
     void chmod(String permission, String remotePath);
+
+    /**
+     * 获取服务器上文件的输入流
+     *
+     * @param absolutePath
+     * @return
+     */
+    InputStream getInputStream(String absolutePath);
 }
