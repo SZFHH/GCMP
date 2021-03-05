@@ -2,11 +2,11 @@ server:
   port: 8090
 
 spring:
+  profiles:
+    active: dev
   servlet:
     multipart:
       max-file-size: 8388608
-
-  #数据库连接配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://127.0.0.1:3306/gcmp?characterEncoding=utf-8&serverTimezone=UTC
@@ -16,14 +16,12 @@ spring:
     mode: HTML5
     encoding: UTF-8
 
-
 #mybatis的相关配置
 mybatis:
-  #mapper配置文件
   mapper-locations: classpath:mapper/*.xml
-#  #开启驼峰命名
 #  configuration:
 #    map-underscore-to-camel-case: true
+
 gcmp:
   pypi-source: https://pypi.tuna.tsinghua.edu.cn/simple
   k8s-config-file-path: "src/main/resources/config"
@@ -32,7 +30,6 @@ gcmp:
   server-properties:
     - { host-name: node1, host-ip: 192.168.0.107, username: root, password: 123456, gpus: 1, gpu-series: GTX1080 }
   #    - { hostName: scw4000-All-Series, hostIp: 192.168.137.143, username: scw4000, password: Group416, gpus: 1, gpuSeries: GTX1080 }
-
   docker-client-port: 2375
   gcmp-root: /raid/gcmp
   common-data-root: /raid/gcmp/commonDataset
@@ -57,7 +54,7 @@ ftp-pool:
   #最小空闲连接数
   min-idle: 2
   #申请连接时 检测是否有效
-  test-on-borrow: true
+  test-on-borrow: false
   #返回连接时 检测是否有效
   test-on-return: false
   #创建连接时 检测是否有效
@@ -77,7 +74,7 @@ file-ssh-pool:
   #最小空闲连接数
   min-idle: 2
   #申请连接时 检测是否有效
-  test-on-borrow: true
+  test-on-borrow: false
   #返回连接时 检测是否有效
   test-on-return: false
   #创建连接时 检测是否有效
@@ -97,7 +94,7 @@ status-ssh-pool:
   #最小空闲连接数
   min-idle: 1
   #申请连接时 检测是否有效
-  test-on-borrow: true
+  test-on-borrow: false
   #返回连接时 检测是否有效
   test-on-return: false
   #创建连接时 检测是否有效
